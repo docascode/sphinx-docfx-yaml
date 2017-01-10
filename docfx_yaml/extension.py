@@ -69,7 +69,7 @@ def extract_yaml(app, doctree, ignore_patterns):
             full_name += "({args})".format(args=', '.join(args))
 
         datam = {
-            'module': unicode(module),
+            'module': str(module),
             'uid': _id,
             'type': _type,
             'name': name,
@@ -105,7 +105,7 @@ def build_finished(app, exception):
         ensuredir(os.path.dirname(out_file))
         if app.verbosity > 1:
             app.info(bold('[docfx_yaml] ') + darkgreen('Outputting %s' % filename))
-        dump({'items': yaml_data}, file(out_file, 'w+'), default_flow_style=False)
+        dump({'items': yaml_data}, open(out_file, 'w+'), default_flow_style=False)
 
 
 def setup(app):

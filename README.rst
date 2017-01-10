@@ -2,13 +2,13 @@ Sphinx DocFX YAML
 =================
 
 .. image:: https://readthedocs.org/projects/sphinx-docfx-yaml/badge/?version=latest
-   :target: https://sphinx-docfx-yaml.readthedocs.org
+   :target: https://sphinx-docfx-yaml.readthedocs.io
    :alt: Documentation Status
 
-.. image:: https://travis-ci.org/rtfd/sphinx-docfx-yaml.svg?branch=master
+.. image:: https://travis-ci.org/ericholscher/sphinx-docfx-yaml.svg?branch=master
    :target: https://travis-ci.org/rtfd/sphinx-docfx-yaml
 
-.. image:: https://ci.appveyor.com/api/projects/status/5nd33gp2eq7411t1?svg=true
+.. image:: https://ci.appveyor.com/api/projects/status/m9t5a331de14mwfi/branch/master?svg=true
    :target: https://ci.appveyor.com/project/ericholscher/sphinx-docfx-yaml
 
 .. warning:: This is a pre-release version. Some or all features might not work yet.

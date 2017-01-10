@@ -1,0 +1,10 @@
+*.egg-info
+*.pyc
+*.swp
+.doctrees
+_build
+_api_
+.tox
+.eggs
+.ropeproject/
+.cache

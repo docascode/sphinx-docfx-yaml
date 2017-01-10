@@ -1,0 +1,65 @@
+items:
+- fullName: Foo
+  module: example.example
+  name: example.example.Foo
+  rst_source: /Users/eric/projects/sphinx-docfx-yaml/tests/pyexample/example/example.py:docstring
+    of example.example.Foo
+  summary: A sweet Foo class that does stuff.
+  type: class
+  uid: example.example.Foo
+- fullName: Foo.Meta
+  module: example.example
+  name: example.example.Foo.Meta
+  rst_source: /Users/eric/projects/sphinx-docfx-yaml/tests/pyexample/example/example.py:docstring
+    of example.example.Foo.Meta
+  summary: A nested class just to test things out
+  type: class
+  uid: example.example.Foo.Meta
+- fullName: Foo.Meta.foo
+  module: example.example
+  name: example.example.Foo.Meta.foo
+  rst_source: /Users/eric/projects/sphinx-docfx-yaml/tests/pyexample/example/example.py:docstring
+    of example.example.Foo.Meta.foo
+  summary: The foo class method
+  type: classmethod
+  uid: example.example.Foo.Meta.foo
+- fullName: Foo.another_class_var
+  module: example.example
+  name: example.example.Foo.another_class_var
+  rst_source: /Users/eric/projects/sphinx-docfx-yaml/tests/pyexample/example/example.py:docstring
+    of example.example.Foo.another_class_var
+  summary: Another class var docstring
+  type: attribute
+  uid: example.example.Foo.another_class_var
+- fullName: Foo.class_var
+  module: example.example
+  name: example.example.Foo.class_var
+  rst_source: /Users/eric/projects/sphinx-docfx-yaml/tests/pyexample/example/example.py:docstring
+    of example.example.Foo.class_var
+  summary: Class var docstring
+  type: attribute
+  uid: example.example.Foo.class_var
+- fullName: Foo.method_multiline
+  module: example.example
+  name: example.example.Foo.method_multiline
+  rst_source: /Users/eric/projects/sphinx-docfx-yaml/tests/pyexample/example/example.py:docstring
+    of example.example.Foo.method_multiline
+  summary: This is on multiple lines, but should parse okay too
+  type: method
+  uid: example.example.Foo.method_multiline
+- fullName: Foo.method_okay
+  module: example.example
+  name: example.example.Foo.method_okay
+  rst_source: /Users/eric/projects/sphinx-docfx-yaml/tests/pyexample/example/example.py:docstring
+    of example.example.Foo.method_okay
+  summary: This method should parse okay
+  type: method
+  uid: example.example.Foo.method_okay
+- fullName: Foo.method_tricky
+  module: example.example
+  name: example.example.Foo.method_tricky
+  rst_source: /Users/eric/projects/sphinx-docfx-yaml/tests/pyexample/example/example.py:docstring
+    of example.example.Foo.method_tricky
+  summary: This will likely fail our argument testing
+  type: method
+  uid: example.example.Foo.method_tricky

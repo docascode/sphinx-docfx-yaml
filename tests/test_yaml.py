@@ -38,7 +38,7 @@ class PythonTests(LanguageIntegrationTests):
 
     def test_integration(self):
         with sphinx_build('pyexample'):
-            data = yaml.safe_load(file('_build/text/docfx_yaml/example.example.yml'))
+            data = yaml.safe_load(open('_build/text/docfx_yaml/example.example.yml'))
             self.assertEqual(
                 data['items'][0]['name'],
                 'example.example.Foo'

@@ -1,4 +1,6 @@
 build: false
+before_build:
+  - nuget restore
 environment:
   matrix:
     - PYTHON: "C:/Python27"
@@ -8,5 +10,6 @@ install:
   - "%PYTHON%/Scripts/pip.exe --version"
   - "%PYTHON%/Scripts/pip.exe install tox"
 test_script:
+  - "docfx init -q"
   - "git clone https://github.com/aspnet/Identity %APPVEYOR_BUILD_FOLDER%/tests/dotnetexample/example/Identity"
   - "%PYTHON%/Scripts/tox.exe -e py27"

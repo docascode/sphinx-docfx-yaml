@@ -100,7 +100,7 @@ def build_finished(app, exception):
     if app.config.docfx_yaml_mode == 'module':
         iter_data = app.env.docfx_yaml_modules
 
-    for filename, yaml_data in iter_data.iteritems():
+    for filename, yaml_data in iter_data.items():
         out_file = os.path.join(normalized_output, '%s.yml' % filename)
         ensuredir(os.path.dirname(out_file))
         if app.verbosity > 1:

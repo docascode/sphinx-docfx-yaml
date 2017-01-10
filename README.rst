@@ -2,7 +2,7 @@ Sphinx DocFX YAML
 =================
 
 .. image:: https://travis-ci.org/ericholscher/sphinx-docfx-yaml.svg?branch=master
-   :target: https://travis-ci.org/rtfd/sphinx-docfx-yaml
+   :target: https://travis-ci.org/ericholscher/sphinx-docfx-yaml
 
 .. image:: https://ci.appveyor.com/api/projects/status/m9t5a331de14mwfi/branch/master?svg=true
    :target: https://ci.appveyor.com/project/ericholscher/sphinx-docfx-yaml

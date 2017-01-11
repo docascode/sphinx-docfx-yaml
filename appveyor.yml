@@ -1,15 +1,18 @@
-build: false
-before_build:
-  - nuget restore
-environment:
-  matrix:
-    - PYTHON: "C:/Python27"
+# Do not build on tags
+skip_tags: true
+
+clone_folder: c:\projects\sphinx-docfx-yaml
+
 install:
-  - ps: (new-object net.webclient).DownloadFile('https://bootstrap.pypa.io/get-pip.py', 'C:/get-pip.py')
-  - "%PYTHON%/python.exe C:/get-pip.py"
-  - "%PYTHON%/Scripts/pip.exe --version"
-  - "%PYTHON%/Scripts/pip.exe install tox"
-test_script:
-  - "docfx init -q"
-  - "git clone https://github.com/aspnet/Identity %APPVEYOR_BUILD_FOLDER%/tests/dotnetexample/example/Identity"
-  - "%PYTHON%/Scripts/tox.exe -e py27"
+  - ps: (new-object net.webclient).DownloadFile('https://github.com/dotnet/docfx/releases/download/v1.4/docfx.zip', 'c:\projects\sphinx-docfx-yaml\docfx.zip')
+  - cd c:\projects\sphinx-docfx-yaml
+  - 7z e docfx.zip -oc:\projects\sphinx-docfx-yaml\docfx
+
+build_script:
+  - cd c:\projects\sphinx-docfx-yaml
+  - cd docs
+  - ..\docfx\docfx.exe metadata
+  - ..\docfx\docfx.exe build
+  - 7z a "site.zip" "_site\*"
+  - cd ..
+

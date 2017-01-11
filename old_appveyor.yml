@@ -1,0 +1,15 @@
+build: false
+before_build:
+  - nuget restore
+environment:
+  matrix:
+    - PYTHON: "C:/Python27"
+install:
+  - ps: (new-object net.webclient).DownloadFile('https://bootstrap.pypa.io/get-pip.py', 'C:/get-pip.py')
+  - "%PYTHON%/python.exe C:/get-pip.py"
+  - "%PYTHON%/Scripts/pip.exe --version"
+  - "%PYTHON%/Scripts/pip.exe install tox"
+test_script:
+  - "docfx init -q"
+  - "git clone https://github.com/aspnet/Identity %APPVEYOR_BUILD_FOLDER%/tests/dotnetexample/example/Identity"
+  - "%PYTHON%/Scripts/tox.exe -e py27"

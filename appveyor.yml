@@ -21,5 +21,6 @@ install:
 build_script:
   - "%PYTHON%/Scripts/tox.exe -e py27"
   - cd c:\projects\sphinx-docfx-yaml
-  - ..\docfx\docfx.exe build
+  - dir
+  - docfx\docfx.exe build
 

@@ -19,7 +19,7 @@ build_script:
   # - "%PYTHON%/Scripts/tox.exe -e py27"
   - cd c:\projects\sphinx-docfx-yaml\docs
   - "%PYTHON%/Scripts/sphinx-build.exe -b html -d _build/doctrees . _build/html"
-  - dir _build/html/docfx_yaml
+  - dir _build\html\docfx_yaml
   - ..\docfx\docfx.exe build
   - dir
 

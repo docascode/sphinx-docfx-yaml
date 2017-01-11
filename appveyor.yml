@@ -23,7 +23,7 @@ build_script:
   - cd c:\projects\sphinx-docfx-yaml\docs
   - dir ..
   - dir
-  - dir ../tests/pyexample/_build/html
+  - dir ..\tests\pyexample\_build\html
   - "%PYTHON%/Scripts/sphinx-build.exe -b html -d _build/doctrees . _build/html"
   - dir
   - dir _build/html/

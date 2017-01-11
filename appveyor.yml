@@ -16,11 +16,15 @@ install:
   - ps: (new-object net.webclient).DownloadFile('https://bootstrap.pypa.io/get-pip.py', 'C:/get-pip.py')
   - "%PYTHON%/python.exe C:/get-pip.py"
   - "%PYTHON%/Scripts/pip.exe --version"
-  - "%PYTHON%/Scripts/pip.exe install tox"
+  - "%PYTHON%/Scripts/pip.exe install tox sphinx"
 
 build_script:
   - "%PYTHON%/Scripts/tox.exe -e py27"
+  - cd c:\projects\sphinx-docfx-yaml\docs
   - cd c:\projects\sphinx-docfx-yaml
   - dir
+  - "%PYTHON%/Scripts/sphinx-build.exe -b html -d _build/doctrees . _build/html"
+  - dir _build/html/
   - docfx\docfx.exe build
+  - dir
 

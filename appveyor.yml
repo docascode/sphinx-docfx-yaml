@@ -19,11 +19,15 @@ install:
   - "%PYTHON%/Scripts/pip.exe install tox sphinx"
 
 build_script:
-  - "%PYTHON%/Scripts/tox.exe -e py27"
+  # - "%PYTHON%/Scripts/tox.exe -e py27"
   - cd c:\projects\sphinx-docfx-yaml\docs
+  - dir ..
   - dir
+  - dir ../tests/pyexample/_build/html
   - "%PYTHON%/Scripts/sphinx-build.exe -b html -d _build/doctrees . _build/html"
+  - dir
   - dir _build/html/
   - ..\docfx\docfx.exe build
   - dir
+  - dir _build/html/
 

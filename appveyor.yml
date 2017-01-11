@@ -23,3 +23,6 @@ build_script:
   - ..\docfx\docfx.exe build
   - dir
 
+
+artifacts:
+  - path: 'c:\projects\sphinx-docfx-yaml\docs'

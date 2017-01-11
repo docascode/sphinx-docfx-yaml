@@ -1,18 +1,27 @@
 # Do not build on tags
-skip_tags: true
+build: false
+
+environment:
+  matrix:
+    - PYTHON: "C:/Python27"
 
 clone_folder: c:\projects\sphinx-docfx-yaml
 
 install:
+  # .NET
   - ps: (new-object net.webclient).DownloadFile('https://github.com/dotnet/docfx/releases/download/v1.4/docfx.zip', 'c:\projects\sphinx-docfx-yaml\docfx.zip')
   - cd c:\projects\sphinx-docfx-yaml
   - 7z e docfx.zip -oc:\projects\sphinx-docfx-yaml\docfx
+  # Python
+  - ps: (new-object net.webclient).DownloadFile('https://bootstrap.pypa.io/get-pip.py', 'C:/get-pip.py')
+  - "%PYTHON%/python.exe C:/get-pip.py"
+  - "%PYTHON%/Scripts/pip.exe --version"
+  - "%PYTHON%/Scripts/pip.exe install tox"
 
 build_script:
+  - "%PYTHON%/Scripts/tox.exe -e py27"
   - cd c:\projects\sphinx-docfx-yaml
   - cd docs
   - ..\docfx\docfx.exe metadata
   - ..\docfx\docfx.exe build
-  - 7z a "site.zip" "_site\*"
-  - cd ..
 

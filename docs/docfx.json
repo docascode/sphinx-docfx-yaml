@@ -3,7 +3,7 @@
     "content": [
       {
         "files": [ "**/*.yml" ],
-        "cwd": "docs/_build/html",
+        "cwd": "_build",
         "dest": "api"
       },
     ],

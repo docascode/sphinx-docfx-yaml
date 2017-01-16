@@ -69,7 +69,7 @@ def extract_yaml(app, doctree, ignore_patterns):
             full_name += "({args})".format(args=', '.join(args))
 
         # We need to map the Python type names to what DocFX is expecting
-        mapping = {
+        type_mapping = {
             'method': 'Method',
             'function': 'Method',
             'module': 'Namespace',
@@ -77,13 +77,12 @@ def extract_yaml(app, doctree, ignore_patterns):
         }
 
         try:
-            mapped_type = mapping[_type]
+            mapped_type = type_mapping[_type]
         except:
             print('Invalid Type Mapping: %s' % _type)
 
-
         datam = {
-            'module': str(module),
+            'namespace': str(module),
             'uid': _id,
             'type': mapped_type,
             'name': name,
@@ -91,7 +90,6 @@ def extract_yaml(app, doctree, ignore_patterns):
             'summary': summary,
             'rst_source': source,
         }
-
 
         items.append(datam)
         modules[module].append(datam)

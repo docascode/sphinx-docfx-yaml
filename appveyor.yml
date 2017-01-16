@@ -17,12 +17,12 @@ install:
 
 build_script:
   # - "%PYTHON%/Scripts/tox.exe -e py27"
-  - cd c:\projects\sphinx-docfx-yaml\docs
+  - cd c:\projects\sphinx-docfx-yaml
+  - "git clone https://github.com/Azure/azure-sdk-for-python/"
+  - cd azure-sdk-for-python
+  - pip install .
   - "%PYTHON%/Scripts/sphinx-build.exe -b html -d _build/doctrees . _build/html"
-  - dir _build\html\docfx_yaml
   - ..\docfx\docfx.exe build
-  - dir
-
 
 artifacts:
   - path: 'docs'

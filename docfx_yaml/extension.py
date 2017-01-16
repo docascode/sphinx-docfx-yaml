@@ -68,15 +68,29 @@ def extract_yaml(app, doctree, ignore_patterns):
         if args:
             full_name += "({args})".format(args=', '.join(args))
 
+        mapping = {
+            'method': 'Method',
+            'function': 'Method',
+            'module': 'Namespace',
+            'class': 'Class',
+        }
+
+        try:
+            mapped_type = mapping[_type]
+        except:
+            print('Invalid Type Mapping: %s' % _type)
+
+
         datam = {
             'module': str(module),
             'uid': _id,
-            'type': _type,
+            'type': mapped_type,
             'name': name,
             'fullName': full_name,
             'summary': summary,
             'rst_source': source,
         }
+
 
         items.append(datam)
         modules[module].append(datam)

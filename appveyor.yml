@@ -25,4 +25,4 @@ build_script:
 
 
 artifacts:
-  - path: 'c:\projects\sphinx-docfx-yaml\docs'
+  - path: 'docs'

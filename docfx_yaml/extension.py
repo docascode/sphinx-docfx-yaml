@@ -68,6 +68,7 @@ def extract_yaml(app, doctree, ignore_patterns):
         if args:
             full_name += "({args})".format(args=', '.join(args))
 
+        # We need to map the Python type names to what DocFX is expecting
         mapping = {
             'method': 'Method',
             'function': 'Method',

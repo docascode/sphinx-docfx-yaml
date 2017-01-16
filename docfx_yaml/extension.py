@@ -17,7 +17,19 @@ from sphinx import addnodes
 from .settings import API_ROOT
 
 
+class Extension(object):
+    """
+    This is just for testing.
+    """
+
+    pass
+
+
 def build_init(app):
+    """
+    Set up environment for later calls.
+    """
+
     if not app.config.docfx_yaml_output:
         raise ExtensionError('You must configure an docfx_yaml_output setting')
 
@@ -82,7 +94,7 @@ def extract_yaml(app, doctree, ignore_patterns):
             print('Invalid Type Mapping: %s' % _type)
 
         datam = {
-            'namespace': str(module),
+            'module': str(module),
             'uid': _id,
             'type': mapped_type,
             'name': name,

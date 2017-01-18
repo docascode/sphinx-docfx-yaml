@@ -65,7 +65,7 @@ def extract_yaml(app, doctree, ignore_patterns):
     Iterate over all Python domain objects and output YAML
     """
     items = []
-    modules = defaultdict(list)
+    modules = {}
 
     for desc_node in doctree.traverse(addnodes.desc):
         if desc_node.attributes['domain'] != 'py':
@@ -75,9 +75,24 @@ def extract_yaml(app, doctree, ignore_patterns):
             continue
 
         module = desc_node[0].attributes['module']
+
+        if module not in modules:
+            modules[module] = [{
+                'module': str(module),
+                'uid': str(module),
+                'type': 'Namespace',
+                '_type': 'module',
+                'name': str(module),
+                'children': []
+            }]
+
         _type = desc_node.attributes['objtype']
         full_name = desc_node[0].attributes['fullname']
-        _id = desc_node[0].attributes['ids'][0]
+        try:
+            _id = desc_node[0].attributes['ids'][0]
+        except:
+            _id = '{module}.{full_name}'.format(module=module, full_name=full_name)
+            print('Non-standard id: %s' % _id)
         name = desc_node[0].attributes['names'][0]
         source = desc_node[0].source
         summary = desc_node[1][0].astext()
@@ -114,19 +129,35 @@ def extract_yaml(app, doctree, ignore_patterns):
             'rst_source': source,
         }
 
-        if _type in ['class', 'module']:
-            datam['children'] = []
-        elif _type == 'method':
-            insert_module = modules[datam['module']]
-            if insert_module and 'children' in insert_module[0]:
-                insert_module[0]['children'].append(datam['uid'])
-            else:
-                print('Module has no children: %s' % datam['module'])
+        if _type == 'method':
+            datam['class'] = '.'.join(name.split('.')[:-1])
 
+        insert_children(_type, datam, modules)
         items.append(datam)
+
         modules[module].append(datam)
 
     return (items, modules)
+
+
+def insert_children(_type, datam, modules):
+    if _type in ['class', 'module']:
+        datam['children'] = []
+    elif _type in ['method', 'function']:
+        insert_module = modules[datam['module']]
+        for obj in insert_module:
+            if _type == 'method' and \
+            obj['_type'] == 'class' and \
+            obj['uid'] == datam['class']:
+                obj['children'].append(datam['uid'])
+                break
+            elif _type == 'function' and \
+            obj['_type'] == 'module' and \
+            obj['module'] == datam['module']:
+                obj['children'].append(datam['uid'])
+                break
+        else:
+            print('Module has no children: %s' % datam['module'])
 
 
 def build_finished(app, exception):

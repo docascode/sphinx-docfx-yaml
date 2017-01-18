@@ -22,8 +22,10 @@ build_script:
   - "git clone https://github.com/Azure/azure-sdk-for-python/"
   - cd azure-sdk-for-python
   - python setup.py install
+  - cd doc
   - "%PYTHON%/Scripts/sphinx-build.exe -b html -d _build/doctrees . _build/html"
   - ..\docfx\docfx.exe build
 
 artifacts:
-  - path: 'docs'
+  # - path: 'docs'
+  - path: 'azure-sdk-for-python/doc/'

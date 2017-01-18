@@ -131,6 +131,8 @@ def extract_yaml(app, doctree, ignore_patterns):
 
         if _type == 'method':
             datam['class'] = '.'.join(name.split('.')[:-1])
+        if _type == 'class':
+            datam['children'] = []
 
         insert_children(_type, datam, modules)
         items.append(datam)
@@ -141,19 +143,17 @@ def extract_yaml(app, doctree, ignore_patterns):
 
 
 def insert_children(_type, datam, modules):
-    if _type in ['class', 'module']:
-        datam['children'] = []
-    elif _type in ['method', 'function']:
+    if _type in ['method', 'function', 'class']:
         insert_module = modules[datam['module']]
         for obj in insert_module:
             if _type == 'method' and \
-            obj['_type'] == 'class' and \
-            obj['uid'] == datam['class']:
+                    obj['_type'] == 'class' and \
+                    obj['uid'] == datam['class']:
                 obj['children'].append(datam['uid'])
                 break
-            elif _type == 'function' and \
-            obj['_type'] == 'module' and \
-            obj['module'] == datam['module']:
+            elif _type in ['class', 'function'] and \
+                    obj['_type'] == 'module' and \
+                    obj['module'] == datam['module']:
                 obj['children'].append(datam['uid'])
                 break
         else:

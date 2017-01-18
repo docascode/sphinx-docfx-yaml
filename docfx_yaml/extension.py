@@ -24,6 +24,16 @@ class Extension(object):
 
     pass
 
+    def foo(self):
+        """
+        Foo test method
+        """
+
+    def bar(self, woot):
+        """
+        Test bar method
+        """
+
 
 def build_init(app):
     """

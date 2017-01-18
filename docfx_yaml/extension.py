@@ -97,11 +97,21 @@ def extract_yaml(app, doctree, ignore_patterns):
             'module': str(module),
             'uid': _id,
             'type': mapped_type,
+            '_type': _type,
             'name': name,
             'fullName': full_name,
             'summary': summary,
             'rst_source': source,
         }
+
+        if _type in ['class', 'module']:
+            datam['children'] = []
+        elif _type == 'method':
+            insert_module = modules[datam['module']]
+            if insert_module and 'children' in insert_module[0]:
+                insert_module[0]['children'].append(datam['uid'])
+            else:
+                print('Module has no children: %s' % datam['module'])
 
         items.append(datam)
         modules[module].append(datam)

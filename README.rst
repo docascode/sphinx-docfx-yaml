@@ -18,8 +18,8 @@ Contents
    :glob:
    :maxdepth: 2
 
-   config
    design
+   api
 
 Basic Workflow
 --------------
@@ -48,8 +48,6 @@ Then add it to your Sphinx project's ``conf.py``:
 
 This is needed because we will be outputting rst files into the ``docfx-yaml``
 directory.  
-
-See all available configuration options in :doc:`config`.
 
 Modes
 -----

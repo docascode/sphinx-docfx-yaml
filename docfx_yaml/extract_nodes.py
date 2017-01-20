@@ -9,7 +9,9 @@ In order to build the approach going forward,
 a bit more work needs to be done to pull docstrings in raw format.
 """
 
-from sphinx.util.console import darkgreen, bold, red
+from .extension import TYPE_MAPPING, insert_children
+
+from sphinx.util.console import bold, red
 from sphinx import addnodes
 
 

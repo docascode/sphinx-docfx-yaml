@@ -30,11 +30,13 @@ class Extension(object):
         """
         Foo test method
         """
+        pass
 
     def bar(self, woot):
         """
         Test bar method
         """
+        pass
 
 
 # We need to map the Python type names to what DocFX is expecting
@@ -43,8 +45,8 @@ TYPE_MAPPING = {
     'function': 'Method',
     'module': 'Namespace',
     'class': 'Class',
-    'exception': 'Exception',
-    'attribute': 'Attribute',
+    'exception': 'Class',  # Hack this for now
+    'attribute': 'Property',  # Ditto
 }
 
 

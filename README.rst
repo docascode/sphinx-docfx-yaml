@@ -41,7 +41,10 @@ Then add it to your Sphinx project's ``conf.py``:
 
 .. code:: python
 
-    extensions = ['docfx_yaml.extension']
+    # Order matters here.
+    # The extension must be defined *after* autodoc,
+    # because it uses a signal that autodoc defines
+    extensions = ['sphinx.ext.autodoc', 'docfx_yaml.extension']
 
 This is needed because we will be outputting rst files into the ``docfx-yaml``
 directory.  

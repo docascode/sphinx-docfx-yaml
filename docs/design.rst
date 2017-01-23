@@ -16,7 +16,8 @@ Architecture
 
 Two approaches were tried in the design of this system.
 The first was based on the Docutils doctree implementation.
-This takes a bit of explaining to understand.
+The second was a signal implementation.
+Below we cover the trade offs and where we ended up.
 
 Doctree
 ~~~~~~~

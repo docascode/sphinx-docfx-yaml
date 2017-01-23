@@ -52,7 +52,6 @@ which happens to be quite simple,
 but only work for autodoc generated strings.
 Any other use of the Python domain will be ignored.
 
-
 YAML syntax
 -----------
 
@@ -63,6 +62,26 @@ This is lossy becuase there are things that can be expressed in Python that can'
 for example functions that live outside of a class.
 
 The `YAML Syntax`_ is documented and should be output properly from this module.
+The mapping is done as follows::
+
+    # We need to map the Python type names to what DocFX is expecting
+    TYPE_MAPPING = {
+        'method': 'Method',
+        'function': 'Method',
+        'module': 'Namespace',
+        'class': 'Class',
+        'exception': 'Class',
+        'attribute': 'Property',
+    }
 
 .. _domain: http://www.sphinx-doc.org/en/1.5.1/domains.html
 .. _YAML Syntax: https://dotnet.github.io/docfx/spec/metadata_dotnet_spec.html
+
+Sphinx Implementation
+~~~~~~~~~~~~~~~~~~~~~
+
+The user will run a normal ``make html`` as part of their build.
+The generation and loading will be done as an extension that can be configured.
+
+They will then be output into ``docfx_yaml`` inside the documentation directory.
+

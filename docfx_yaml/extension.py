@@ -15,30 +15,6 @@ from sphinx.errors import ExtensionError
 from .settings import API_ROOT
 
 
-class Extension(object):
-    """
-    This is just for testing.
-
-        print "hello world"
-
-    This is more testing.
-    """
-
-    pass
-
-    def foo(self):
-        """
-        Foo test method
-        """
-        pass
-
-    def bar(self, woot):
-        """
-        Test bar method
-        """
-        pass
-
-
 # We need to map the Python type names to what DocFX is expecting
 TYPE_MAPPING = {
     'method': 'Method',

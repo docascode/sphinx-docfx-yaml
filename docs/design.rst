@@ -43,6 +43,7 @@ Signals
 ~~~~~~~
 
 The approach that we settled on was attaching to the `autodoc-process-docstring <http://www.sphinx-doc.org/en/stable/ext/autodoc.html#event-autodoc-process-docstring>`_ signal implemented in autodoc.
+It lives in the ``docfx_yaml/extension.py`` file.
 This signal is triggered at the processing of the docstring,
 passing it along unprocessed.
 This allows us to properly get the content of the docstring,

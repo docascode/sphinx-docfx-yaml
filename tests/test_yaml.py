@@ -40,6 +40,6 @@ class PythonTests(LanguageIntegrationTests):
         with sphinx_build('pyexample'):
             data = yaml.safe_load(open('_build/text/docfx_yaml/example.example.yml'))
             self.assertEqual(
-                data['items'][0]['name'],
+                data['items'][1]['name'],
                 'example.example.Foo'
             )

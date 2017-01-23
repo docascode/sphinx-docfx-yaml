@@ -41,10 +41,7 @@ Then add it to your Sphinx project's ``conf.py``:
 
 .. code:: python
 
-    extensions = ['docfx-yaml.extension']
-
-    # Document Python Code
-    docfx_yaml_output = 'path/for/output/files'
+    extensions = ['docfx_yaml.extension']
 
 This is needed because we will be outputting rst files into the ``docfx-yaml``
 directory.  

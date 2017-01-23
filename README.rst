@@ -49,12 +49,12 @@ Then add it to your Sphinx project's ``conf.py``:
 Once you run a build of your project,
 the ``docfx_yaml`` directory will exist in your ``_build/<builder>`` directory.
 
-Modes
------
-
-There are two output modes that specify the structure of the YAML files.
-The first is ``module`` which means that the YAML files will be output in files coresponding to the name of their module.
-The second modes is ``rst`` which outputs them in the same structure as the RST files they were defined in.
+..  Modes
+    -----
+    
+    There are two output modes that specify the structure of the YAML files.
+    The first is ``module`` which means that the YAML files will be output in files coresponding to the name of their module.
+    The second modes is ``rst`` which outputs them in the same structure as the RST files they were defined in.
 
 Design
 ------

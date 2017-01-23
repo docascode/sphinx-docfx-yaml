@@ -74,6 +74,11 @@ The mapping is done as follows::
         'attribute': 'Property',
     }
 
+Along with this mapping,
+all module-level functions will be added to a proxy class called Global.
+This will allow them to be attached to a proper class,
+and be defined with ``docfx``.
+
 .. _domain: http://www.sphinx-doc.org/en/1.5.1/domains.html
 .. _YAML Syntax: https://dotnet.github.io/docfx/spec/metadata_dotnet_spec.html
 

@@ -75,6 +75,18 @@ def process_docstring(app, _type, name, obj, options, lines):
     else:
         app.env.docfx_yaml_modules[module].append(datam)
 
+    # Insert `Global` class to hold functions
+    if _type == 'module':
+        app.env.docfx_yaml_modules[module].append({
+            'module': module,
+            'uid': module + '.Global',
+            'type': 'Class',
+            '_type': 'class',
+            'name': module + '.Global',
+            'summary': 'Proxy object to hold module level functions',
+            'children': [],
+        })
+
     insert_children(app, _type, datam)
 
 
@@ -86,7 +98,12 @@ def insert_children(app, _type, datam):
                 obj['uid'] == datam['class']:
             obj['children'].append(datam['uid'])
             break
-        elif _type in ['class', 'function', 'exception'] and \
+        elif _type in ['function'] and \
+                obj['_type'] == 'class' and \
+                obj['name'] == datam['module'] + '.Global':
+            obj['children'].append(datam['uid'])
+            print('Inserting proxy object')
+        elif _type in ['class', 'exception'] and \
                 obj['_type'] == 'module' and \
                 obj['module'] == datam['module']:
             obj['children'].append(datam['uid'])

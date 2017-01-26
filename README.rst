@@ -24,7 +24,7 @@ Contents
 Basic Workflow
 --------------
 
-* Write RST that includes the Python domain (either manually or with autodoc)
+* Write RST that includes Python `autodoc <www.sphinx-doc.org/en/stable/ext/autodoc.html>`_
 * Render internal doctree into YAML
 * Output YAML into output directory
 
@@ -46,18 +46,25 @@ Then add it to your Sphinx project's ``conf.py``:
     # because it uses a signal that autodoc defines
     extensions = ['sphinx.ext.autodoc', 'docfx_yaml.extension']
 
-Once you run a build of your project,
-the ``docfx_yaml`` directory will exist in your ``_build/<builder>`` directory.
+Make sure you are using autodoc in your code somewhere::
+
+    .. automodule:: foo.bar
+
+Then build your documentation::
+
+    make html
+
+Inside your build directory (``_build/html`` usually),
+the ``docfx_yaml`` will contain the YAML files that are output.
 
 ..  Modes
     -----
     
     There are two output modes that specify the structure of the YAML files.
-    The first is ``module`` which means that the YAML files will be output in files coresponding to the name of their module.
+    The first is ``module`` which means that the YAML files will be output in files corresponding to the name of their module.
     The second modes is ``rst`` which outputs them in the same structure as the RST files they were defined in.
 
 Design
 ------
 
-Read more about the deisgn in our :doc:`design`.
-
+Read more about the design in our :doc:`design`.

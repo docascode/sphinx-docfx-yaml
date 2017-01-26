@@ -77,7 +77,7 @@ The mapping is done as follows::
     }
 
 Along with this mapping,
-all module-level functions will be added to a proxy class called Global.
+all module-level functions will be added to a proxy class called ``Global``.
 This will allow them to be attached to a proper class,
 and be defined with ``docfx``.
 

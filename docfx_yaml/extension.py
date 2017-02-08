@@ -136,7 +136,14 @@ def build_finished(app, exception):
         ensuredir(os.path.dirname(out_file))
         if app.verbosity > 1:
             app.info(bold('[docfx_yaml] ') + darkgreen('Outputting %s' % filename))
-        dump({'items': yaml_data}, open(out_file, 'w+'), default_flow_style=False)
+        dump(
+            {
+                'items': yaml_data,
+                'api_name': [],  # Hack around docfx YAML
+            },
+            open(out_file, 'w+'),
+            default_flow_style=False
+        )
 
 
 def setup(app):

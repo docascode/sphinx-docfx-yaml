@@ -13,19 +13,16 @@ install:
   - ps: (new-object net.webclient).DownloadFile('https://bootstrap.pypa.io/get-pip.py', 'C:/get-pip.py')
   - "%PYTHON%/python.exe C:/get-pip.py"
   - "%PYTHON%/Scripts/pip.exe --version"
-  - "%PYTHON%/Scripts/pip.exe install tox sphinx sphinx_rtd_theme ."
+  - "%PYTHON%/Scripts/pip.exe install tox sphinx msrest msrestazure sphinx_rtd_theme ."
 
 build_script:
-  # - "%PYTHON%/Scripts/tox.exe -e py27"
   - cd c:\projects\sphinx-docfx-yaml\docs
-  # - cd c:\projects\sphinx-docfx-yaml
-  # - "git clone https://github.com/Azure/azure-sdk-for-python/"
-  # - cd azure-sdk-for-python
-  # - python setup.py install
-  # - cd doc
+  - "git clone https://github.com/ericholscher/azure-sdk-for-python/"
+  - cd azure-sdk-for-python
+  - python setup.py install --quiet
+  - cd doc
   - "%PYTHON%/Scripts/sphinx-build.exe -b html -d _build/doctrees . _build/html"
-  - ..\docfx\docfx.exe build
+  - c:\projects\sphinx-docfx-yaml\docfx\docfx.exe build
 
 artifacts:
-  - path: 'docs'
-  # - path: 'azure-sdk-for-python/doc/'
+  - path: 'docs/azure-sdk-for-python/doc/'

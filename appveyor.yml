@@ -16,7 +16,9 @@ install:
   - "%PYTHON%/Scripts/pip.exe install tox sphinx sphinx_rtd_theme ."
 
 build_script:
-  - cd c:\projects\sphinx-docfx-yaml\docs
+  - cd c:\projects\sphinx-docfx-yaml
+  - python setup.py install
+  - cd docs
   - "git clone https://github.com/ericholscher/azure-sdk-for-python/"
   - cd azure-sdk-for-python
   - python setup.py install

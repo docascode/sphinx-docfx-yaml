@@ -13,3 +13,31 @@ test_script:
   - "docfx init -q"
   - "git clone https://github.com/aspnet/Identity %APPVEYOR_BUILD_FOLDER%/tests/dotnetexample/example/Identity"
   - "%PYTHON%/Scripts/tox.exe -e py27"
+
+
+# V2
+
+environment:
+  matrix:
+    - PYTHON: "C:/Python27"
+
+clone_folder: c:\projects\sphinx-docfx-yaml
+
+install:
+  # .NET
+  - ps: (new-object net.webclient).DownloadFile('https://github.com/dotnet/docfx/releases/download/v2.10.2/docfx.zip', 'c:\projects\sphinx-docfx-yaml\docfx.zip')
+  - cd c:\projects\sphinx-docfx-yaml
+  - 7z e docfx.zip -oc:\projects\sphinx-docfx-yaml\docfx
+  # Python
+  - ps: (new-object net.webclient).DownloadFile('https://bootstrap.pypa.io/get-pip.py', 'C:/get-pip.py')
+  - "%PYTHON%/python.exe C:/get-pip.py"
+  - "%PYTHON%/Scripts/pip.exe --version"
+  - "%PYTHON%/Scripts/pip.exe install tox sphinx sphinx_rtd_theme ."
+
+build_script:
+  - cd c:\projects\sphinx-docfx-yaml\docs
+  - "%PYTHON%/Scripts/sphinx-build.exe -b html -d _build/doctrees . _build/html"
+  - ..\docfx\docfx.exe build
+
+artifacts:
+  - path: 'docs'

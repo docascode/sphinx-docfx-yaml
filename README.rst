@@ -7,9 +7,9 @@ Sphinx DocFX YAML
 .. image:: https://ci.appveyor.com/api/projects/status/m9t5a331de14mwfi/branch/master?svg=true
    :target: https://ci.appveyor.com/project/ericholscher/sphinx-docfx-yaml
 
-.. warning:: This is a pre-release version. Some or all features might not work yet.
-
 Sphinx DocFX YAML is an exporter for the Sphinx Python domain into `DocFX YAML <https://dotnet.github.io/docfx/spec/metadata_format_spec.html>`_. 
+
+You can read the full documentation online at http://sphinx-docfx-yaml.readthedocs.io
 
 Contents
 --------

@@ -69,3 +69,11 @@ Design
 ------
 
 Read more about the design in our :doc:`design`.
+
+Layout
+------
+
+This project has a few different pieces at this point.
+It's primary goal was to integrate the Azure Python SDK into the docfx tooling.
+You can read more about the pieces currently set up in the :doc:`layout`.
+

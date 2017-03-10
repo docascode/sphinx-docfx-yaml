@@ -17,11 +17,11 @@ install:
 
 build_script:
   - cd c:\projects\sphinx-docfx-yaml
-  - python setup.py install
+  - python setup.py install --quiet
   - cd docs
   - "git clone https://github.com/ericholscher/azure-sdk-for-python/"
   - cd azure-sdk-for-python
-  - python setup.py install
+  - python setup.py install --quiet
   - cd doc
   - "%PYTHON%/Scripts/sphinx-build.exe -b html -d _build/doctrees . _build/html"
   - c:\projects\sphinx-docfx-yaml\docfx\docfx.exe build

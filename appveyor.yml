@@ -27,4 +27,4 @@ build_script:
   - c:\projects\sphinx-docfx-yaml\docfx\docfx.exe build
 
 artifacts:
-  - path: 'c:\projects\sphinx-docfx-yaml'
+  - path: 'docs/azure-sdk-for-python/doc/'

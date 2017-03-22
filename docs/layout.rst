@@ -13,8 +13,7 @@ This project has a couple components:
    * https://ci.appveyor.com/project/ericholscher/sphinx-docfx-yaml/build/artifacts
    * The YAML is in the ``doc/_build/html/docfx_yaml`` directory
    * The rendered HTML is in the ``doc/_site/api/html/docfx_yaml`` directory
+   * The generated YAML is also checked into GitHub here: https://github.com/bradygaster/python-sdk-dev/tree/eric-full-yaml-test/python-sdk-dev/docfx_yaml
 * A forked version of the Python SDK that adds integrates the YAML output and the docfx configuration:
    * https://github.com/Azure/azure-sdk-for-python/compare/master...ericholscher:add-docfx-yaml
    * This is used in the CI steps above to make sure we properly generate the YAML & docfx docs
-
-

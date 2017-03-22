@@ -64,17 +64,11 @@ This is lossy becuase there are things that can be expressed in Python that can'
 for example functions that live outside of a class.
 
 The `YAML Syntax`_ is documented and should be output properly from this module.
-The mapping is done as follows::
+The mapping is done as follows:
 
-    # We need to map the Python type names to what DocFX is expecting
-    TYPE_MAPPING = {
-        'method': 'Method',
-        'function': 'Method',
-        'module': 'Namespace',
-        'class': 'Class',
-        'exception': 'Class',
-        'attribute': 'Property',
-    }
+.. literalinclude:: ../docfx_yaml/extension.py
+   :start-after: TYPE_MAPPING = {
+   :end-before: }
 
 Along with this mapping,
 all module-level functions will be added to a proxy class called ``Global``.

@@ -5,6 +5,8 @@ Sphinx DocFX YAML Top-level Extension.
 This extension allows you to automagically generate DocFX YAML from your Python Domains.
 """
 import os
+import inspect
+import subprocess
 
 from yaml import safe_dump as dump
 
@@ -35,6 +37,10 @@ def build_init(app):
 
     app.env.docfx_yaml_modules = {}
 
+    remote = subprocess.check_output('git remote -v'.split(' '))
+    app.env.remote = remote.split('\t')[1].split(' ')[0]
+    app.env.branch = subprocess.check_output('git rev-parse --abbrev-ref HEAD'.split(' ')).strip()
+
 
 def _get_cls_module(_type, name):
     """
@@ -55,20 +61,38 @@ def _get_cls_module(_type, name):
     return (cls, module)
 
 
-def _create_datam(cls, module, name, _type, lines=''):
+def _create_datam(app, cls, module, name, _type, obj, lines=[]):
+    """
+    Build the data structure for a autodoc class
+    """
     try:
         mapped_type = TYPE_MAPPING[_type]
     except TypeError:
         print('Invalid Type Mapping: %s' % _type)
         mapped_type = _type
 
+    short_name = name.split('.')[-1]
+    full_path = inspect.getsourcefile(obj)
+    path = full_path.replace(os.path.dirname(app.builder.srcdir), '').replace('/', '', 1)
+    start_line = inspect.getsourcelines(obj)[1]
     datam = {
         'module': module,
         'uid': name,
         'type': mapped_type,
         '_type': _type,
-        'name': name,
+        'name': short_name,
+        'fullName': name,
         'summary': '\n'.join(lines),
+        'source': {
+            'remote': {
+                'path': path,
+                'branch': app.env.branch,
+                'repo': app.env.remote,
+            },
+            'id': short_name,
+            'path': path,
+            'startLine': start_line,
+        },
     }
 
     if cls:
@@ -80,6 +104,9 @@ def _create_datam(cls, module, name, _type, lines=''):
 
 
 def _fullname(obj):
+    """
+    Get the fullname from a Python object
+    """
     return obj.__module__ + "." + obj.__name__
 
 
@@ -87,13 +114,12 @@ def process_docstring(app, _type, name, obj, options, lines):
     """
     This function takes the docstring and indexes it into memory.
     """
-
     cls, module = _get_cls_module(_type, name)
     if not module:
         print('Unknown Type: %s' % _type)
         return None
 
-    datam = _create_datam(cls, module, name, _type, lines)
+    datam = _create_datam(app, cls, module, name, _type, obj, lines)
 
     if module not in app.env.docfx_yaml_modules:
         app.env.docfx_yaml_modules[module] = [datam]
@@ -107,8 +133,10 @@ def process_docstring(app, _type, name, obj, options, lines):
             'uid': module + '.Global',
             'type': 'Class',
             '_type': 'class',
-            'name': module + '.Global',
+            'name': module.split('.')[-1] + '.Global',
+            'fullName': name,
             'summary': 'Proxy object to hold module level functions',
+            'langs': ['python'],
             'children': [],
         })
 
@@ -127,28 +155,31 @@ def insert_inheritance(app, _type, obj, datam):
 
 
 def insert_children(app, _type, datam):
+    """
+    Insert children of a specific module
+    """
+
     insert_module = app.env.docfx_yaml_modules[datam['module']]
     for obj in insert_module:
+        # Add methods & attributes to class
         if _type in ['method', 'attribute'] and \
                 obj['_type'] == 'class' and \
                 obj['uid'] == datam['class']:
             obj['children'].append(datam['uid'])
             break
+        # Add standardlone function to Global class
         elif _type in ['function'] and \
                 obj['_type'] == 'class' and \
                 obj['name'] == datam['module'] + '.Global':
             obj['children'].append(datam['uid'])
-            print('Inserting proxy object')
+            # print('Inserting proxy object')
             break
+        # Add classes & exceptions to module
         elif _type in ['class', 'exception'] and \
                 obj['_type'] == 'module' and \
                 obj['module'] == datam['module']:
             obj['children'].append(datam['uid'])
             break
-        else:
-            print('Unknown child: %s' % obj)
-    else:
-        print('Module has no children: %s' % datam['module'])
 
 
 def build_finished(app, exception):
@@ -160,6 +191,7 @@ def build_finished(app, exception):
         app.builder.outdir,  # Output Directory for Builder
         app.config.docfx_yaml_output
     ))
+    ensuredir(normalized_output)
 
     # Get correct data set
     # if app.config.docfx_yaml_mode == 'rst':

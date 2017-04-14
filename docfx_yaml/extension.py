@@ -36,7 +36,10 @@ def build_init(app):
     app.env.docfx_yaml_modules = {}
 
 
-def process_docstring(app, _type, name, obj, options, lines):
+def _get_cls_module(_type, name):
+    """
+    Get the class and module name for an object
+    """
     cls = None
     if _type in ['function', 'exception']:
         module = '.'.join(name.split('.')[:-1])
@@ -48,13 +51,16 @@ def process_docstring(app, _type, name, obj, options, lines):
     elif _type in ['module']:
         module = name
     else:
-        print('Unknown Type: %s' % _type)
-        return
+        return (None, None)
+    return (cls, module)
 
+
+def _create_datam(cls, module, name, _type, lines=''):
     try:
         mapped_type = TYPE_MAPPING[_type]
-    except:
+    except TypeError:
         print('Invalid Type Mapping: %s' % _type)
+        mapped_type = _type
 
     datam = {
         'module': module,
@@ -69,6 +75,25 @@ def process_docstring(app, _type, name, obj, options, lines):
         datam['class'] = cls
     if _type in ['class', 'module']:
         datam['children'] = []
+
+    return datam
+
+
+def _fullname(obj):
+    return obj.__module__ + "." + obj.__name__
+
+
+def process_docstring(app, _type, name, obj, options, lines):
+    """
+    This function takes the docstring and indexes it into memory.
+    """
+
+    cls, module = _get_cls_module(_type, name)
+    if not module:
+        print('Unknown Type: %s' % _type)
+        return None
+
+    datam = _create_datam(cls, module, name, _type, lines)
 
     if module not in app.env.docfx_yaml_modules:
         app.env.docfx_yaml_modules[module] = [datam]
@@ -88,6 +113,17 @@ def process_docstring(app, _type, name, obj, options, lines):
         })
 
     insert_children(app, _type, datam)
+    insert_inheritance(app, _type, obj, datam)
+
+
+def insert_inheritance(app, _type, obj, datam):
+    if hasattr(obj, '__bases__'):
+        if 'inheritance' not in datam:
+            datam['inheritance'] = []
+        for base in obj.__bases__:
+            datam['inheritance'].append(_fullname(base))
+            # recurse into bases
+            insert_inheritance(app, _type, base, datam)
 
 
 def insert_children(app, _type, datam):
@@ -103,11 +139,14 @@ def insert_children(app, _type, datam):
                 obj['name'] == datam['module'] + '.Global':
             obj['children'].append(datam['uid'])
             print('Inserting proxy object')
+            break
         elif _type in ['class', 'exception'] and \
                 obj['_type'] == 'module' and \
                 obj['module'] == datam['module']:
             obj['children'].append(datam['uid'])
             break
+        else:
+            print('Unknown child: %s' % obj)
     else:
         print('Module has no children: %s' % datam['module'])
 
@@ -128,6 +167,8 @@ def build_finished(app, exception):
     if app.config.docfx_yaml_mode == 'module':
         iter_data = app.env.docfx_yaml_modules
 
+    toc_yaml = []
+
     for filename, yaml_data in iter_data.items():
         if not filename:
             # Skip objects without a module
@@ -144,6 +185,11 @@ def build_finished(app, exception):
             open(out_file, 'w+'),
             default_flow_style=False
         )
+        toc_yaml.append({'name': filename, 'href': '%s.yml' % filename})
+
+    toc_file = os.path.join(normalized_output, 'toc.yml')
+    with open(toc_file, 'w+') as writable:
+        writable.write(dump(toc_yaml))
 
 
 def setup(app):

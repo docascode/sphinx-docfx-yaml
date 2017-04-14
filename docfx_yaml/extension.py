@@ -147,6 +147,14 @@ def build_finished(app, exception):
 
 
 def setup(app):
+    """
+    Plugin init for our Sphinx extension.
+
+    Args:
+        app (Application): The Sphinx application
+           instance is destructed
+
+    """
     app.connect('autodoc-process-docstring', process_docstring)
     app.connect('builder-inited', build_init)
     app.connect('build-finished', build_finished)

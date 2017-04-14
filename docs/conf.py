@@ -22,6 +22,7 @@
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.napoleon',
     'docfx_yaml.extension',
 ]
 

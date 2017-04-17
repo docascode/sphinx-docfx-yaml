@@ -272,7 +272,12 @@ def build_finished(app, exception):
 
     toc_file = os.path.join(normalized_output, 'toc.yml')
     with open(toc_file, 'w+') as writable:
-        writable.write(dump(toc_yaml))
+        writable.write(
+            dump(
+                toc_yaml,
+                default_flow_style=False,
+            )
+        )
 
 
 def setup(app):

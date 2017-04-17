@@ -16,15 +16,21 @@ from sphinx.errors import ExtensionError
 
 from .settings import API_ROOT
 
+METHOD = 'method'
+FUNCTION = 'function'
+MODULE = 'module'
+CLASS = 'class'
+EXCEPTION = 'exception'
+ATTRIBUTE = 'attribute'
 
 # We need to map the Python type names to what DocFX is expecting
 TYPE_MAPPING = {
-    'method': 'Method',
-    'function': 'Method',
-    'module': 'Namespace',
-    'class': 'Class',
-    'exception': 'Class',  # Hack this for now
-    'attribute': 'Property',  # Ditto
+    METHOD: 'Method',
+    FUNCTION: 'Method',
+    MODULE: 'Namespace',
+    CLASS: 'Class',
+    EXCEPTION: 'Class',  # Hack this for now
+    ATTRIBUTE: 'Property',  # Ditto
 }
 
 
@@ -36,6 +42,7 @@ def build_init(app):
         raise ExtensionError('You must configure an docfx_yaml_output setting')
 
     app.env.docfx_yaml_modules = {}
+    app.env.docfx_yaml_classes = {}
 
     remote = subprocess.check_output('git remote -v'.split(' '))
     app.env.remote = remote.split('\t')[1].split(' ')[0]
@@ -53,11 +60,13 @@ def _get_cls_module(_type, name):
         cls = '.'.join(name.split('.')[:-1])
         module = '.'.join(name.split('.')[:-2])
     elif _type in ['class']:
+        cls = name
         module = '.'.join(name.split('.')[:-1])
     elif _type in ['module']:
         module = name
     else:
         return (None, None)
+    print(cls, module)
     return (cls, module)
 
 
@@ -75,6 +84,8 @@ def _create_datam(app, cls, module, name, _type, obj, lines=[]):
     full_path = inspect.getsourcefile(obj)
     path = full_path.replace(os.path.dirname(app.builder.srcdir), '').replace('/', '', 1)
     start_line = inspect.getsourcelines(obj)[1]
+    summary = '\n'.join(lines)
+    summary = summary.strip()
     datam = {
         'module': module,
         'uid': name,
@@ -82,7 +93,7 @@ def _create_datam(app, cls, module, name, _type, obj, lines=[]):
         '_type': _type,
         'name': short_name,
         'fullName': name,
-        'summary': '\n'.join(lines),
+        'summary': summary,
         'source': {
             'remote': {
                 'path': path,
@@ -121,27 +132,36 @@ def process_docstring(app, _type, name, obj, options, lines):
 
     datam = _create_datam(app, cls, module, name, _type, obj, lines)
 
-    if module not in app.env.docfx_yaml_modules:
-        app.env.docfx_yaml_modules[module] = [datam]
-    else:
-        app.env.docfx_yaml_modules[module].append(datam)
+    if _type == MODULE:
+        if module not in app.env.docfx_yaml_modules:
+            app.env.docfx_yaml_modules[module] = [datam]
+        else:
+            app.env.docfx_yaml_modules[module].append(datam)
 
-    # Insert `Global` class to hold functions
-    if _type == 'module':
-        app.env.docfx_yaml_modules[module].append({
-            'module': module,
-            'uid': module + '.Global',
-            'type': 'Class',
-            '_type': 'class',
-            'name': module.split('.')[-1] + '.Global',
-            'fullName': name,
-            'summary': 'Proxy object to hold module level functions',
-            'langs': ['python'],
-            'children': [],
-        })
+    if _type == CLASS:
+        if cls not in app.env.docfx_yaml_classes:
+            app.env.docfx_yaml_classes[cls] = [datam]
+        else:
+            app.env.docfx_yaml_classes[cls].append(datam)
 
-    insert_children(app, _type, datam)
+    # # Insert `Global` class to hold functions
+    # if _type == 'module':
+    #     app.env.docfx_yaml_modules[module].append({
+    #         'module': module,
+    #         'uid': module + '.Global',
+    #         'type': 'Class',
+    #         '_type': 'class',
+    #         'name': module.split('.')[-1] + '.Global',
+    #         'fullName': name,
+    #         'summary': 'Proxy object to hold module level functions',
+    #         'langs': ['python'],
+    #         'children': [],
+    #     })
+
     insert_inheritance(app, _type, obj, datam)
+
+    insert_children_on_module(app, _type, datam)
+    insert_children_on_class(app, _type, datam)
 
 
 def insert_inheritance(app, _type, obj, datam):
@@ -154,12 +174,15 @@ def insert_inheritance(app, _type, obj, datam):
             insert_inheritance(app, _type, base, datam)
 
 
-def insert_children(app, _type, datam):
+def insert_children_on_module(app, _type, datam):
     """
     Insert children of a specific module
     """
 
+    if 'module' not in datam:
+        return
     insert_module = app.env.docfx_yaml_modules[datam['module']]
+    # Find the module which the datam belongs to
     for obj in insert_module:
         # Add methods & attributes to class
         if _type in ['method', 'attribute'] and \
@@ -182,6 +205,25 @@ def insert_children(app, _type, datam):
             break
 
 
+def insert_children_on_class(app, _type, datam):
+    """
+    Insert children of a specific class
+    """
+    if 'class' not in datam:
+        return
+
+    insert_class = app.env.docfx_yaml_classes[datam['class']]
+    # Find the class which the datam belongs to
+    for obj in insert_class:
+        if obj['_type'] != CLASS:
+            continue
+        # Add methods & attributes to class
+        if _type in ['method', 'attribute'] and \
+                obj['class'] == datam['class']:
+            obj['children'].append(datam['uid'])
+            insert_class.append(datam)
+
+
 def build_finished(app, exception):
     """
     Output YAML on the file system.
@@ -196,10 +238,11 @@ def build_finished(app, exception):
     # Get correct data set
     # if app.config.docfx_yaml_mode == 'rst':
     #     iter_data = app.env.docfx_yaml_data
-    if app.config.docfx_yaml_mode == 'module':
-        iter_data = app.env.docfx_yaml_modules
-
     toc_yaml = []
+
+    iter_data = {}
+    iter_data.update(app.env.docfx_yaml_modules)
+    iter_data.update(app.env.docfx_yaml_classes)
 
     for filename, yaml_data in iter_data.items():
         if not filename:

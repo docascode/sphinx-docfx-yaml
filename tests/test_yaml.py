@@ -33,6 +33,12 @@ class LanguageIntegrationTests(unittest.TestCase):
                 text = fin.read().strip()
                 self.assertIn(test_string, text)
 
+    def test_yaml(self):
+        """
+        A basic YAML test
+        """
+        self.assertTrue(1, 1)
+
 
 class PythonTests(LanguageIntegrationTests):
 

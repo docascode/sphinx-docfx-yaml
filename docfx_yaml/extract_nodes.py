@@ -14,6 +14,7 @@ from sphinx.util.console import bold, red
 from sphinx.util.docfields import _is_single_paragraph
 from sphinx import addnodes
 
+
 TITLE_MAP = {
     'Returns': 'return',
     'Return type': 'return_type',
@@ -35,32 +36,59 @@ def doctree_resolved(app, doctree, docname):
     #         app.env.docfx_yaml_modules[module] = yaml_modules[module]
 
 
+def _get_desc_data(node):
+    if node.attributes['domain'] != 'py':
+        print(
+            'Skipping Domain Object (%s)' % node.attributes['domain']
+        )
+        return None, None
+    module = node[0].attributes['module']
+    full_name = node[0].attributes['fullname'].split('.')[-1]
+    try:
+        uid = node[0].attributes['ids'][0]
+    except Exception:
+        uid = '{module}.{full_name}'.format(module=module, full_name=full_name)
+        print('Non-standard id: %s' % uid)
+    return full_name, uid
+
+
 def extract_info_lists(app, doctree):
-    for desc_node in doctree.traverse(addnodes.desc):
-        if desc_node.attributes['domain'] != 'py':
-            app.info(bold('[docfx_yaml] ') + red(
-                'Skipping Domain Object (%s)' % desc_node.attributes['domain']
-            ))
+    data = {}
+
+    for node in doctree.traverse(nodes.field_list):
+        parent_desc = node.parent.parent
+        name, uid = _get_desc_data(parent_desc)
+        if not name:
             continue
 
-        module = desc_node[0].attributes['module']
-        for node in desc_node.traverse(nodes.field_list):
-            for field in node:
-                fieldname, fieldbody = field
-                try:
-                    # split into field type and argument
-                    fieldtype, fieldarg = fieldname.astext().split(None, 1)
-                except ValueError:
-                    # maybe an argument-less field type?
-                    fieldtype, fieldarg = fieldname.astext(), ''
+        for field in node:
+            fieldname, fieldbody = field
+            try:
+                # split into field type and argument
+                fieldtype, _ = fieldname.astext().split(None, 1)
+            except ValueError:
+                # maybe an argument-less field type?
+                fieldtype = fieldname.astext()
 
-                # collect the content, trying not to keep unnecessary paragraphs
-                if _is_single_paragraph(fieldbody):
-                    content = fieldbody.children[0].children
-                else:
-                    content = fieldbody.children
+            # collect the content, trying not to keep unnecessary paragraphs
+            if _is_single_paragraph(fieldbody):
+                content = fieldbody.children[0].children
+            else:
+                content = fieldbody.children
 
-                print(module, fieldtype, fieldarg, fieldname, fieldbody, content)
+            data.setdefault(uid, {})
+
+            if fieldtype == 'Returns':
+                for child in content:
+                    ret_data = child.astext()
+                    data[uid].setdefault(fieldtype, []).append(ret_data)
+
+            if fieldtype == 'Raises':
+                for child in content:
+                    ret_data = child.astext()
+                    data[uid].setdefault(fieldtype, []).append(ret_data)
+
+    print(data)
 
 
 def extract_yaml(app, doctree, ignore_patterns):
@@ -98,10 +126,10 @@ def extract_yaml(app, doctree, ignore_patterns):
         _type = desc_node.attributes['objtype']
         full_name = desc_node[0].attributes['fullname']
         try:
-            _id = desc_node[0].attributes['ids'][0]
+            uid = desc_node[0].attributes['ids'][0]
         except Exception:
-            _id = '{module}.{full_name}'.format(module=module, full_name=full_name)
-            print('Non-standard id: %s' % _id)
+            uid = '{module}.{full_name}'.format(module=module, full_name=full_name)
+            print('Non-standard id: %s' % uid)
         name = desc_node[0].attributes['names'][0]
         source = desc_node[0].source
         try:
@@ -121,7 +149,7 @@ def extract_yaml(app, doctree, ignore_patterns):
 
         datam = {
             'module': str(module),
-            'uid': _id,
+            'uid': uid,
             '_type': _type,
             'name': name,
             'fullName': full_name,

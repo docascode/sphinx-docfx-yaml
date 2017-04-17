@@ -6,7 +6,6 @@ This extension allows you to automagically generate DocFX YAML from your Python 
 """
 import os
 import inspect
-import subprocess
 
 try:
     from subprocess import getoutput
@@ -21,6 +20,7 @@ from sphinx.errors import ExtensionError
 
 from .settings import API_ROOT
 from .extract_nodes import doctree_resolved
+
 
 METHOD = 'method'
 FUNCTION = 'function'
@@ -51,8 +51,14 @@ def build_init(app):
     app.env.docfx_yaml_classes = {}
 
     remote = getoutput('git remote -v')
-    app.env.remote = remote.split('\t')[1].split(' ')[0]
-    app.env.branch = getoutput('git rev-parse --abbrev-ref HEAD').strip()
+    try:
+        app.env.remote = remote.split('\t')[1].split(' ')[0]
+    except Exception:
+        app.env.remote = None
+    try:
+        app.env.branch = getoutput('git rev-parse --abbrev-ref HEAD').strip()
+    except Exception:
+        app.env.branch = None
 
 
 def _get_cls_module(_type, name):

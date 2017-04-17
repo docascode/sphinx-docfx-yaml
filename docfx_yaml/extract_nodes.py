@@ -9,23 +9,58 @@ In order to build the approach going forward,
 a bit more work needs to be done to pull docstrings in raw format.
 """
 
-from .extension import TYPE_MAPPING, insert_children
-
+from docutils import nodes
 from sphinx.util.console import bold, red
+from sphinx.util.docfields import _is_single_paragraph
 from sphinx import addnodes
+
+TITLE_MAP = {
+    'Returns': 'return',
+    'Return type': 'return_type',
+    'Raises': 'raises',
+    'Parameters': 'params',
+}
 
 
 def doctree_resolved(app, doctree, docname):
     """
     Render out the YAML from the Sphinx domain objects
     """
-    ignore_patterns = app.config.docfx_yaml_ignore or None
-    yaml_data, yaml_modules = extract_yaml(app, doctree, ignore_patterns)
-    if yaml_data:
-        app.env.docfx_yaml_data[docname] = yaml_data
-    if yaml_modules:
-        for module in yaml_modules:
-            app.env.docfx_yaml_modules[module] = yaml_modules[module]
+    yaml_data, yaml_modules = extract_yaml(app, doctree, ignore_patterns=None)
+    extract_info_lists(app, doctree)
+    # if yaml_data:
+    #     app.env.docfx_yaml_data[docname] = yaml_data
+    # if yaml_modules:
+    #     for module in yaml_modules:
+    #         app.env.docfx_yaml_modules[module] = yaml_modules[module]
+
+
+def extract_info_lists(app, doctree):
+    for desc_node in doctree.traverse(addnodes.desc):
+        if desc_node.attributes['domain'] != 'py':
+            app.info(bold('[docfx_yaml] ') + red(
+                'Skipping Domain Object (%s)' % desc_node.attributes['domain']
+            ))
+            continue
+
+        module = desc_node[0].attributes['module']
+        for node in desc_node.traverse(nodes.field_list):
+            for field in node:
+                fieldname, fieldbody = field
+                try:
+                    # split into field type and argument
+                    fieldtype, fieldarg = fieldname.astext().split(None, 1)
+                except ValueError:
+                    # maybe an argument-less field type?
+                    fieldtype, fieldarg = fieldname.astext(), ''
+
+                # collect the content, trying not to keep unnecessary paragraphs
+                if _is_single_paragraph(fieldbody):
+                    content = fieldbody.children[0].children
+                else:
+                    content = fieldbody.children
+
+                print(module, fieldtype, fieldarg, fieldname, fieldbody, content)
 
 
 def extract_yaml(app, doctree, ignore_patterns):
@@ -64,36 +99,29 @@ def extract_yaml(app, doctree, ignore_patterns):
         full_name = desc_node[0].attributes['fullname']
         try:
             _id = desc_node[0].attributes['ids'][0]
-        except:
+        except Exception:
             _id = '{module}.{full_name}'.format(module=module, full_name=full_name)
             print('Non-standard id: %s' % _id)
         name = desc_node[0].attributes['names'][0]
         source = desc_node[0].source
         try:
             summary = desc_node[1][0].astext()
-            import ipdb
-            ipdb.set_trace()
         except (KeyError, IndexError):
             summary = ''
 
         try:
             args = [arg.strip() for arg in desc_node[0][3].astext().split(',')]
-        except:
+        except Exception:
             args = []
 
         if args:
             full_name += "({args})".format(args=', '.join(args))
 
         # We need to map the Python type names to what DocFX is expecting
-        try:
-            mapped_type = TYPE_MAPPING[_type]
-        except:
-            print('Invalid Type Mapping: %s' % _type)
 
         datam = {
             'module': str(module),
             'uid': _id,
-            'type': mapped_type,
             '_type': _type,
             'name': name,
             'fullName': full_name,
@@ -106,7 +134,7 @@ def extract_yaml(app, doctree, ignore_patterns):
         if _type == 'class':
             datam['children'] = []
 
-        insert_children(_type, datam, modules)
+        # insert_children(_type, datam, modules)
         items.append(datam)
 
         modules[module].append(datam)

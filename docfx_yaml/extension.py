@@ -15,6 +15,7 @@ from sphinx.util import ensuredir
 from sphinx.errors import ExtensionError
 
 from .settings import API_ROOT
+from .extract_nodes import doctree_resolved
 
 METHOD = 'method'
 FUNCTION = 'function'
@@ -145,18 +146,18 @@ def process_docstring(app, _type, name, obj, options, lines):
             app.env.docfx_yaml_classes[cls].append(datam)
 
     # # Insert `Global` class to hold functions
-    # if _type == 'module':
-    #     app.env.docfx_yaml_modules[module].append({
-    #         'module': module,
-    #         'uid': module + '.Global',
-    #         'type': 'Class',
-    #         '_type': 'class',
-    #         'name': module.split('.')[-1] + '.Global',
-    #         'fullName': name,
-    #         'summary': 'Proxy object to hold module level functions',
-    #         'langs': ['python'],
-    #         'children': [],
-    #     })
+    if _type == 'module':
+        app.env.docfx_yaml_modules[module].append({
+            'module': module,
+            'uid': module + '.Global',
+            'type': 'Class',
+            '_type': 'class',
+            'name': module.split('.')[-1] + '.Global',
+            'fullName': name,
+            'summary': 'Proxy object to hold module level functions',
+            'langs': ['python'],
+            'children': [],
+        })
 
     insert_inheritance(app, _type, obj, datam)
 
@@ -184,18 +185,12 @@ def insert_children_on_module(app, _type, datam):
     insert_module = app.env.docfx_yaml_modules[datam['module']]
     # Find the module which the datam belongs to
     for obj in insert_module:
-        # Add methods & attributes to class
-        if _type in ['method', 'attribute'] and \
+        # Add standardlone function to global class
+        if _type in ['function'] and \
                 obj['_type'] == 'class' and \
-                obj['uid'] == datam['class']:
+                obj['name'] == datam['module'] + '.global':
             obj['children'].append(datam['uid'])
-            break
-        # Add standardlone function to Global class
-        elif _type in ['function'] and \
-                obj['_type'] == 'class' and \
-                obj['name'] == datam['module'] + '.Global':
-            obj['children'].append(datam['uid'])
-            # print('Inserting proxy object')
+            # print('inserting proxy object')
             break
         # Add classes & exceptions to module
         elif _type in ['class', 'exception'] and \
@@ -235,9 +230,6 @@ def build_finished(app, exception):
     ))
     ensuredir(normalized_output)
 
-    # Get correct data set
-    # if app.config.docfx_yaml_mode == 'rst':
-    #     iter_data = app.env.docfx_yaml_data
     toc_yaml = []
 
     iter_data = {}
@@ -276,9 +268,10 @@ def setup(app):
            instance is destructed
 
     """
-    app.connect('autodoc-process-docstring', process_docstring)
     app.connect('builder-inited', build_init)
+    app.connect('autodoc-process-docstring', process_docstring)
     app.connect('build-finished', build_finished)
     app.add_config_value('docfx_yaml_output', API_ROOT, 'html')
-    app.add_config_value('docfx_yaml_ignore', [], 'html')
-    app.add_config_value('docfx_yaml_mode', 'module', 'html')
+
+    # For testing doctree parsing
+    # app.connect('doctree-resolved', doctree_resolved)

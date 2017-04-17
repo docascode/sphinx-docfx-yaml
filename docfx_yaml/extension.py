@@ -8,6 +8,11 @@ import os
 import inspect
 import subprocess
 
+try:
+    from subprocess import getoutput
+except ImportError:
+    from commands import getoutput
+
 from yaml import safe_dump as dump
 
 from sphinx.util.console import darkgreen, bold
@@ -45,9 +50,9 @@ def build_init(app):
     app.env.docfx_yaml_modules = {}
     app.env.docfx_yaml_classes = {}
 
-    remote = subprocess.getoutput('git remote -v')
+    remote = getoutput('git remote -v')
     app.env.remote = remote.split('\t')[1].split(' ')[0]
-    app.env.branch = subprocess.getoutput('git rev-parse --abbrev-ref HEAD').strip()
+    app.env.branch = getoutput('git rev-parse --abbrev-ref HEAD').strip()
 
 
 def _get_cls_module(_type, name):

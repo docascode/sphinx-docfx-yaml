@@ -162,18 +162,18 @@ def process_docstring(app, _type, name, obj, options, lines):
             app.env.docfx_yaml_classes[cls].append(datam)
 
     # # Insert `Global` class to hold functions
-    if _type == 'module':
-        app.env.docfx_yaml_modules[module].append({
-            'module': module,
-            'uid': module + '.Global',
-            'type': 'Class',
-            '_type': 'class',
-            'name': module.split('.')[-1] + '.Global',
-            'fullName': name,
-            'summary': 'Proxy object to hold module level functions',
-            'langs': ['python'],
-            'children': [],
-        })
+    # if _type == 'module':
+    #     app.env.docfx_yaml_modules[module].append({
+    #         'module': module,
+    #         'uid': module + '.Global',
+    #         'type': 'Class',
+    #         '_type': 'class',
+    #         'name': module.split('.')[-1] + '.Global',
+    #         'fullName': name,
+    #         'summary': 'Proxy object to hold module level functions',
+    #         'langs': ['python'],
+    #         'children': [],
+    #     })
 
     insert_inheritance(app, _type, obj, datam)
 
@@ -202,14 +202,14 @@ def insert_children_on_module(app, _type, datam):
     # Find the module which the datam belongs to
     for obj in insert_module:
         # Add standardlone function to global class
-        if _type in ['function'] and \
-                obj['_type'] == 'class' and \
-                obj['name'] == datam['module'] + '.global':
-            obj['children'].append(datam['uid'])
-            print('inserting proxy object')
-            break
+        # if _type in ['function'] and \
+        #         obj['_type'] == 'class' and \
+        #         obj['name'] == datam['module'] + '.global':
+        #     obj['children'].append(datam['uid'])
+        #     print('inserting proxy object')
+        #     break
         # Add classes & exceptions to module
-        elif _type in ['class', 'exception'] and \
+        if _type in ['class', 'exception'] and \
                 obj['_type'] == 'module' and \
                 obj['module'] == datam['module']:
             obj['children'].append(datam['uid'])

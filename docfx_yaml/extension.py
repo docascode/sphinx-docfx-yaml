@@ -92,9 +92,15 @@ def _create_datam(app, cls, module, name, _type, obj, lines=[]):
         mapped_type = _type
 
     short_name = name.split('.')[-1]
-    full_path = inspect.getsourcefile(obj)
-    path = full_path.replace(os.path.dirname(app.builder.srcdir), '').replace('/', '', 1)
-    start_line = inspect.getsourcelines(obj)[1]
+    try:
+        full_path = inspect.getsourcefile(obj)
+        path = full_path.replace(os.path.dirname(app.builder.srcdir), '').replace('/', '', 1)
+        start_line = inspect.getsourcelines(obj)[1]
+    except TypeError:
+        print("Can't inspect type {}: {}".format(type(obj), name))
+        path = None
+        start_line = None
+
     summary = '\n'.join(lines)
     summary = summary.strip()
     datam = {

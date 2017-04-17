@@ -45,7 +45,7 @@ def build_init(app):
     app.env.docfx_yaml_classes = {}
 
     remote = subprocess.check_output('git remote -v'.split(' '))
-    app.env.remote = remote.split('\t')[1].split(' ')[0]
+    app.env.remote = remote.split(b'\t')[1].split(b' ')[0]
     app.env.branch = subprocess.check_output('git rev-parse --abbrev-ref HEAD'.split(' ')).strip()
 
 

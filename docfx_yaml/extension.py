@@ -78,7 +78,6 @@ def _get_cls_module(_type, name):
         module = name
     else:
         return (None, None)
-    print(cls, module)
     return (cls, module)
 
 
@@ -201,7 +200,7 @@ def insert_children_on_module(app, _type, datam):
                 obj['_type'] == 'class' and \
                 obj['name'] == datam['module'] + '.global':
             obj['children'].append(datam['uid'])
-            # print('inserting proxy object')
+            print('inserting proxy object')
             break
         # Add classes & exceptions to module
         elif _type in ['class', 'exception'] and \

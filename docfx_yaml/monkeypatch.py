@@ -117,7 +117,7 @@ def patch_docfields(app):
         doc = new_document(b'<partial node>')
         doc.append(node)
         writer.write(doc, destination)
-        return str(destination.destination, 'utf-8').strip()
+        return destination.destination.decode('utf-8').strip()
 
     def get_data_structure(entries, types):
         """

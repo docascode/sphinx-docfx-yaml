@@ -52,41 +52,48 @@ def _get_desc_data(node):
     return full_name, uid
 
 
-def extract_info_lists(app, doctree):
+def _get_full_data(node):
     data = {}
+    import ipdb; ipdb.set_trace()
+    parent_desc = node.parent.parent
+    name, uid = _get_desc_data(parent_desc)
+    if not name:
+        return
+
+    for field in node:
+        fieldname, fieldbody = field
+        try:
+            # split into field type and argument
+            fieldtype, _ = fieldname.astext().split(None, 1)
+        except ValueError:
+            # maybe an argument-less field type?
+            fieldtype = fieldname.astext()
+
+        # collect the content, trying not to keep unnecessary paragraphs
+        if _is_single_paragraph(fieldbody):
+            content = fieldbody.children[0].children
+        else:
+            content = fieldbody.children
+
+        data.setdefault(uid, {})
+
+        if fieldtype == 'Returns':
+            for child in content:
+                ret_data = child.astext()
+                data[uid].setdefault(fieldtype, []).append(ret_data)
+
+        if fieldtype == 'Raises':
+            for child in content:
+                ret_data = child.astext()
+                data[uid].setdefault(fieldtype, []).append(ret_data)
+    return data
+
+
+def extract_info_lists(app, doctree):
+    data = []
 
     for node in doctree.traverse(nodes.field_list):
-        parent_desc = node.parent.parent
-        name, uid = _get_desc_data(parent_desc)
-        if not name:
-            continue
-
-        for field in node:
-            fieldname, fieldbody = field
-            try:
-                # split into field type and argument
-                fieldtype, _ = fieldname.astext().split(None, 1)
-            except ValueError:
-                # maybe an argument-less field type?
-                fieldtype = fieldname.astext()
-
-            # collect the content, trying not to keep unnecessary paragraphs
-            if _is_single_paragraph(fieldbody):
-                content = fieldbody.children[0].children
-            else:
-                content = fieldbody.children
-
-            data.setdefault(uid, {})
-
-            if fieldtype == 'Returns':
-                for child in content:
-                    ret_data = child.astext()
-                    data[uid].setdefault(fieldtype, []).append(ret_data)
-
-            if fieldtype == 'Raises':
-                for child in content:
-                    ret_data = child.astext()
-                    data[uid].setdefault(fieldtype, []).append(ret_data)
+        data.append(_get_full_data(node))
 
     print(data)
 

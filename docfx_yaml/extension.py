@@ -19,7 +19,7 @@ from sphinx.util import ensuredir
 from sphinx.errors import ExtensionError
 
 from .settings import API_ROOT
-from .extract_nodes import doctree_resolved
+from .monkeypatch import patch_docfields
 
 
 METHOD = 'method'
@@ -49,8 +49,10 @@ def build_init(app):
 
     app.env.docfx_yaml_modules = {}
     app.env.docfx_yaml_classes = {}
+    app.env.docfx_module_data = {}
 
     remote = getoutput('git remote -v')
+
     try:
         app.env.remote = remote.split('\t')[1].split(' ')[0]
     except Exception:
@@ -60,10 +62,17 @@ def build_init(app):
     except Exception:
         app.env.branch = None
 
+    patch_docfields(app)
+
 
 def _get_cls_module(_type, name):
     """
     Get the class and module name for an object
+
+    .. _sending:
+
+    Foo
+
     """
     cls = None
     if _type in ['function', 'exception']:
@@ -79,6 +88,16 @@ def _get_cls_module(_type, name):
     else:
         return (None, None)
     return (cls, module)
+
+
+def _create_reference(datam, parent, isExternal=False):
+    return {
+        'uid': datam['uid'],
+        'parent': parent,
+        'isExternal': isExternal,
+        'name': datam['name'],
+        'fullName': datam['fullName'],
+    }
 
 
 def _create_datam(app, cls, module, name, _type, obj, lines=[]):
@@ -101,8 +120,6 @@ def _create_datam(app, cls, module, name, _type, obj, lines=[]):
         path = None
         start_line = None
 
-    summary = '\n'.join(lines)
-    summary = summary.strip()
     datam = {
         'module': module,
         'uid': name,
@@ -110,7 +127,6 @@ def _create_datam(app, cls, module, name, _type, obj, lines=[]):
         '_type': _type,
         'name': short_name,
         'fullName': name,
-        'summary': summary,
         'source': {
             'remote': {
                 'path': path,
@@ -127,6 +143,7 @@ def _create_datam(app, cls, module, name, _type, obj, lines=[]):
         datam['class'] = cls
     if _type in ['class', 'module']:
         datam['children'] = []
+        datam['references'] = []
 
     return datam
 
@@ -161,24 +178,16 @@ def process_docstring(app, _type, name, obj, options, lines):
         else:
             app.env.docfx_yaml_classes[cls].append(datam)
 
-    # # Insert `Global` class to hold functions
-    # if _type == 'module':
-    #     app.env.docfx_yaml_modules[module].append({
-    #         'module': module,
-    #         'uid': module + '.Global',
-    #         'type': 'Class',
-    #         '_type': 'class',
-    #         'name': module.split('.')[-1] + '.Global',
-    #         'fullName': name,
-    #         'summary': 'Proxy object to hold module level functions',
-    #         'langs': ['python'],
-    #         'children': [],
-    #     })
-
     insert_inheritance(app, _type, obj, datam)
 
     insert_children_on_module(app, _type, datam)
     insert_children_on_class(app, _type, datam)
+
+
+def collect_inheritance(base, to_add):
+    for new_base in base.__bases__:
+        to_add.append(_fullname(new_base))
+        collect_inheritance(new_base, to_add)
 
 
 def insert_inheritance(app, _type, obj, datam):
@@ -186,9 +195,9 @@ def insert_inheritance(app, _type, obj, datam):
         if 'inheritance' not in datam:
             datam['inheritance'] = []
         for base in obj.__bases__:
-            datam['inheritance'].append(_fullname(base))
-            # recurse into bases
-            insert_inheritance(app, _type, base, datam)
+            to_add = [_fullname(base)]
+            collect_inheritance(base, to_add)
+            datam['inheritance'].append(to_add)
 
 
 def insert_children_on_module(app, _type, datam):
@@ -202,17 +211,19 @@ def insert_children_on_module(app, _type, datam):
     # Find the module which the datam belongs to
     for obj in insert_module:
         # Add standardlone function to global class
-        # if _type in ['function'] and \
-        #         obj['_type'] == 'class' and \
-        #         obj['name'] == datam['module'] + '.global':
-        #     obj['children'].append(datam['uid'])
-        #     print('inserting proxy object')
-        #     break
+        if _type in ['function'] and \
+                obj['_type'] == 'module' and \
+                obj['module'] == datam['module']:
+            obj['children'].append(datam['uid'])
+            insert_module.append(datam)
+            obj['references'].append(_create_reference(datam, parent=''))
+            break
         # Add classes & exceptions to module
         if _type in ['class', 'exception'] and \
                 obj['_type'] == 'module' and \
                 obj['module'] == datam['module']:
             obj['children'].append(datam['uid'])
+            obj['references'].append(_create_reference(datam, parent=''))
             break
 
 
@@ -232,6 +243,7 @@ def insert_children_on_class(app, _type, datam):
         if _type in ['method', 'attribute'] and \
                 obj['class'] == datam['class']:
             obj['children'].append(datam['uid'])
+            obj['references'].append(_create_reference(datam, parent=''))
             insert_class.append(datam)
 
 
@@ -256,9 +268,15 @@ def build_finished(app, exception):
         if not filename:
             # Skip objects without a module
             continue
+
+        # Merge module data with class data
+        for obj in yaml_data:
+            if obj['uid'] in app.env.docfx_module_data:
+                obj['syntax'] = app.env.docfx_module_data[obj['uid']]
+
         out_file = os.path.join(normalized_output, '%s.yml' % filename)
         ensuredir(os.path.dirname(out_file))
-        if app.verbosity > 1:
+        if app.verbosity >= 1:
             app.info(bold('[docfx_yaml] ') + darkgreen('Outputting %s' % filename))
         dump(
             {

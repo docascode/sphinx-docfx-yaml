@@ -113,7 +113,14 @@ def _create_datam(app, cls, module, name, _type, obj, lines=[]):
     short_name = name.split('.')[-1]
     try:
         full_path = inspect.getsourcefile(obj)
-        path = full_path.replace(os.path.dirname(app.builder.srcdir), '').replace('/', '', 1)
+        import_path = os.path.dirname(inspect.getfile(os))
+        # Support relative file imports
+        path = full_path.replace(os.path.dirname(app.builder.srcdir), '')
+        # Support global file imports
+        path = path.replace(os.path.join(import_path, 'site-packages'), '')
+        path = path.replace(import_path, '')
+        # Make relative
+        path = path.replace('/', '', 1)
         start_line = inspect.getsourcelines(obj)[1]
     except (TypeError, OSError):
         print("Can't inspect type {}: {}".format(type(obj), name))

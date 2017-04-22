@@ -768,8 +768,7 @@ class MarkdownTranslator(nodes.NodeVisitor):
             include_lines = None
             include_highlight = None
             include_caption = None
-            path ,= self.builder.copy_paths
-            path = self.builder.confdir + '/' + path
+            path = self.builder.confdir
             relative_path = node.attributes['source'][len(path)+1:]
 
 
@@ -1023,7 +1022,7 @@ class MarkdownTranslator(nodes.NodeVisitor):
         self.builder.warn('using "math" markup without a Sphinx math extension '
                           'active, please use one of the math extensions '
                           'described at http://sphinx-doc.org/ext/math.html',
-                          (self.builder.current_docname, node.line))
+                          (self.builder.env.docname, node.line))
         raise nodes.SkipNode
 
     visit_math_block = visit_math

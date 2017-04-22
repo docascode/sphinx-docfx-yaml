@@ -115,7 +115,7 @@ def _create_datam(app, cls, module, name, _type, obj, lines=[]):
         full_path = inspect.getsourcefile(obj)
         path = full_path.replace(os.path.dirname(app.builder.srcdir), '').replace('/', '', 1)
         start_line = inspect.getsourcelines(obj)[1]
-    except TypeError:
+    except (TypeError, OSError):
         print("Can't inspect type {}: {}".format(type(obj), name))
         path = None
         start_line = None
@@ -205,7 +205,7 @@ def insert_children_on_module(app, _type, datam):
     Insert children of a specific module
     """
 
-    if 'module' not in datam:
+    if 'module' not in datam or datam['module'] not in app.env.docfx_yaml_modules:
         return
     insert_module = app.env.docfx_yaml_modules[datam['module']]
     # Find the module which the datam belongs to

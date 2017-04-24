@@ -54,13 +54,18 @@ def build_init(app):
     remote = getoutput('git remote -v')
 
     try:
-        app.env.remote = remote.split('\t')[1].split(' ')[0]
+        app.env.docfx_remote = remote.split('\t')[1].split(' ')[0]
     except Exception:
-        app.env.remote = None
+        app.env.docfx_remote = None
     try:
-        app.env.branch = getoutput('git rev-parse --abbrev-ref HEAD').strip()
+        app.env.docfx_branch = getoutput('git rev-parse --abbrev-ref HEAD').strip()
     except Exception:
-        app.env.branch = None
+        app.env.docfx_branch = None
+
+    try:
+        app.env.docfx_root = getoutput('git rev-parse --show-toplevel').strip()
+    except Exception:
+        app.env.docfx_root = None
 
     patch_docfields(app)
 
@@ -113,10 +118,10 @@ def _create_datam(app, cls, module, name, _type, obj, lines=[]):
     short_name = name.split('.')[-1]
     try:
         full_path = inspect.getsourcefile(obj)
+        # Sub git repo path
+        path = full_path.replace(app.env.docfx_root, '')
+        # Support global file imports, if it's installed already
         import_path = os.path.dirname(inspect.getfile(os))
-        # Support relative file imports
-        path = full_path.replace(os.path.dirname(app.builder.srcdir), '')
-        # Support global file imports
         path = path.replace(os.path.join(import_path, 'site-packages'), '')
         path = path.replace(import_path, '')
         # Make relative
@@ -137,13 +142,14 @@ def _create_datam(app, cls, module, name, _type, obj, lines=[]):
         'source': {
             'remote': {
                 'path': path,
-                'branch': app.env.branch,
-                'repo': app.env.remote,
+                'branch': app.env.docfx_branch,
+                'repo': app.env.docfx_remote,
             },
             'id': short_name,
             'path': path,
             'startLine': start_line,
         },
+        'langs': ['python'],
     }
 
     if cls:
@@ -193,7 +199,7 @@ def process_docstring(app, _type, name, obj, options, lines):
 
 def collect_inheritance(base, to_add):
     for new_base in base.__bases__:
-        to_add.append(_fullname(new_base))
+        to_add['inheritance'] = {'type': _fullname(new_base)}
         collect_inheritance(new_base, to_add)
 
 
@@ -202,7 +208,7 @@ def insert_inheritance(app, _type, obj, datam):
         if 'inheritance' not in datam:
             datam['inheritance'] = []
         for base in obj.__bases__:
-            to_add = [_fullname(base)]
+            to_add = {'type': _fullname(base)}
             collect_inheritance(base, to_add)
             datam['inheritance'].append(to_add)
 
@@ -223,14 +229,14 @@ def insert_children_on_module(app, _type, datam):
                 obj['module'] == datam['module']:
             obj['children'].append(datam['uid'])
             insert_module.append(datam)
-            obj['references'].append(_create_reference(datam, parent=''))
+            obj['references'].append(_create_reference(datam, parent=obj['uid']))
             break
         # Add classes & exceptions to module
         if _type in ['class', 'exception'] and \
                 obj['_type'] == 'module' and \
                 obj['module'] == datam['module']:
             obj['children'].append(datam['uid'])
-            obj['references'].append(_create_reference(datam, parent=''))
+            obj['references'].append(_create_reference(datam, parent=obj['uid']))
             break
 
 
@@ -250,7 +256,7 @@ def insert_children_on_class(app, _type, datam):
         if _type in ['method', 'attribute'] and \
                 obj['class'] == datam['class']:
             obj['children'].append(datam['uid'])
-            obj['references'].append(_create_reference(datam, parent=''))
+            obj['references'].append(_create_reference(datam, parent=obj['uid']))
             insert_class.append(datam)
 
 
@@ -276,23 +282,33 @@ def build_finished(app, exception):
             # Skip objects without a module
             continue
 
+        references = []
+
         # Merge module data with class data
         for obj in yaml_data:
             if obj['uid'] in app.env.docfx_module_data:
                 obj['syntax'] = app.env.docfx_module_data[obj['uid']]
+                # Raise up summary
+                if 'summary' in obj['syntax']:
+                    obj['summary'] = obj['syntax'].pop('summary')
+            if 'references' in obj:
+                references.extend(obj.pop('references'))
 
+        # Output file
         out_file = os.path.join(normalized_output, '%s.yml' % filename)
         ensuredir(os.path.dirname(out_file))
         if app.verbosity >= 1:
             app.info(bold('[docfx_yaml] ') + darkgreen('Outputting %s' % filename))
-        dump(
-            {
-                'items': yaml_data,
-                'api_name': [],  # Hack around docfx YAML
-            },
-            open(out_file, 'w+'),
-            default_flow_style=False
-        )
+        with open(out_file, 'w+') as out_file_obj:
+            dump(
+                {
+                    'items': yaml_data,
+                    'references': references,
+                    'api_name': [],  # Hack around docfx YAML
+                },
+                out_file_obj,
+                default_flow_style=False
+            )
         toc_yaml.append({'name': filename, 'href': '%s.yml' % filename})
 
     toc_file = os.path.join(normalized_output, 'toc.yml')

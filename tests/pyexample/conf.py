@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import sys
+import os
+
+sys.path.insert(0, os.path.abspath('.'))
+
 templates_path = ['_templates']
 source_suffix = '.rst'
 master_doc = 'index'
@@ -16,6 +21,3 @@ html_theme = 'alabaster'
 html_static_path = ['_static']
 htmlhelp_basename = 'pyexampledoc'
 extensions = ['sphinx.ext.autodoc', 'docfx_yaml.extension']
-
-import sys, os
-sys.path.insert(0, os.path.abspath('.'))

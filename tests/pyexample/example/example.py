@@ -23,8 +23,21 @@ class Foo(object):
             return True
 
     def method_okay(self, foo=None, bar=None):
-        """This method should parse okay"""
+        """
+        This method should parse okay
+
+        :param str foo: The foo param
+        :param str bar: The bar param
+        :return: That the method is okay
+        :rtype: boolean
+        """
         return True
+
+    def method_markdown(self):
+        """
+        Check out our `site <http://sphinx-docfx-yaml.readthedocs.io/en/latest/>`_ for more info.
+        """
+        pass
 
     def method_multiline(self, foo=None, bar=None,
                          baz=None):

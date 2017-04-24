@@ -128,8 +128,7 @@ def patch_docfields(app):
             'parameters': [],
             'variables': [],
             'exceptions': [],
-            'returnvalue': '',
-            'returntype': '',
+            'return': {},
         }
 
         def make_typed(_id, _type, _description):
@@ -173,9 +172,9 @@ def patch_docfields(app):
                                 'description': transform_node(_description[0])
                             })
                     if fieldtype.name == 'returntype':
-                        data['returntype'] = u''.join(n.astext() for n in content[1])
+                        data['return']['type'] = u''.join(n.astext() for n in content[1])
                     if fieldtype.name == 'returnvalue':
-                        data['returnvalue'] = transform_node(content[1][0])
+                        data['return']['description'] = transform_node(content[1][0])
 
         return data
 

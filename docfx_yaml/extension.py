@@ -101,11 +101,11 @@ def _get_cls_module(_type, name):
     return (cls, module)
 
 
-def _create_reference(datam, parent, isExternal=False):
+def _create_reference(datam, parent, is_external=False):
     return {
         'uid': datam['uid'],
         'parent': parent,
-        'isExternal': isExternal,
+        'isExternal': is_external,
         'name': datam['name'],
         'fullName': datam['fullName'],
     }
@@ -323,7 +323,8 @@ def build_finished(app, exception):
                     if arg_params and doc_params:
                         if len(arg_params) - len(doc_params) > 1:
                             app.warn(
-                                "Documented params don't match size of params: {}".format(obj['uid']))
+                                "Documented params don't match size of params:"
+                                " {}".format(obj['uid']))
                         if len(arg_params) - len(doc_params) == 1:
                             # Support having `self` as an arg param, but not documented
                             merged_params = [arg_params[0]]

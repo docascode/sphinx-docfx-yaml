@@ -103,7 +103,8 @@ def patch_docfields(app):
     which is what Sphinx uses to transform the docutils ``nodes.field``
     into the sphinx ``docfields.Field`` objects.
 
-    See usage in Sphinx `here <https://github.com/sphinx-doc/sphinx/blob/master/sphinx/directives/__init__.py#L180>`_
+    See usage in Sphinx
+    `here <https://github.com/sphinx-doc/sphinx/blob/master/sphinx/directives/__init__.py#L180>`_.
 
     This also performs the RST doctree to Markdown transformation on the content,
     using the :any:`docfx_yaml.writers.MarkdownWriter`.

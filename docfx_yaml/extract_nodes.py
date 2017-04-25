@@ -54,7 +54,6 @@ def _get_desc_data(node):
 
 def _get_full_data(node):
     data = {}
-    import ipdb; ipdb.set_trace()
     parent_desc = node.parent.parent
     name, uid = _get_desc_data(parent_desc)
     if not name:

@@ -123,6 +123,20 @@ def _create_datam(app, cls, module, name, _type, obj, lines=[]):
 
     short_name = name.split('.')[-1]
     summary = app.docfx_transform_string('\n'.join(lines))
+    args = []
+    try:
+        if _type in [METHOD, FUNCTION]:
+            argspec = inspect.getargspec(obj)
+            for arg in argspec.args:
+                args.append({'id': arg})
+            if argspec.defaults:
+                for count, default in enumerate(argspec.defaults):
+                    cut_count = len(argspec.defaults)
+                    # Match the defaults with the count
+                    args[len(args) - 1 - cut_count - 1 - count]['default'] = default
+    except Exception:
+        print("Can't get argspec for {}: {}".format(type(obj), name))
+
     try:
         full_path = inspect.getsourcefile(obj)
         # Sub git repo path
@@ -147,6 +161,9 @@ def _create_datam(app, cls, module, name, _type, obj, lines=[]):
         'summary': summary,
         'name': short_name,
         'fullName': name,
+        'syntax': {
+            'parameters': args,
+        },
         'source': {
             'remote': {
                 'path': path,
@@ -295,7 +312,24 @@ def build_finished(app, exception):
         # Merge module data with class data
         for obj in yaml_data:
             if obj['uid'] in app.env.docfx_module_data:
-                obj['syntax'] = app.env.docfx_module_data[obj['uid']]
+                merged_params = []
+                if 'parameters' in app.env.docfx_module_data[obj['uid']]:
+                    arg_params = obj['syntax'].get('parameters', [])
+                    doc_params = app.env.docfx_module_data[obj['uid']].get('parameters', [])
+                    if arg_params and doc_params:
+                        if len(arg_params) - len(doc_params) > 1:
+                            app.warn("Documented params don't match size of params: {}".format(obj['uid']))
+                        if len(arg_params) - len(doc_params) == 1:
+                            # Support having `self` as an arg param, but not documented
+                            merged_params = [arg_params[0]]
+                            arg_params = arg_params[1:]
+                        for args, docs in zip(arg_params, doc_params):
+                            args.update(docs)
+                            merged_params.append(args)
+                obj['syntax'].update(app.env.docfx_module_data[obj['uid']])
+                if merged_params:
+                    obj['syntax']['parameters'] = merged_params
+
                 # Raise up summary
                 if 'summary' in obj['syntax']:
                     obj['summary'] = obj['syntax'].pop('summary')

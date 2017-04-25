@@ -96,7 +96,10 @@ class PythonTests(unittest.TestCase):
         Test multiple inheritance is properly resolved.
         """
         with sphinx_build('pyexample'):
-            with open('_build/text/docfx_yaml/example.multiple_inheritance.ObservableArbitraryWidget.yml') as yml_file:
+            with open(
+                '_build/text/docfx_yaml/'
+                'example.multiple_inheritance.ObservableArbitraryWidget.yml'
+            ) as yml_file:
                 data = yaml.safe_load(yml_file)
                 for item in data['items']:
                     if item['uid'] == 'example.multiple_inheritance.ObservableArbitraryWidget':
@@ -124,6 +127,14 @@ class PythonTests(unittest.TestCase):
                         self.assertEqual(
                             item['syntax']['return'],
                             {'type': 'boolean', 'description': 'That the method is okay'},
+                        )
+                        self.assertEqual(
+                            item['syntax']['parameters'][1]['default'],
+                            None,
+                        )
+                        self.assertEqual(
+                            item['syntax']['parameters'][1]['description'],
+                            'The foo param',
                         )
 
     def test_vcs(self):

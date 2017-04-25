@@ -56,6 +56,23 @@ class PythonTests(unittest.TestCase):
                     'example.example'
                 )
 
+    def test_module_summary(self):
+        """
+        Test that we're pulling the top-level module summary
+        """
+        with sphinx_build('pyexample'):
+            with open('_build/text/docfx_yaml/example.example.yml') as yml_file:
+                data = yaml.safe_load(yml_file)
+                for item in data['items']:
+                    if item['uid'] == 'example.example':
+                        self.assertEqual(
+                            item['summary'],
+                            'Example module\n\nThis is a description'
+                        )
+                        break
+                else:
+                    self.fail('Module not found')
+
     def test_references(self):
         """
         Test references are properly inserted.
@@ -76,18 +93,16 @@ class PythonTests(unittest.TestCase):
 
     def test_inheritance(self):
         """
-        Test references are properly inserted.
+        Test multiple inheritance is properly resolved.
         """
         with sphinx_build('pyexample'):
             with open('_build/text/docfx_yaml/example.multiple_inheritance.ObservableArbitraryWidget.yml') as yml_file:
                 data = yaml.safe_load(yml_file)
-                # Test that references are properly put at the top-level
                 for item in data['items']:
                     if item['uid'] == 'example.multiple_inheritance.ObservableArbitraryWidget':
                         self.assertTrue(
                             'inheritance' in item
                         )
-                        # Check reference parent
                         self.assertEqual(
                             item['inheritance'][0]['type'],
                             'example.multiple_inheritance.ArbitraryWidget'

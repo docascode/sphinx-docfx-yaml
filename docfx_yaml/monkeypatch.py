@@ -1,12 +1,11 @@
 from docutils import nodes
-from docutils.io import StringOutput
-from docutils.utils import new_document
+from functools import partial
 
 from sphinx.util.docfields import _is_single_paragraph
 from sphinx.util import docfields
 from sphinx import directives, addnodes
 
-from .writer import MarkdownWriter as Writer
+from .utils import transform_node as _transform_node
 from .extract_nodes import _get_desc_data
 
 
@@ -110,14 +109,7 @@ def patch_docfields(app):
     using the :any:`docfx_yaml.writers.MarkdownWriter`.
     """
 
-    writer = Writer(app.builder)
-
-    def transform_node(node):
-        destination = StringOutput(encoding='utf-8')
-        doc = new_document(b'<partial node>')
-        doc.append(node)
-        writer.write(doc, destination)
-        return destination.destination.decode('utf-8').strip()
+    transform_node = partial(_transform_node, app)
 
     def get_data_structure(entries, types):
         """
@@ -201,7 +193,8 @@ def patch_docfields(app):
                 else:
                     content = transform_node(child)
                     summary.append(content)
-            data['summary'] = '\n'.join(summary)
+            if summary:
+                data['summary'] = '\n'.join(summary)
             self.directive.env.docfx_module_data[uid] = data
             super(PatchedDocFieldTransformer, self).transform_all(node)
 

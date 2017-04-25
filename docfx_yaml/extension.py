@@ -6,6 +6,7 @@ This extension allows you to automagically generate DocFX YAML from your Python 
 """
 import os
 import inspect
+from functools import partial
 
 try:
     from subprocess import getoutput
@@ -18,8 +19,10 @@ from sphinx.util.console import darkgreen, bold
 from sphinx.util import ensuredir
 from sphinx.errors import ExtensionError
 
+from .utils import transform_node, transform_string
 from .settings import API_ROOT
 from .monkeypatch import patch_docfields
+from .writer import MarkdownWriter as Writer
 
 
 METHOD = 'method'
@@ -68,6 +71,9 @@ def build_init(app):
         app.env.docfx_root = None
 
     patch_docfields(app)
+    app.docfx_writer = Writer(app.builder)
+    app.docfx_transform_node = partial(transform_node, app)
+    app.docfx_transform_string = partial(transform_string, app)
 
 
 def _get_cls_module(_type, name):
@@ -116,6 +122,7 @@ def _create_datam(app, cls, module, name, _type, obj, lines=[]):
         mapped_type = _type
 
     short_name = name.split('.')[-1]
+    summary = app.docfx_transform_string('\n'.join(lines))
     try:
         full_path = inspect.getsourcefile(obj)
         # Sub git repo path
@@ -137,6 +144,7 @@ def _create_datam(app, cls, module, name, _type, obj, lines=[]):
         'uid': name,
         'type': mapped_type,
         '_type': _type,
+        'summary': summary,
         'name': short_name,
         'fullName': name,
         'source': {

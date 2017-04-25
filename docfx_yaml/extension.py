@@ -133,7 +133,7 @@ def _create_datam(app, cls, module, name, _type, obj, lines=[]):
                 for count, default in enumerate(argspec.defaults):
                     cut_count = len(argspec.defaults)
                     # Match the defaults with the count
-                    args[len(args) - 1 - cut_count - 1 - count]['default'] = default
+                    args[len(args) - 1 - cut_count - 1 - count]['default'] = str(default)
     except Exception:
         print("Can't get argspec for {}: {}".format(type(obj), name))
 
@@ -290,9 +290,10 @@ def build_finished(app, exception):
     Output YAML on the file system.
     """
 
+
     normalized_output = os.path.normpath(os.path.join(
         app.builder.outdir,  # Output Directory for Builder
-        app.config.docfx_yaml_output
+        API_ROOT,
     ))
     ensuredir(normalized_output)
 

@@ -123,19 +123,14 @@ def patch_docfields(app):
             'return': {},
         }
 
-        def make_typed(_id, _type, _description):
-            return {
+        def make_param(_id, _description, _type=None):
+            ret =  {
                 'id': _id,
-                'type': _type,
                 'description': _description,
             }
-
-        def make_untyped(_id, _description):
-            return {
-                'id': _id,
-                'type': _type,
-                'description': _description,
-            }
+            if _type:
+                ret['type'] = _type
+            return ret
 
         for entry in entries:
             if isinstance(entry, nodes.field):
@@ -144,29 +139,30 @@ def patch_docfields(app):
             else:
                 fieldtype, content = entry
                 fieldtypes = types.get(fieldtype.name, {})
-                for num, field in enumerate(fieldtypes):
-                    _id = field
-                    _description = transform_node(content[num][1][0])
-                    _type = u''.join(n.astext() for n in fieldtypes[field])
-                    if fieldtype.name == 'parameter':
-                        _data = make_typed(_id=_id, _type=_type, _description=_description)
-                        data['parameters'].append(_data)
-                    if fieldtype.name == 'variable':
-                        _data = make_typed(_id=_id, _type=_type, _description=_description)
-                        data['variables'].append(_data)
-                if not fieldtypes:
-                    if fieldtype.name == 'parameter':
-                        pass
-                    if fieldtype.name == 'exceptions':
-                        for _type, _description in content:
-                            data['exceptions'].append({
-                                'type': _type,
-                                'description': transform_node(_description[0])
-                            })
-                    if fieldtype.name == 'returntype':
-                        data['return']['type'] = u''.join(n.astext() for n in content[1])
-                    if fieldtype.name == 'returnvalue':
-                        data['return']['description'] = transform_node(content[1][0])
+                if fieldtype.name == 'exceptions':
+                    for _type, _description in content:
+                        data['exceptions'].append({
+                            'type': _type,
+                            'description': transform_node(_description[0])
+                        })
+                if fieldtype.name == 'returntype':
+                    data['return']['type'] = u''.join(n.astext() for n in content[1])
+                if fieldtype.name == 'returnvalue':
+                    data['return']['description'] = transform_node(content[1][0])
+                if fieldtype.name in ['parameter', 'variable']:
+                    for field, node_list in content:
+                        _id = field
+                        _description = transform_node(node_list[0])
+                        if field in fieldtypes:
+                            _type = u''.join(n.astext() for n in fieldtypes[field])
+                        else:
+                            _type = None
+                        if fieldtype.name == 'parameter':
+                            _data = make_param(_id=_id, _type=_type, _description=_description)
+                            data['parameters'].append(_data)
+                        if fieldtype.name == 'variable':
+                            _data = make_param(_id=_id, _type=_type, _description=_description)
+                            data['variables'].append(_data)
 
         return data
 

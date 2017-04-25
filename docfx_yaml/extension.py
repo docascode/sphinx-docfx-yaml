@@ -161,9 +161,6 @@ def _create_datam(app, cls, module, name, _type, obj, lines=[]):
         'summary': summary,
         'name': short_name,
         'fullName': name,
-        'syntax': {
-            'parameters': args,
-        },
         'source': {
             'remote': {
                 'path': path,
@@ -176,6 +173,11 @@ def _create_datam(app, cls, module, name, _type, obj, lines=[]):
         },
         'langs': ['python'],
     }
+
+    if args:
+        datam['syntax'] = {
+            'parameters': args,
+        }
 
     if cls:
         datam['class'] = cls
@@ -312,6 +314,8 @@ def build_finished(app, exception):
         # Merge module data with class data
         for obj in yaml_data:
             if obj['uid'] in app.env.docfx_module_data:
+                if 'syntax' not in obj:
+                    obj['syntax'] = {}
                 merged_params = []
                 if 'parameters' in app.env.docfx_module_data[obj['uid']]:
                     arg_params = obj['syntax'].get('parameters', [])
@@ -332,7 +336,7 @@ def build_finished(app, exception):
                     obj['syntax']['parameters'] = merged_params
 
                 # Raise up summary
-                if 'summary' in obj['syntax']:
+                if 'summary' in obj['syntax'] and obj['syntax']:
                     obj['summary'] = obj['syntax'].pop('summary')
             if 'references' in obj:
                 references.extend(obj.pop('references'))

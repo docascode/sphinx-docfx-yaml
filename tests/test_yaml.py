@@ -130,7 +130,7 @@ class PythonTests(unittest.TestCase):
                         )
                         self.assertEqual(
                             item['syntax']['parameters'][1]['default'],
-                            None,
+                            'None',
                         )
                         self.assertEqual(
                             item['syntax']['parameters'][1]['description'],

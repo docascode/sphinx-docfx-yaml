@@ -195,6 +195,10 @@ def patch_docfields(app):
                     summary.append(content)
             if summary:
                 data['summary'] = '\n'.join(summary)
+            # Don't include empty data
+            for key, val in data.copy().items():
+                if not val:
+                    del data[key]
             self.directive.env.docfx_module_data[uid] = data
             super(PatchedDocFieldTransformer, self).transform_all(node)
 

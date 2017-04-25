@@ -124,7 +124,7 @@ def patch_docfields(app):
         }
 
         def make_param(_id, _description, _type=None):
-            ret =  {
+            ret = {
                 'id': _id,
                 'description': _description,
             }
@@ -146,9 +146,13 @@ def patch_docfields(app):
                             'description': transform_node(_description[0])
                         })
                 if fieldtype.name == 'returntype':
-                    data['return']['type'] = u''.join(n.astext() for n in content[1])
+                    returntype_ret = u''.join(n.astext() for n in content[1])
+                    if returntype_ret:
+                        data['return']['type'] = returntype_ret
                 if fieldtype.name == 'returnvalue':
-                    data['return']['description'] = transform_node(content[1][0])
+                    returnvalue_ret = transform_node(content[1][0])
+                    if returnvalue_ret:
+                        data['return']['description'] = returnvalue_ret
                 if fieldtype.name in ['parameter', 'variable']:
                     for field, node_list in content:
                         _id = field

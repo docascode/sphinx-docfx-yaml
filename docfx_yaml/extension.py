@@ -290,7 +290,6 @@ def build_finished(app, exception):
     Output YAML on the file system.
     """
 
-
     normalized_output = os.path.normpath(os.path.join(
         app.builder.outdir,  # Output Directory for Builder
         API_ROOT,
@@ -319,7 +318,8 @@ def build_finished(app, exception):
                     doc_params = app.env.docfx_module_data[obj['uid']].get('parameters', [])
                     if arg_params and doc_params:
                         if len(arg_params) - len(doc_params) > 1:
-                            app.warn("Documented params don't match size of params: {}".format(obj['uid']))
+                            app.warn(
+                                "Documented params don't match size of params: {}".format(obj['uid']))
                         if len(arg_params) - len(doc_params) == 1:
                             # Support having `self` as an arg param, but not documented
                             merged_params = [arg_params[0]]

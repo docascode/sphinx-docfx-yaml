@@ -228,7 +228,7 @@ def process_docstring(app, _type, name, obj, options, lines):
 def collect_inheritance(base, to_add):
     for new_base in base.__bases__:
         new_add = []
-        new_add.append({'type': _fullname(new_base)})
+        new_add.append(_fullname(new_base))
         collect_inheritance(new_base, new_add)
         to_add.append(new_add)
 
@@ -238,7 +238,7 @@ def insert_inheritance(app, _type, obj, datam):
         if 'inheritance' not in datam:
             datam['inheritance'] = []
         for base in obj.__bases__:
-            to_add = [{'type': _fullname(base)}]
+            to_add = [_fullname(base)]
             collect_inheritance(base, to_add)
             datam['inheritance'].append(to_add)
 

@@ -27,23 +27,6 @@ def sphinx_build(test_dir):
 
 class PythonTests(unittest.TestCase):
 
-    def test_yaml(self):
-        """
-        A basic YAML test to hold test data.
-
-       :param str sender: The person :ref:`sending** the message
-       :param str recipient: The recipient of the message,
-                             `YAML <http://example.com>`_.
-       :param str message_body: The body of the message
-       :param priority: The priority of the message, can be a number 1-5
-       :type priority: integer or None
-       :return: the message id
-       :rtype: int
-       :raises ValueError: if the message_body exceeds 160 characters
-       :raises TypeError: if the message_body is not a basestring
-        """
-        self.assertTrue(1, 1)
-
     def test_functional(self):
         """
         A basic functional test
@@ -107,11 +90,11 @@ class PythonTests(unittest.TestCase):
                             'inheritance' in item
                         )
                         self.assertEqual(
-                            item['inheritance'][0][0]['type'],
+                            item['inheritance'][0][0],
                             'example.multiple_inheritance.ArbitraryWidget'
                         )
                         self.assertEqual(
-                            item['inheritance'][1][0]['type'],
+                            item['inheritance'][1][0],
                             'example.multiple_inheritance.Subject'
                         )
 

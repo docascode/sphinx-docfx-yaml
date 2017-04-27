@@ -197,5 +197,6 @@ class PythonTests(unittest.TestCase):
                     if 'items' in item:
                         self.assertEqual(
                             item['items'][0]['name'],
-                            'example.example.Foo.Meta'
+                            'example.example.Foo'
                         )
+                        break

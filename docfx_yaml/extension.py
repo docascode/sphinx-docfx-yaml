@@ -303,76 +303,77 @@ def build_finished(app, exception):
 
     toc_yaml = []
 
-    iter_data = {}
-    iter_data.update(app.env.docfx_yaml_modules)
-    iter_data.update(app.env.docfx_yaml_classes)
+    iter_data = []
+    iter_data.append(app.env.docfx_yaml_modules)
+    iter_data.append(app.env.docfx_yaml_classes)
 
-    for filename, yaml_data in iter_data.items():
-        if not filename:
-            # Skip objects without a module
-            continue
+    for data_set in iter_data:
+        for filename, yaml_data in iter(sorted(data_set.items())):
+            if not filename:
+                # Skip objects without a module
+                continue
 
-        references = []
+            references = []
 
-        # Merge module data with class data
-        for obj in yaml_data:
-            if obj['uid'] in app.env.docfx_module_data:
-                if 'syntax' not in obj:
-                    obj['syntax'] = {}
-                merged_params = []
-                if 'parameters' in app.env.docfx_module_data[obj['uid']]:
-                    arg_params = obj['syntax'].get('parameters', [])
-                    doc_params = app.env.docfx_module_data[obj['uid']].get('parameters', [])
-                    if arg_params and doc_params:
-                        if len(arg_params) - len(doc_params) > 1:
-                            app.warn(
-                                "Documented params don't match size of params:"
-                                " {}".format(obj['uid']))
-                        if len(arg_params) - len(doc_params) == 1:
-                            # Support having `self` as an arg param, but not documented
-                            merged_params = [arg_params[0]]
-                            arg_params = arg_params[1:]
-                        for args, docs in zip(arg_params, doc_params):
-                            args.update(docs)
-                            merged_params.append(args)
-                obj['syntax'].update(app.env.docfx_module_data[obj['uid']])
-                if merged_params:
-                    obj['syntax']['parameters'] = merged_params
+            # Merge module data with class data
+            for obj in yaml_data:
+                if obj['uid'] in app.env.docfx_module_data:
+                    if 'syntax' not in obj:
+                        obj['syntax'] = {}
+                    merged_params = []
+                    if 'parameters' in app.env.docfx_module_data[obj['uid']]:
+                        arg_params = obj['syntax'].get('parameters', [])
+                        doc_params = app.env.docfx_module_data[obj['uid']].get('parameters', [])
+                        if arg_params and doc_params:
+                            if len(arg_params) - len(doc_params) > 1:
+                                app.warn(
+                                    "Documented params don't match size of params:"
+                                    " {}".format(obj['uid']))
+                            if len(arg_params) - len(doc_params) == 1:
+                                # Support having `self` as an arg param, but not documented
+                                merged_params = [arg_params[0]]
+                                arg_params = arg_params[1:]
+                            for args, docs in zip(arg_params, doc_params):
+                                args.update(docs)
+                                merged_params.append(args)
+                    obj['syntax'].update(app.env.docfx_module_data[obj['uid']])
+                    if merged_params:
+                        obj['syntax']['parameters'] = merged_params
 
-                # Raise up summary
-                if 'summary' in obj['syntax'] and obj['syntax']['summary']:
-                    obj['summary'] = obj['syntax'].pop('summary')
-            if 'references' in obj:
-                references.extend(obj.pop('references'))
+                    # Raise up summary
+                    if 'summary' in obj['syntax'] and obj['syntax']['summary']:
+                        obj['summary'] = obj['syntax'].pop('summary')
+                if 'references' in obj:
+                    references.extend(obj.pop('references'))
 
-        # Output file
-        out_file = os.path.join(normalized_output, '%s.yml' % filename)
-        ensuredir(os.path.dirname(out_file))
-        if app.verbosity >= 1:
-            app.info(bold('[docfx_yaml] ') + darkgreen('Outputting %s' % filename))
-        with open(out_file, 'w') as out_file_obj:
-            out_file_obj.write('#YamlMime:PythonReference\n')
-            dump(
-                {
-                    'items': yaml_data,
-                    'references': references,
-                    'api_name': [],  # Hack around docfx YAML
-                },
-                out_file_obj,
-                default_flow_style=False
-            )
-        if filename.count('.') > 2:
-            second_level = '.'.join(filename.split('.')[:2])
-            for module in toc_yaml:
-                if module['name'] == second_level:
-                    if 'items' not in module:
-                        module['items'] = []
-                    module['items'].append({'name': filename, 'href': '%s.yml' % filename})
-                    break
+            # Output file
+            out_file = os.path.join(normalized_output, '%s.yml' % filename)
+            ensuredir(os.path.dirname(out_file))
+            if app.verbosity >= 1:
+                app.info(bold('[docfx_yaml] ') + darkgreen('Outputting %s' % filename))
+            with open(out_file, 'w') as out_file_obj:
+                out_file_obj.write('#YamlMime:PythonReference\n')
+                dump(
+                    {
+                        'items': yaml_data,
+                        'references': references,
+                        'api_name': [],  # Hack around docfx YAML
+                    },
+                    out_file_obj,
+                    default_flow_style=False
+                )
+            if filename.count('.') > 1:
+                second_level = '.'.join(filename.split('.')[:2])
+                for module in toc_yaml:
+                    if module['name'] == second_level:
+                        if 'items' not in module:
+                            module['items'] = []
+                        module['items'].append({'name': filename, 'href': '%s.yml' % filename})
+                        break
+                else:
+                    print('No second level module found: {}'.format(second_level))
             else:
-                print('No second level module found: {}'.format(second_level))
-        else:
-            toc_yaml.append({'name': filename, 'href': '%s.yml' % filename})
+                toc_yaml.append({'name': filename, 'href': '%s.yml' % filename})
 
     toc_file = os.path.join(normalized_output, 'toc.yml')
     with open(toc_file, 'w') as writable:

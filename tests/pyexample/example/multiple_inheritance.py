@@ -1,3 +1,7 @@
+class Third(object):
+    pass
+
+
 class Subject(object):
 
     def __init__(self):
@@ -12,7 +16,7 @@ class Subject(object):
             observer.notify()
 
 
-class ArbitraryWidget(object):
+class ArbitraryWidget(Third, object):
 
     def __init__(self):
         # 'methalop' is what Ali G suggests as an alternative for the word
@@ -28,5 +32,3 @@ class ObservableArbitraryWidget(ArbitraryWidget, Subject):
 
     def __init__(self):
         super(ObservableArbitraryWidget, self).__init__()
-
-

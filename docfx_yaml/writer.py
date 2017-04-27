@@ -866,7 +866,9 @@ class MarkdownTranslator(nodes.NodeVisitor):
         raise nodes.SkipNode
 
     def visit_pending_xref(self, node):
-        pass
+        if 'refdomain' in node.attributes and node.attributes['refdomain'] == 'py':
+            self.add_text('@{}'.format(node.attributes['reftarget']))
+        raise nodes.SkipNode
 
     def depart_pending_xref(self, node):
         pass

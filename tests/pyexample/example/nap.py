@@ -14,3 +14,12 @@ class Base(object):
         See Also:
             Some cool stuff online.
         """
+
+    def ref(self, ext):
+        """
+        Args:
+            ext (ExternalRef): An external ref
+
+        See Also:
+            Depends on :py:class:`example.example.Foo`
+        """

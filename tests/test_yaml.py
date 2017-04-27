@@ -107,11 +107,11 @@ class PythonTests(unittest.TestCase):
                             'inheritance' in item
                         )
                         self.assertEqual(
-                            item['inheritance'][0]['type'],
+                            item['inheritance'][0][0]['type'],
                             'example.multiple_inheritance.ArbitraryWidget'
                         )
                         self.assertEqual(
-                            item['inheritance'][1]['type'],
+                            item['inheritance'][1][0]['type'],
                             'example.multiple_inheritance.Subject'
                         )
 
@@ -173,7 +173,7 @@ class PythonTests(unittest.TestCase):
 
     def test_napoleon(self):
         """
-        Test Markdown content is converted
+        Test Napolean content is converted
         """
         with sphinx_build('pyexample'):
             with open('_build/text/docfx_yaml/example.nap.Base.yml') as yml_file:
@@ -187,4 +187,18 @@ class PythonTests(unittest.TestCase):
                         self.assertEqual(
                             item['syntax']['seealso'],
                             'See also: Some cool stuff online.'
+                        )
+
+    def test_xref(self):
+        """
+        Test xref parsing for Python domain objects
+        """
+        with sphinx_build('pyexample'):
+            with open('_build/text/docfx_yaml/example.nap.Base.yml') as yml_file:
+                data = yaml.safe_load(yml_file)
+                for item in data['items']:
+                    if item['uid'] == 'example.nap.Base.ref':
+                        self.assertEqual(
+                            item['syntax']['seealso'],
+                            'See also: Depends on @example.example.Foo'
                         )

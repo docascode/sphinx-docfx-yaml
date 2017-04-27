@@ -192,7 +192,7 @@ def patch_docfields(app):
                     _data = get_data_structure(entries, types)
                     data.update(_data)
                 elif isinstance(child, addnodes.seealso):
-                    data['seealso'] = self.directive.env.app.docfx_transform_node(child)
+                    data['seealso'] = transform_node(child)
                 else:
                     content = transform_node(child)
                     summary.append(content)

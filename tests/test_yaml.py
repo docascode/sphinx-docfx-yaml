@@ -202,3 +202,17 @@ class PythonTests(unittest.TestCase):
                             item['syntax']['seealso'],
                             'See also: Depends on @example.example.Foo'
                         )
+
+    def test_toc(self):
+        """
+        Test second level toc nesting
+        """
+        with sphinx_build('pyexample'):
+            with open('_build/text/docfx_yaml/toc.yml') as yml_file:
+                data = yaml.safe_load(yml_file)
+                for item in data:
+                    if 'items' in item:
+                        self.assertEqual(
+                            item['items'][0]['name'],
+                            'example.example.Foo.Meta'
+                        )

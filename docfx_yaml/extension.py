@@ -361,7 +361,18 @@ def build_finished(app, exception):
                 out_file_obj,
                 default_flow_style=False
             )
-        toc_yaml.append({'name': filename, 'href': '%s.yml' % filename})
+        if filename.count('.') > 2:
+            second_level = '.'.join(filename.split('.')[:2])
+            for module in toc_yaml:
+                if module['name'] == second_level:
+                    if 'items' not in module:
+                        module['items'] = []
+                    module['items'].append({'name': filename, 'href': '%s.yml' % filename})
+                    break
+            else:
+                print('No second level module found: {}'.format(second_level))
+        else:
+            toc_yaml.append({'name': filename, 'href': '%s.yml' % filename})
 
     toc_file = os.path.join(normalized_output, 'toc.yml')
     with open(toc_file, 'w') as writable:

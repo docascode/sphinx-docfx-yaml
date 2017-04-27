@@ -20,4 +20,4 @@ todo_include_todos = False
 html_theme = 'alabaster'
 html_static_path = ['_static']
 htmlhelp_basename = 'pyexampledoc'
-extensions = ['sphinx.ext.autodoc', 'docfx_yaml.extension']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.napoleon', 'docfx_yaml.extension']

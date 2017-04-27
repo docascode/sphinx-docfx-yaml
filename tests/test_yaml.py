@@ -129,7 +129,7 @@ class PythonTests(unittest.TestCase):
                             {'type': 'boolean', 'description': 'That the method is okay'},
                         )
                         self.assertEqual(
-                            item['syntax']['parameters'][1]['default'],
+                            item['syntax']['parameters'][1]['defaultValue'],
                             'None',
                         )
                         self.assertEqual(
@@ -169,4 +169,22 @@ class PythonTests(unittest.TestCase):
                             'Check out our '
                             '[site](http://sphinx-docfx-yaml.readthedocs.io/en/latest/)'
                             ' for more info.',
+                        )
+
+    def test_napoleon(self):
+        """
+        Test Markdown content is converted
+        """
+        with sphinx_build('pyexample'):
+            with open('_build/text/docfx_yaml/example.nap.Base.yml') as yml_file:
+                data = yaml.safe_load(yml_file)
+                for item in data['items']:
+                    if item['uid'] == 'example.nap.Base.foo':
+                        self.assertEqual(
+                            item['syntax']['parameters'][1]['description'],
+                            'The Foo instance is destructed'
+                        )
+                        self.assertEqual(
+                            item['syntax']['seealso'],
+                            'See also: Some cool stuff online.'
                         )

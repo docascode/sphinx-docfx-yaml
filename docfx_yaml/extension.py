@@ -133,7 +133,7 @@ def _create_datam(app, cls, module, name, _type, obj, lines=[]):
                 for count, default in enumerate(argspec.defaults):
                     cut_count = len(argspec.defaults)
                     # Match the defaults with the count
-                    args[len(args) - 1 - cut_count - 1 - count]['default'] = str(default)
+                    args[len(args) - 1 - cut_count - 1 - count]['defaultValue'] = str(default)
     except Exception:
         print("Can't get argspec for {}: {}".format(type(obj), name))
 
@@ -158,7 +158,6 @@ def _create_datam(app, cls, module, name, _type, obj, lines=[]):
         'uid': name,
         'type': mapped_type,
         '_type': _type,
-        'summary': summary,
         'name': short_name,
         'fullName': name,
         'source': {
@@ -174,6 +173,8 @@ def _create_datam(app, cls, module, name, _type, obj, lines=[]):
         'langs': ['python'],
     }
 
+    if summary:
+        datam['summary'] = summary
     if args:
         datam['syntax'] = {
             'parameters': args,
@@ -226,7 +227,7 @@ def process_docstring(app, _type, name, obj, options, lines):
 
 def collect_inheritance(base, to_add):
     for new_base in base.__bases__:
-        to_add['inheritance'] = {'type': _fullname(new_base)}
+        to_add.append({'type': _fullname(new_base)})
         collect_inheritance(new_base, to_add)
 
 
@@ -235,7 +236,7 @@ def insert_inheritance(app, _type, obj, datam):
         if 'inheritance' not in datam:
             datam['inheritance'] = []
         for base in obj.__bases__:
-            to_add = {'type': _fullname(base)}
+            to_add = [{'type': _fullname(base)}]
             collect_inheritance(base, to_add)
             datam['inheritance'].append(to_add)
 
@@ -337,7 +338,7 @@ def build_finished(app, exception):
                     obj['syntax']['parameters'] = merged_params
 
                 # Raise up summary
-                if 'summary' in obj['syntax'] and obj['syntax']:
+                if 'summary' in obj['syntax'] and obj['syntax']['summary']:
                     obj['summary'] = obj['syntax'].pop('summary')
             if 'references' in obj:
                 references.extend(obj.pop('references'))
@@ -347,7 +348,8 @@ def build_finished(app, exception):
         ensuredir(os.path.dirname(out_file))
         if app.verbosity >= 1:
             app.info(bold('[docfx_yaml] ') + darkgreen('Outputting %s' % filename))
-        with open(out_file, 'w+') as out_file_obj:
+        with open(out_file, 'w') as out_file_obj:
+            out_file_obj.write('#YamlMime:PythonReference\n')
             dump(
                 {
                     'items': yaml_data,
@@ -360,7 +362,7 @@ def build_finished(app, exception):
         toc_yaml.append({'name': filename, 'href': '%s.yml' % filename})
 
     toc_file = os.path.join(normalized_output, 'toc.yml')
-    with open(toc_file, 'w+') as writable:
+    with open(toc_file, 'w') as writable:
         writable.write(
             dump(
                 toc_yaml,

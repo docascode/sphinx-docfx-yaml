@@ -130,7 +130,7 @@ def patch_docfields(app):
                 'description': _description,
             }
             if _type:
-                ret['type'] = _type
+                ret['type'] = [_type]
             return ret
 
         for entry in entries:
@@ -187,10 +187,12 @@ def patch_docfields(app):
                 if isinstance(child, addnodes.desc):
                     # Don't recurse into child nodes
                     continue
-                if isinstance(child, nodes.field_list):
+                elif isinstance(child, nodes.field_list):
                     (entries, types) = _hacked_transform(self.typemap, child)
                     _data = get_data_structure(entries, types)
                     data.update(_data)
+                elif isinstance(child, addnodes.seealso):
+                    data['seealso'] = self.directive.env.app.docfx_transform_node(child)
                 else:
                     content = transform_node(child)
                     summary.append(content)

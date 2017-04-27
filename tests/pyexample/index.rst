@@ -7,3 +7,7 @@ Welcome to pyexample's documentation!
 .. automodule:: example.multiple_inheritance
    :members:
    :undoc-members:
+
+.. automodule:: example.nap
+   :members:
+   :undoc-members:

@@ -6,7 +6,7 @@ clone_folder: c:\projects\sphinx-docfx-yaml
 
 install:
   # .NET
-  - ps: (new-object net.webclient).DownloadFile('https://github.com/dotnet/docfx/releases/download/v2.10.2/docfx.zip', 'c:\projects\sphinx-docfx-yaml\docfx.zip')
+  - ps: (new-object net.webclient).DownloadFile('https://github.com/dotnet/docfx/archive/dev.zip', 'c:\projects\sphinx-docfx-yaml\docfx.zip')
   - cd c:\projects\sphinx-docfx-yaml
   - 7z e docfx.zip -oc:\projects\sphinx-docfx-yaml\docfx
   # Python

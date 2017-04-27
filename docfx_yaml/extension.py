@@ -303,11 +303,9 @@ def build_finished(app, exception):
 
     toc_yaml = []
 
-    iter_data = []
-    iter_data.append(app.env.docfx_yaml_modules)
-    iter_data.append(app.env.docfx_yaml_classes)
-
-    for data_set in iter_data:
+    # Order matters here, we need modules before lower level classes,
+    # so that we can make sure to inject the TOC properly
+    for data_set in (app.env.docfx_yaml_modules, app.env.docfx_yaml_classes):
         for filename, yaml_data in iter(sorted(data_set.items())):
             if not filename:
                 # Skip objects without a module
@@ -362,6 +360,8 @@ def build_finished(app, exception):
                     out_file_obj,
                     default_flow_style=False
                 )
+
+            # Build nested TOC
             if filename.count('.') > 1:
                 second_level = '.'.join(filename.split('.')[:2])
                 for module in toc_yaml:

@@ -22,7 +22,7 @@ build_script:
   - python setup.py -q install 
   - cd doc
   - "%PYTHON%/Scripts/sphinx-build.exe -b html -d _build/doctrees . _build/html"
-  - docfx build
+  - docfx build -t c:\projects\docfx.uref\uref\content\plugins
 
 artifacts:
   - path: 'docs/azure-sdk-for-python/doc/'

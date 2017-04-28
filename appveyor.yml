@@ -5,6 +5,8 @@ environment:
 clone_folder: c:\projects\sphinx-docfx-yaml
 
 install:
+  # Nuget
+  - nuget install uref -Prerelease -Source https://www.myget.org/F/docfx-dev/api/v3/index.json -ExcludeVersion -OutputDirectory c:\projects\docfx.uref
   # .NET
   - ps: (new-object net.webclient).DownloadFile('https://github.com/dotnet/docfx/archive/dev.zip', 'c:\projects\sphinx-docfx-yaml\docfx.zip')
   - cd c:\projects\sphinx-docfx-yaml

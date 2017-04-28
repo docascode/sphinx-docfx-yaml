@@ -6,7 +6,22 @@ from sphinx.util import docfields
 from sphinx import directives, addnodes
 
 from .utils import transform_node as _transform_node
-from .extract_nodes import _get_desc_data
+
+
+def _get_desc_data(node):
+    if node.attributes['domain'] != 'py':
+        print(
+            'Skipping Domain Object (%s)' % node.attributes['domain']
+        )
+        return None, None
+    module = node[0].attributes['module']
+    full_name = node[0].attributes['fullname'].split('.')[-1]
+    try:
+        uid = node[0].attributes['ids'][0]
+    except Exception:
+        uid = '{module}.{full_name}'.format(module=module, full_name=full_name)
+        print('Non-standard id: %s' % uid)
+    return full_name, uid
 
 
 def _hacked_transform(typemap, node):
@@ -202,7 +217,7 @@ def patch_docfields(app):
             for key, val in data.copy().items():
                 if not val:
                     del data[key]
-            self.directive.env.docfx_module_data[uid] = data
+            self.directive.env.docfx_info_field_data[uid] = data
             super(PatchedDocFieldTransformer, self).transform_all(node)
 
     directives.DocFieldTransformer = PatchedDocFieldTransformer

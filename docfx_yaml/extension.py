@@ -50,9 +50,12 @@ def build_init(app):
     if not app.config.docfx_yaml_output:
         raise ExtensionError('You must configure an docfx_yaml_output setting')
 
+    # This stores YAML object for modules
     app.env.docfx_yaml_modules = {}
+    # This stores YAML object for classes
     app.env.docfx_yaml_classes = {}
-    app.env.docfx_module_data = {}
+    # This store the data extracted from the info fields
+    app.env.docfx_info_field_data = {}
 
     remote = getoutput('git remote -v')
 
@@ -71,7 +74,7 @@ def build_init(app):
         app.env.docfx_root = None
 
     patch_docfields(app)
-    app.docfx_writer = Writer(app.builder)
+
     app.docfx_transform_node = partial(transform_node, app)
     app.docfx_transform_string = partial(transform_string, app)
 
@@ -86,15 +89,15 @@ def _get_cls_module(_type, name):
 
     """
     cls = None
-    if _type in ['function', 'exception']:
+    if _type in [FUNCTION, EXCEPTION]:
         module = '.'.join(name.split('.')[:-1])
-    elif _type in ['method', 'attribute']:
+    elif _type in [METHOD, ATTRIBUTE]:
         cls = '.'.join(name.split('.')[:-1])
         module = '.'.join(name.split('.')[:-2])
-    elif _type in ['class']:
+    elif _type in [CLASS]:
         cls = name
         module = '.'.join(name.split('.')[:-1])
-    elif _type in ['module']:
+    elif _type in [MODULE]:
         module = name
     else:
         return (None, None)
@@ -113,7 +116,7 @@ def _create_reference(datam, parent, is_external=False):
 
 def _create_datam(app, cls, module, name, _type, obj, lines=[]):
     """
-    Build the data structure for a autodoc class
+    Build the data structure for an autodoc class
     """
     try:
         mapped_type = TYPE_MAPPING[_type]
@@ -181,8 +184,8 @@ def _create_datam(app, cls, module, name, _type, obj, lines=[]):
         }
 
     if cls:
-        datam['class'] = cls
-    if _type in ['class', 'module']:
+        datam[CLASS] = cls
+    if _type in [CLASS, MODULE]:
         datam['children'] = []
         datam['references'] = []
 
@@ -225,15 +228,15 @@ def process_docstring(app, _type, name, obj, options, lines):
     insert_children_on_class(app, _type, datam)
 
 
-def collect_inheritance(base, to_add):
-    for new_base in base.__bases__:
-        new_add = []
-        new_add.append(_fullname(new_base))
-        collect_inheritance(new_base, new_add)
-        to_add.append(new_add)
-
-
 def insert_inheritance(app, _type, obj, datam):
+
+    def collect_inheritance(base, to_add):
+        for new_base in base.__bases__:
+            new_add = []
+            new_add.append(_fullname(new_base))
+            collect_inheritance(new_base, new_add)
+            to_add.append(new_add)
+
     if hasattr(obj, '__bases__'):
         if 'inheritance' not in datam:
             datam['inheritance'] = []
@@ -248,23 +251,23 @@ def insert_children_on_module(app, _type, datam):
     Insert children of a specific module
     """
 
-    if 'module' not in datam or datam['module'] not in app.env.docfx_yaml_modules:
+    if MODULE not in datam or datam[MODULE] not in app.env.docfx_yaml_modules:
         return
-    insert_module = app.env.docfx_yaml_modules[datam['module']]
+    insert_module = app.env.docfx_yaml_modules[datam[MODULE]]
     # Find the module which the datam belongs to
     for obj in insert_module:
         # Add standardlone function to global class
-        if _type in ['function'] and \
-                obj['_type'] == 'module' and \
-                obj['module'] == datam['module']:
+        if _type in [FUNCTION] and \
+                obj['_type'] == MODULE and \
+                obj[MODULE] == datam[MODULE]:
             obj['children'].append(datam['uid'])
             insert_module.append(datam)
             obj['references'].append(_create_reference(datam, parent=obj['uid']))
             break
         # Add classes & exceptions to module
-        if _type in ['class', 'exception'] and \
-                obj['_type'] == 'module' and \
-                obj['module'] == datam['module']:
+        if _type in [CLASS, EXCEPTION] and \
+                obj['_type'] == MODULE and \
+                obj[MODULE] == datam[MODULE]:
             obj['children'].append(datam['uid'])
             obj['references'].append(_create_reference(datam, parent=obj['uid']))
             break
@@ -274,17 +277,17 @@ def insert_children_on_class(app, _type, datam):
     """
     Insert children of a specific class
     """
-    if 'class' not in datam:
+    if CLASS not in datam:
         return
 
-    insert_class = app.env.docfx_yaml_classes[datam['class']]
+    insert_class = app.env.docfx_yaml_classes[datam[CLASS]]
     # Find the class which the datam belongs to
     for obj in insert_class:
         if obj['_type'] != CLASS:
             continue
         # Add methods & attributes to class
-        if _type in ['method', 'attribute'] and \
-                obj['class'] == datam['class']:
+        if _type in [METHOD, ATTRIBUTE] and \
+                obj[CLASS] == datam[CLASS]:
             obj['children'].append(datam['uid'])
             obj['references'].append(_create_reference(datam, parent=obj['uid']))
             insert_class.append(datam)
@@ -315,13 +318,13 @@ def build_finished(app, exception):
 
             # Merge module data with class data
             for obj in yaml_data:
-                if obj['uid'] in app.env.docfx_module_data:
+                if obj['uid'] in app.env.docfx_info_field_data:
                     if 'syntax' not in obj:
                         obj['syntax'] = {}
                     merged_params = []
-                    if 'parameters' in app.env.docfx_module_data[obj['uid']]:
+                    if 'parameters' in app.env.docfx_info_field_data[obj['uid']]:
                         arg_params = obj['syntax'].get('parameters', [])
-                        doc_params = app.env.docfx_module_data[obj['uid']].get('parameters', [])
+                        doc_params = app.env.docfx_info_field_data[obj['uid']].get('parameters', [])
                         if arg_params and doc_params:
                             if len(arg_params) - len(doc_params) > 1:
                                 app.warn(
@@ -334,7 +337,7 @@ def build_finished(app, exception):
                             for args, docs in zip(arg_params, doc_params):
                                 args.update(docs)
                                 merged_params.append(args)
-                    obj['syntax'].update(app.env.docfx_module_data[obj['uid']])
+                    obj['syntax'].update(app.env.docfx_info_field_data[obj['uid']])
                     if merged_params:
                         obj['syntax']['parameters'] = merged_params
 

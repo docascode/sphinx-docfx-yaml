@@ -1,5 +1,7 @@
 """
-Deprecated approach that pulls domain data from doctree.
+**DEPRECATED**
+
+This was an approach that pulls domain data from doctree.
 
 This approach will work for non-autodoc domains.
 However,
@@ -14,6 +16,7 @@ from sphinx.util.console import bold, red
 from sphinx.util.docfields import _is_single_paragraph
 from sphinx import addnodes
 
+from .extract_nodes import _get_desc_data
 
 TITLE_MAP = {
     'Returns': 'return',
@@ -34,22 +37,6 @@ def doctree_resolved(app, doctree, docname):
     # if yaml_modules:
     #     for module in yaml_modules:
     #         app.env.docfx_yaml_modules[module] = yaml_modules[module]
-
-
-def _get_desc_data(node):
-    if node.attributes['domain'] != 'py':
-        print(
-            'Skipping Domain Object (%s)' % node.attributes['domain']
-        )
-        return None, None
-    module = node[0].attributes['module']
-    full_name = node[0].attributes['fullname'].split('.')[-1]
-    try:
-        uid = node[0].attributes['ids'][0]
-    except Exception:
-        uid = '{module}.{full_name}'.format(module=module, full_name=full_name)
-        print('Non-standard id: %s' % uid)
-    return full_name, uid
 
 
 def _get_full_data(node):

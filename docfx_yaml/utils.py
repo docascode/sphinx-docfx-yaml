@@ -3,6 +3,8 @@ from docutils.io import StringOutput
 from docutils.utils import new_document
 from docutils import nodes
 
+from .writer import MarkdownWriter as Writer
+
 
 def slugify(value):
     """
@@ -28,5 +30,6 @@ def transform_node(app, node):
     destination = StringOutput(encoding='utf-8')
     doc = new_document(b'<partial node>')
     doc.append(node)
-    app.docfx_writer.write(doc, destination)
+    writer = Writer(app.builder)
+    writer.write(doc, destination)
     return destination.destination.decode('utf-8').strip()

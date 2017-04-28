@@ -5,10 +5,10 @@ environment:
 clone_folder: c:\projects\sphinx-docfx-yaml
 
 install:
+  # Nuget
+  - nuget install uref -Prerelease -Source https://www.myget.org/F/docfx-dev/api/v3/index.json -ExcludeVersion -OutputDirectory c:\projects\docfx.uref
   # .NET
-  - ps: (new-object net.webclient).DownloadFile('https://github.com/dotnet/docfx/archive/dev.zip', 'c:\projects\sphinx-docfx-yaml\docfx.zip')
-  - cd c:\projects\sphinx-docfx-yaml
-  - 7z e docfx.zip -oc:\projects\sphinx-docfx-yaml\docfx
+  - cinst docfx -y
   # Python
   - ps: (new-object net.webclient).DownloadFile('https://bootstrap.pypa.io/get-pip.py', 'C:/get-pip.py')
   - "%PYTHON%/python.exe C:/get-pip.py"
@@ -22,7 +22,7 @@ build_script:
   - python setup.py -q install 
   - cd doc
   - "%PYTHON%/Scripts/sphinx-build.exe -b html -d _build/doctrees . _build/html"
-  - c:\projects\sphinx-docfx-yaml\docfx\docfx.exe build
+  - docfx build -t c:\projects\docfx.uref\uref\content
 
 artifacts:
   - path: 'docs/azure-sdk-for-python/doc/'

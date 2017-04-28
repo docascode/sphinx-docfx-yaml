@@ -2,7 +2,7 @@
 """
 Sphinx DocFX YAML Top-level Extension.
 
-This extension allows you to automagically generate DocFX YAML from your Python Domains.
+This extension allows you to automagically generate DocFX YAML from your Python AutoAPI docs.
 """
 import os
 import inspect
@@ -22,7 +22,6 @@ from sphinx.errors import ExtensionError
 from .utils import transform_node, transform_string
 from .settings import API_ROOT
 from .monkeypatch import patch_docfields
-from .writer import MarkdownWriter as Writer
 
 
 METHOD = 'method'
@@ -298,11 +297,11 @@ def build_finished(app, exception):
     Output YAML on the file system.
     """
 
-    normalized_output = os.path.normpath(os.path.join(
+    normalized_outdir = os.path.normpath(os.path.join(
         app.builder.outdir,  # Output Directory for Builder
         API_ROOT,
     ))
-    ensuredir(normalized_output)
+    ensuredir(normalized_outdir)
 
     toc_yaml = []
 
@@ -348,7 +347,7 @@ def build_finished(app, exception):
                     references.extend(obj.pop('references'))
 
             # Output file
-            out_file = os.path.join(normalized_output, '%s.yml' % filename)
+            out_file = os.path.join(normalized_outdir, '%s.yml' % filename)
             ensuredir(os.path.dirname(out_file))
             if app.verbosity >= 1:
                 app.info(bold('[docfx_yaml] ') + darkgreen('Outputting %s' % filename))
@@ -378,7 +377,7 @@ def build_finished(app, exception):
             else:
                 toc_yaml.append({'name': filename, 'href': '%s.yml' % filename})
 
-    toc_file = os.path.join(normalized_output, 'toc.yml')
+    toc_file = os.path.join(normalized_outdir, 'toc.yml')
     with open(toc_file, 'w') as writable:
         writable.write(
             dump(
@@ -393,14 +392,10 @@ def setup(app):
     Plugin init for our Sphinx extension.
 
     Args:
-        app (Application): The Sphinx application
-           instance is destructed
+        app (Application): The Sphinx application instance
 
     """
     app.connect('builder-inited', build_init)
     app.connect('autodoc-process-docstring', process_docstring)
     app.connect('build-finished', build_finished)
     app.add_config_value('docfx_yaml_output', API_ROOT, 'html')
-
-    # For testing doctree parsing
-    # app.connect('doctree-resolved', doctree_resolved)

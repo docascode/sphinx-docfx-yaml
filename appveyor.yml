@@ -7,6 +7,8 @@ clone_folder: c:\projects\sphinx-docfx-yaml
 install:
   # Nuget
   - nuget install uref -Prerelease -Source https://www.myget.org/F/docfx-dev/api/v3/index.json -ExcludeVersion -OutputDirectory c:\projects\docfx.uref
+  - ls c:\projects\docfx.uref\uref\content\plugins
+  - dir c:\projects\docfx.uref\uref\content\plugins
   # .NET
   - cinst docfx -y
   # Python

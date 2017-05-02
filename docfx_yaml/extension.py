@@ -343,6 +343,9 @@ def build_finished(app, exception):
                     # Raise up summary
                     if 'summary' in obj['syntax'] and obj['syntax']['summary']:
                         obj['summary'] = obj['syntax'].pop('summary')
+                    # Raise up seealso
+                    if 'seealso' in obj['syntax'] and obj['syntax']['seealso']:
+                        obj['seealso'] = obj['syntax'].pop('seealso')
                 if 'references' in obj:
                     references.extend(obj.pop('references'))
 

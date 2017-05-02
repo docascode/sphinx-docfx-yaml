@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-    sphinx.writers.text
-    ~~~~~~~~~~~~~~~~~~~
+This is a forked version of the Sphinx text writer.
 
-    Custom docutils writer for plain text.
+It outputs DocFX Markdown from the docutils doctree,
+allowing us to transform transformed RST in memory to markdown.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
-    :license: BSD, see LICENSE for details.
+It is certainly **not** complete,
+and only implement as much logic as would be expected in normal docstring usage.
+It is not intended to be a generic rst->markdown converter,
+because rst contains myriad structures that markdown can't represent.
 """
 
 import json
@@ -15,7 +17,6 @@ import re
 import sys
 import textwrap
 from itertools import groupby
-from os.path import join
 
 
 from docutils import nodes, writers
@@ -23,7 +24,6 @@ from docutils.utils import column_width
 
 from sphinx import addnodes
 from sphinx.locale import admonitionlabels
-from sphinx.ext.intersphinx import read_inventory_v2
 
 
 class TextWrapper(textwrap.TextWrapper):
@@ -161,10 +161,6 @@ class MarkdownTranslator(nodes.NodeVisitor):
 
     def __init__(self, document, builder):
         self.invdata = []
-        # inv = '../common/aspnet.inv'
-        # with open(inv, 'rb') as f:
-        #     line = f.readline() # burn a line
-        #     self.invdata = read_inventory_v2(f, '', join)['std:label']
         nodes.NodeVisitor.__init__(self, document)
         self.builder = builder
 
@@ -875,7 +871,7 @@ class MarkdownTranslator(nodes.NodeVisitor):
 
     def visit_reference(self, node):
         if 'internal' in node.attributes and 'refid' in node.attributes:
-            self.add_text('[{}]({})'.format(node.astext(), 'xref:' + self.invdata[node.attributes['refid']][2].replace('.html#','#')))
+            self.add_text('[{}]({})'.format(node.astext(), 'xref:' + node.attributes['refid']))
         elif 'internal' in node.attributes and 'refuri' in node.attributes:
             self.add_text('[{}]({}.md)'.format(node.astext(), node.attributes['refuri'].replace('#', '.md#')))
         elif 'refuri' in node.attributes:

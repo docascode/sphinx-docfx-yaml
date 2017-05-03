@@ -90,11 +90,11 @@ class PythonTests(unittest.TestCase):
                             'inheritance' in item
                         )
                         self.assertEqual(
-                            item['inheritance'][0][0],
+                            item['inheritance'][0]['type'],
                             'example.multiple_inheritance.ArbitraryWidget'
                         )
                         self.assertEqual(
-                            item['inheritance'][1][0],
+                            item['inheritance'][1]['type'],
                             'example.multiple_inheritance.Subject'
                         )
 

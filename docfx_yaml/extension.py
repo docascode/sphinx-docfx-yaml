@@ -231,16 +231,17 @@ def insert_inheritance(app, _type, obj, datam):
 
     def collect_inheritance(base, to_add):
         for new_base in base.__bases__:
-            new_add = []
-            new_add.append(_fullname(new_base))
+            new_add = {'type': _fullname(new_base)}
             collect_inheritance(new_base, new_add)
-            to_add.append(new_add)
+            if 'inheritance' not in to_add:
+                to_add['inheritance'] = []
+            to_add['inheritance'].append(new_add)
 
     if hasattr(obj, '__bases__'):
         if 'inheritance' not in datam:
             datam['inheritance'] = []
         for base in obj.__bases__:
-            to_add = [_fullname(base)]
+            to_add = {'type': _fullname(base)}
             collect_inheritance(base, to_add)
             datam['inheritance'].append(to_add)
 

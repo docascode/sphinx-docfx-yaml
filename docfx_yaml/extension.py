@@ -19,7 +19,7 @@ from sphinx.util.console import darkgreen, bold
 from sphinx.util import ensuredir
 from sphinx.errors import ExtensionError
 
-from .utils import transform_node, transform_string
+from .utils import transform_node, transform_string, get_method_sig
 from .settings import API_ROOT
 from .monkeypatch import patch_docfields
 
@@ -142,6 +142,11 @@ def _create_datam(app, cls, module, name, _type, obj, lines=None):
         print("Can't get argspec for {}: {}".format(type(obj), name))
 
     try:
+        sig = get_method_sig(obj)
+    except (Exception):
+        sig = None
+
+    try:
         full_path = inspect.getsourcefile(obj)
         # Sub git repo path
         path = full_path.replace(app.env.docfx_root, '')
@@ -179,11 +184,12 @@ def _create_datam(app, cls, module, name, _type, obj, lines=None):
 
     if summary:
         datam['summary'] = summary
-    if args:
-        datam['syntax'] = {
-            'parameters': args,
-        }
-
+    if args or sig:
+        datam['syntax'] = {}
+        if args:
+            datam['syntax']['parameters'] = args
+        if sig:
+            datam['syntax']['content'] = sig
     if cls:
         datam[CLASS] = cls
     if _type in [CLASS, MODULE]:

@@ -119,6 +119,10 @@ class PythonTests(unittest.TestCase):
                             item['syntax']['parameters'][1]['description'],
                             'The foo param',
                         )
+                        self.assertEqual(
+                            item['syntax']['content'],
+                            'method_okay(self, foo=None, bar=None)',
+                        )
 
     def test_vcs(self):
         """

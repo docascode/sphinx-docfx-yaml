@@ -9,6 +9,7 @@ from .utils import transform_node as _transform_node
 
 
 def _get_desc_data(node):
+    assert node.tagname == 'desc'
     if node.attributes['domain'] != 'py':
         print(
             'Skipping Domain Object (%s)' % node.attributes['domain']

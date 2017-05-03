@@ -871,7 +871,8 @@ class MarkdownTranslator(nodes.NodeVisitor):
 
     def visit_reference(self, node):
         if 'internal' in node.attributes and 'refid' in node.attributes:
-            self.add_text('[{}]({})'.format(node.astext(), 'xref:' + node.attributes['refid']))
+            self.add_text('@{}'.format(node.attributes['refid']))
+            #self.add_text('[{}]({})'.format(node.astext(), 'xref:' + node.attributes['refid']))
         elif 'internal' in node.attributes and 'refuri' in node.attributes:
             self.add_text('[{}]({}.md)'.format(node.astext(), node.attributes['refuri'].replace('#', '.md#')))
         elif 'refuri' in node.attributes:

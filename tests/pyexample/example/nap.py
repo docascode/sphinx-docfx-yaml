@@ -22,4 +22,5 @@ class Base(object):
 
         See Also:
             Depends on :py:class:`example.example.Foo`
+            Relative reference on :py:meth:`foo`
         """

@@ -30,6 +30,11 @@ def transform_node(app, node):
     destination = StringOutput(encoding='utf-8')
     doc = new_document(b'<partial node>')
     doc.append(node)
+
+    # Resolve refs
+    doc['docname'] = 'inmemory'
+    app.env.resolve_references(doctree=doc, fromdocname='inmemory', builder=app.builder)
+
     writer = Writer(app.builder)
     writer.write(doc, destination)
     return destination.destination.decode('utf-8').strip()

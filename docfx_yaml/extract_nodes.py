@@ -16,7 +16,7 @@ from sphinx.util.console import bold, red
 from sphinx.util.docfields import _is_single_paragraph
 from sphinx import addnodes
 
-from .extract_nodes import _get_desc_data
+from .utils import _get_desc_data
 
 TITLE_MAP = {
     'Returns': 'return',

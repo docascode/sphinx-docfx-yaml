@@ -113,7 +113,7 @@ def _create_reference(datam, parent, is_external=False):
     }
 
 
-def _create_datam(app, cls, module, name, _type, obj, lines=[]):
+def _create_datam(app, cls, module, name, _type, obj, lines=None):
     """
     Build the data structure for an autodoc class
     """
@@ -123,6 +123,8 @@ def _create_datam(app, cls, module, name, _type, obj, lines=[]):
         print('Invalid Type Mapping: %s' % _type)
         mapped_type = _type
 
+    if lines is None:
+        lines = []
     short_name = name.split('.')[-1]
     summary = app.docfx_transform_string('\n'.join(lines))
     args = []

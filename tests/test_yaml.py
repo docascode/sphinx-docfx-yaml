@@ -109,7 +109,7 @@ class PythonTests(unittest.TestCase):
                     if item['uid'] == 'example.example.Foo.method_okay':
                         self.assertEqual(
                             item['syntax']['return'],
-                            {'type': 'boolean', 'description': 'That the method is okay'},
+                            {'type': ['boolean'], 'description': 'That the method is okay'},
                         )
                         self.assertEqual(
                             item['syntax']['parameters'][1]['defaultValue'],

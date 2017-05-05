@@ -187,7 +187,7 @@ class PythonTests(unittest.TestCase):
                     if item['uid'] == 'example.nap.Base.ref':
                         self.assertEqual(
                             item['seealsoContent'],
-                            'See also: Depends on @example.example.Foo'
+                            'See also: Depends on @example.example.Foo Relative reference on @example.nap.Base.foo'
                         )
 
     def test_toc(self):

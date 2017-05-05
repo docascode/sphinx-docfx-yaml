@@ -322,10 +322,6 @@ def build_finished(app, exception):
                 # Skip objects without a module
                 continue
 
-            if filename.lower().find('.tests') != -1:
-                # Skip *.tests*.yml files
-                continue
-
             references = []
 
             # Merge module data with class data

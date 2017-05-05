@@ -130,7 +130,7 @@ def _create_datam(app, cls, module, name, _type, obj, lines=None):
     args = []
     try:
         if _type in [METHOD, FUNCTION]:
-            argspec = inspect.getargspec(obj)
+            argspec = inspect.getargspec(obj) # noqa
             for arg in argspec.args:
                 args.append({'id': arg})
             if argspec.defaults:
@@ -316,7 +316,7 @@ def build_finished(app, exception):
 
     # Order matters here, we need modules before lower level classes,
     # so that we can make sure to inject the TOC properly
-    for data_set in (app.env.docfx_yaml_modules, app.env.docfx_yaml_classes):
+    for data_set in (app.env.docfx_yaml_modules, app.env.docfx_yaml_classes):  # noqa
         for filename, yaml_data in iter(sorted(data_set.items())):
             if not filename:
                 # Skip objects without a module

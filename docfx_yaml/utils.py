@@ -42,8 +42,6 @@ def transform_node(app, node):
     return destination.destination.decode('utf-8').strip()
 
 
-
-
 def _get_default_arg(args, defaults, arg_index):
     """ Method that determines if an argument has default value or not,
     and if yes what is the default value for the argument

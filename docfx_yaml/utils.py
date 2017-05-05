@@ -67,7 +67,7 @@ def _get_default_arg(args, defaults, arg_index):
         return DefaultArgSpec(False, None)
     else:
         value = defaults[arg_index - args_with_no_defaults]
-        if (type(value) is str):
+        if isinstance(value, str):
             value = '"%s"' % value
         return DefaultArgSpec(True, value)
 
@@ -87,7 +87,7 @@ def get_method_sig(method):
     # list of defaults are returned in separate array.
     # eg: ArgSpec(args=['first_arg', 'second_arg', 'third_arg'],
     # varargs=None, keywords=None, defaults=(42, 'something'))
-    argspec = inspect.getargspec(method)
+    argspec = inspect.getargspec(method)  # noqa
     arg_index = 0
     args = []
 

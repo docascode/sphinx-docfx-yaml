@@ -181,6 +181,12 @@ def _create_datam(app, cls, module, name, _type, obj, lines=None):
         'langs': ['python'],
     }
 
+    # Only add summary to parts of the code that we don't get it from the monkeypatch
+    if _type == MODULE:
+        summary = app.docfx_transform_string('\n'.join(lines))
+        if summary:
+            datam['summary'] = summary
+
     if args or sig:
         datam['syntax'] = {}
         if args:

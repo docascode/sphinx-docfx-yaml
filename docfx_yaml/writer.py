@@ -873,7 +873,10 @@ class MarkdownTranslator(nodes.NodeVisitor):
         if 'refid' in node.attributes:
             self.add_text('@{}'.format(node.attributes['refid']))
         elif 'refuri' in node.attributes:
-            self.add_text('@{}'.format(node.attributes['refuri']))
+            if ':doc:' in node.attributes['refuri']:
+                self.add_text('@{}'.format(node.attributes['refuri']))
+            else:
+                self.add_text('[{}]({})'.format(node.astext(), node.attributes['refuri']))
         else:
             self.add_text('{}<!-- {} -->'.format(node.tagname, json.dumps(node.attributes)))
         raise nodes.SkipNode

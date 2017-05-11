@@ -209,6 +209,8 @@ def patch_docfields(app):
                     data.update(_data)
                 elif isinstance(child, addnodes.seealso):
                     data['seealso'] = transform_node(child)
+                elif isinstance(child, nodes.admonition) and 'Example' in child[0].astext():
+                    data['example'] = transform_node(child[1])
                 else:
                     content = transform_node(child)
                     summary.append(content)

@@ -802,9 +802,11 @@ class MarkdownTranslator(nodes.NodeVisitor):
         self.end_state(wrap=False)
 
     def visit_doctest_block(self, node):
+        self.add_text(self.nl + '```')
         self.new_state(0)
 
     def depart_doctest_block(self, node):
+        self.add_text(self.nl + '```')
         self.end_state(wrap=False)
 
     def visit_line_block(self, node):

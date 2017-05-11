@@ -23,4 +23,9 @@ class Base(object):
         See Also:
             Depends on :py:class:`example.example.Foo`
             Relative reference on :py:meth:`foo`
+
+        Examples:
+            >>> print('docblock 1')
+
+            >>> print('docblock 2')
         """

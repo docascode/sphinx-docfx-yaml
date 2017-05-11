@@ -204,3 +204,23 @@ class PythonTests(unittest.TestCase):
                             'example.example.Foo'
                         )
                         break
+
+    def test_examples(self):
+        """
+        Test second level toc nesting
+        """
+        with sphinx_build('pyexample'):
+            with open('_build/text/docfx_yaml/example.nap.Base.yml') as yml_file:
+                data = yaml.safe_load(yml_file)
+                for item in data['items']:
+                    if item['uid'] == 'example.nap.Base.ref':
+                        print(item['syntax']['example'])
+                        self.assertEqual(
+                            item['syntax']['example'][:31],
+                            """```\n\n>>> print('docblock 1')```"""
+                        )
+                        self.assertEqual(
+                            len(item['syntax']['example']),
+                            64
+                        )
+

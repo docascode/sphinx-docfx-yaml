@@ -322,6 +322,10 @@ def build_finished(app, exception):
                 # Skip objects without a module
                 continue
 
+            if filename.lower().find('.tests') != -1:
+                # Skip *.tests*.yml files
+                continue
+
             references = []
 
             # Merge module data with class data
@@ -354,7 +358,11 @@ def build_finished(app, exception):
                         obj['summary'] = obj['syntax'].pop('summary')
                     # Raise up seealso
                     if 'seealso' in obj['syntax'] and obj['syntax']['seealso']:
-                        obj['seealsoContent'] = obj['syntax'].pop('seealso')
+                        seealsoContent = obj['syntax'].pop('seealso')
+                        if seealsoContent.startswith('See also: '):
+                            seealsoContent = seealsoContent[10:]  # 10 is length of 'See also: '
+                        obj['seealsoContent'] = seealsoContent
+
                 if 'references' in obj:
                     references.extend(obj.pop('references'))
 

@@ -173,7 +173,7 @@ class PythonTests(unittest.TestCase):
                         )
                         self.assertEqual(
                             item['seealsoContent'],
-                            'See also: Some cool stuff online.'
+                            'Some cool stuff online.'
                         )
 
     def test_xref(self):
@@ -187,7 +187,7 @@ class PythonTests(unittest.TestCase):
                     if item['uid'] == 'example.nap.Base.ref':
                         self.assertEqual(
                             item['seealsoContent'],
-                            'See also: Depends on @example.example.Foo Relative reference on @example.nap.Base.foo'
+                            'Depends on @example.example.Foo Relative reference on @example.nap.Base.foo'
                         )
 
     def test_toc(self):

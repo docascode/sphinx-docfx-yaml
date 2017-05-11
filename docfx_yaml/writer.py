@@ -798,7 +798,7 @@ class MarkdownTranslator(nodes.NodeVisitor):
 
 
     def depart_literal_block(self, node):
-        self.add_text(self.nl + '```')
+        self.add_text(self.nl + '````')
         self.end_state(wrap=False)
 
     def visit_doctest_block(self, node):

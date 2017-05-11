@@ -54,6 +54,13 @@ which happens to be quite simple,
 but only work for autodoc generated strings.
 Any other use of the Python domain will be ignored.
 
+Monkeypatch
+~~~~~~~~~~~
+
+In order to get the :ref:`info field lists` from Sphinx,
+we insert a monkeypatch in the Sphinx rendering.
+This lives in the ``docfx_yaml/monkeypatch.py`` file. 
+
 YAML syntax
 -----------
 

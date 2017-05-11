@@ -214,13 +214,12 @@ class PythonTests(unittest.TestCase):
                 data = yaml.safe_load(yml_file)
                 for item in data['items']:
                     if item['uid'] == 'example.nap.Base.ref':
-                        print(item['syntax']['example'])
                         self.assertEqual(
-                            item['syntax']['example'][:31],
-                            """```\n\n>>> print('docblock 1')```"""
+                            item['syntax']['example'].split('\n')[2],
+                            """>>> print('docblock 1')"""
                         )
                         self.assertEqual(
-                            len(item['syntax']['example']),
-                            64
+                            item['syntax']['example'].split('\n')[7],
+                            """>>> print('docblock 2')"""
                         )
 

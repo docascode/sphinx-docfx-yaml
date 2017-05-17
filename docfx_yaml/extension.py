@@ -31,16 +31,6 @@ CLASS = 'class'
 EXCEPTION = 'exception'
 ATTRIBUTE = 'attribute'
 
-# We need to map the Python type names to what DocFX is expecting
-TYPE_MAPPING = {
-    METHOD: 'Method',
-    FUNCTION: 'Method',
-    MODULE: 'Namespace',
-    CLASS: 'Class',
-    EXCEPTION: 'Class',  # Hack this for now
-    ATTRIBUTE: 'Property',  # Ditto
-}
-
 
 def build_init(app):
     """
@@ -117,11 +107,6 @@ def _create_datam(app, cls, module, name, _type, obj, lines=None):
     """
     Build the data structure for an autodoc class
     """
-    try:
-        mapped_type = TYPE_MAPPING[_type]
-    except TypeError:
-        print('Invalid Type Mapping: %s' % _type)
-        mapped_type = _type
 
     if lines is None:
         lines = []
@@ -165,8 +150,7 @@ def _create_datam(app, cls, module, name, _type, obj, lines=None):
     datam = {
         'module': module,
         'uid': name,
-        'type': mapped_type,
-        '_type': _type,
+        'type': _type,
         'name': short_name,
         'fullName': name,
         'source': {
@@ -266,7 +250,7 @@ def insert_children_on_module(app, _type, datam):
     for obj in insert_module:
         # Add standardlone function to global class
         if _type in [FUNCTION] and \
-                obj['_type'] == MODULE and \
+                obj['type'] == MODULE and \
                 obj[MODULE] == datam[MODULE]:
             obj['children'].append(datam['uid'])
             insert_module.append(datam)
@@ -274,7 +258,7 @@ def insert_children_on_module(app, _type, datam):
             break
         # Add classes & exceptions to module
         if _type in [CLASS, EXCEPTION] and \
-                obj['_type'] == MODULE and \
+                obj['type'] == MODULE and \
                 obj[MODULE] == datam[MODULE]:
             obj['children'].append(datam['uid'])
             obj['references'].append(_create_reference(datam, parent=obj['uid']))
@@ -291,7 +275,7 @@ def insert_children_on_class(app, _type, datam):
     insert_class = app.env.docfx_yaml_classes[datam[CLASS]]
     # Find the class which the datam belongs to
     for obj in insert_class:
-        if obj['_type'] != CLASS:
+        if obj['type'] != CLASS:
             continue
         # Add methods & attributes to class
         if _type in [METHOD, ATTRIBUTE] and \

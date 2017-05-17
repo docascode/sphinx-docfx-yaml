@@ -358,10 +358,7 @@ def build_finished(app, exception):
                         obj['summary'] = obj['syntax'].pop('summary')
                     # Raise up seealso
                     if 'seealso' in obj['syntax'] and obj['syntax']['seealso']:
-                        seealsoContent = obj['syntax'].pop('seealso')
-                        if seealsoContent.startswith('See also: '):
-                            seealsoContent = seealsoContent[10:]  # 10 is length of 'See also: '
-                        obj['seealsoContent'] = seealsoContent
+                        obj['seealsoContent'] = obj['syntax'].pop('seealso')
 
                 if 'references' in obj:
                     references.extend(obj.pop('references'))

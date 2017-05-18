@@ -21,3 +21,5 @@ html_theme = 'alabaster'
 html_static_path = ['_static']
 htmlhelp_basename = 'pyexampledoc'
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.napoleon', 'docfx_yaml.extension']
+
+napoleon_use_admonition_for_examples = True

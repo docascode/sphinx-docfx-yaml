@@ -802,9 +802,11 @@ class MarkdownTranslator(nodes.NodeVisitor):
         self.end_state(wrap=False)
 
     def visit_doctest_block(self, node):
+        self.add_text('```')
         self.new_state(0)
 
     def depart_doctest_block(self, node):
+        self.add_text(self.nl + '```')
         self.end_state(wrap=False)
 
     def visit_line_block(self, node):
@@ -870,20 +872,13 @@ class MarkdownTranslator(nodes.NodeVisitor):
         pass
 
     def visit_reference(self, node):
-        if 'internal' in node.attributes and 'refid' in node.attributes:
+        if 'refid' in node.attributes:
             self.add_text('@{}'.format(node.attributes['refid']))
-            #self.add_text('[{}]({})'.format(node.astext(), 'xref:' + node.attributes['refid']))
-        elif 'internal' in node.attributes and 'refuri' in node.attributes:
-            self.add_text('[{}]({}.md)'.format(node.astext(), node.attributes['refuri'].replace('#', '.md#')))
         elif 'refuri' in node.attributes:
-            if ':doc:' in node.attributes['refuri']:
-                self.add_text('[{}]({}.md)'.format(node.astext(), node.attributes['refuri'][5:]))
-            else:
+            if 'http' in node.attributes['refuri']:
                 self.add_text('[{}]({})'.format(node.astext(), node.attributes['refuri']))
-        elif 'refid' in node.attributes and 'name' in node.attributes:
-            self.add_text('[{}]({})'.format(node.attributes['name'], '#' + node.attributes['refid']))
-        elif 'refid' in node.attributes:
-            self.add_text('[{}]({})'.format(node.astext(), '#' + node.attributes['refid']))
+            else:
+                self.add_text('@{}'.format(node.attributes['refuri'].replace('#', '')))
         else:
             self.add_text('{}<!-- {} -->'.format(node.tagname, json.dumps(node.attributes)))
         raise nodes.SkipNode

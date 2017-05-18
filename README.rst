@@ -77,3 +77,13 @@ This project has a few different pieces at this point.
 It's primary goal was to integrate the Azure Python SDK into the docfx tooling.
 You can read more about the pieces currently set up in the :doc:`layout`.
 
+
+Napoleon Support
+----------------
+
+We support ``sphinx.ext.napoleon`` for parsing docstrings in other formats.
+Currently all markup that maps to existing Sphinx `info field lists <http://www.sphinx-doc.org/en/stable/domains.html#info-field-lists>`_ will work,
+along with ``Examples``.
+In order to pull examples out,
+you need the ``napoleon_use_admonition_for_examples`` set to ``True``.
+

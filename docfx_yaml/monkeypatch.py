@@ -216,7 +216,10 @@ def patch_docfields(app):
                     data['example'] = transform_node(child_copy)
                 else:
                     content = transform_node(child)
-                    summary.append(content)
+
+                    # skip 'Bases' in summary 
+                    if not content.startswith('Bases: '):
+                        summary.append(content)
             if summary:
                 data['summary'] = '\n'.join(summary)
             # Don't include empty data

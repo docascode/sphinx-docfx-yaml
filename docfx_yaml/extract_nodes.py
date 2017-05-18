@@ -111,7 +111,7 @@ def extract_yaml(app, doctree, ignore_patterns):
                 'module': str(module),
                 'uid': str(module),
                 'type': 'Namespace',
-                '_type': 'module',
+                'type': 'module',
                 'name': str(module),
                 'children': []
             }]
@@ -138,12 +138,10 @@ def extract_yaml(app, doctree, ignore_patterns):
         if args:
             full_name += "({args})".format(args=', '.join(args))
 
-        # We need to map the Python type names to what DocFX is expecting
-
         datam = {
             'module': str(module),
             'uid': uid,
-            '_type': _type,
+            'type': _type,
             'name': name,
             'fullName': full_name,
             'summary': summary,

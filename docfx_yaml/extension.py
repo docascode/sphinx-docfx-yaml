@@ -297,7 +297,7 @@ def build_finished(app, exception):
         for module in toc_yaml:
             if module['name'] == to_add_node:
                 return module;
-            
+
             if 'items' in module:
                 items = module['items']
                 found_module = find_node_in_toc_tree(items, to_add_node)
@@ -379,19 +379,15 @@ def build_finished(app, exception):
 
             # Build nested TOC
             if filename.count('.') >= 1:
-                parent_level_index = filename.count('.')
-                parent_level = '.'.join(filename.split('.')[:parent_level_index])
+                parent_level = '.'.join(filename.split('.')[:-1])
                 found_node = find_node_in_toc_tree(toc_yaml, parent_level)
 
                 if found_node:
-                    if 'items' not in found_node:
-                        found_node['items'] = []
-                    found_node['items'].append({'name': filename, 'href': '%s.yml' % filename})
+                    found_node.setdefault('items', []).append({'name': filename, 'href': '%s.yml' % filename})
                 else:
                     print('No parent level module found: {}'.format(parent_level))
             else:
                 toc_yaml.append({'name': filename, 'href': '%s.yml' % filename})
-
 
     toc_file = os.path.join(normalized_outdir, 'toc.yml')
     with open(toc_file, 'w') as writable:

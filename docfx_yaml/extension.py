@@ -293,6 +293,20 @@ def build_finished(app, exception):
     Output YAML on the file system.
     """
 
+    def find_node_in_toc_tree(toc_yaml, to_add_node):
+        for module in toc_yaml:
+            if module['name'] == to_add_node:
+                return module;
+
+            if 'items' in module:
+                items = module['items']
+                found_module = find_node_in_toc_tree(items, to_add_node)
+                if found_module != None:
+                    return found_module
+
+        return None;
+
+
     normalized_outdir = os.path.normpath(os.path.join(
         app.builder.outdir,  # Output Directory for Builder
         API_ROOT,
@@ -364,16 +378,14 @@ def build_finished(app, exception):
                 )
 
             # Build nested TOC
-            if filename.count('.') > 1:
-                second_level = '.'.join(filename.split('.')[:2])
-                for module in toc_yaml:
-                    if module['name'] == second_level:
-                        if 'items' not in module:
-                            module['items'] = []
-                        module['items'].append({'name': filename, 'href': '%s.yml' % filename})
-                        break
+            if filename.count('.') >= 1:
+                parent_level = '.'.join(filename.split('.')[:-1])
+                found_node = find_node_in_toc_tree(toc_yaml, parent_level)
+
+                if found_node:
+                    found_node.setdefault('items', []).append({'name': filename, 'href': '%s.yml' % filename})
                 else:
-                    print('No second level module found: {}'.format(second_level))
+                    print('No parent level module found: {}'.format(parent_level))
             else:
                 toc_yaml.append({'name': filename, 'href': '%s.yml' % filename})
 

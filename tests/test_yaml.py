@@ -215,11 +215,11 @@ class PythonTests(unittest.TestCase):
                 for item in data['items']:
                     if item['uid'] == 'example.nap.Base.ref':
                         self.assertEqual(
-                            item['syntax']['example'].split('\n')[2],
+                            item['example'].split('\n')[2],
                             """>>> print('docblock 1')"""
                         )
                         self.assertEqual(
-                            item['syntax']['example'].split('\n')[7],
+                            item['example'].split('\n')[7],
                             """>>> print('docblock 2')"""
                         )
 

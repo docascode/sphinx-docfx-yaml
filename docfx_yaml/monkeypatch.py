@@ -4,6 +4,7 @@ from functools import partial
 from sphinx.util.docfields import _is_single_paragraph
 from sphinx.util import docfields
 from sphinx import directives, addnodes
+from sphinx import addnodes
 
 from .utils import transform_node as _transform_node
 
@@ -149,6 +150,12 @@ def patch_docfields(app):
                 ret['type'] = [_type]
             return ret
 
+        def transform_para(para_field):
+            if isinstance(para_field, addnodes.pending_xref):
+                return transform_node(para_field)
+            else:
+                return para_field.astext()
+
         for entry in entries:
             if isinstance(entry, nodes.field):
                 # pass-through old field
@@ -175,7 +182,7 @@ def patch_docfields(app):
                         _id = field
                         _description = transform_node(node_list[0])
                         if field in fieldtypes:
-                            _type = u''.join(n.astext() for n in fieldtypes[field])
+                            _type = u''.join(transform_para(n) for n in fieldtypes[field])
                         else:
                             _type = None
                         if fieldtype.name == 'parameter':

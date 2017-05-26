@@ -20,7 +20,7 @@ from sphinx.util import ensuredir
 from sphinx.errors import ExtensionError
 from sphinx.util.nodes import make_refnode
 
-from .utils import transform_node, transform_string, get_method_sig
+from .utils import transform_node, transform_string
 from .settings import API_ROOT
 from .monkeypatch import patch_docfields
 

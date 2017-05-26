@@ -4,7 +4,7 @@ extra_setup = dict(
 install_requires=[
     'PyYAML',
     'wheel==0.24.0',
-    'sphinx',
+    'sphinx==1.5.5',
     'unidecode',
 ],
 setup_requires=['pytest-runner'],

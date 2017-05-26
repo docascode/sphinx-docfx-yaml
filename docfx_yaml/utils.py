@@ -41,7 +41,3 @@ def transform_node(app, node):
     writer.write(doc, destination)
     return destination.destination.decode('utf-8').strip()
 
-
-def get_method_sig(method):
-    sig = signature(method)
-    return "%s%s" % (method.__name__, sig)

@@ -18,6 +18,7 @@ from yaml import safe_dump as dump
 from sphinx.util.console import darkgreen, bold
 from sphinx.util import ensuredir
 from sphinx.errors import ExtensionError
+from sphinx.util.nodes import make_refnode
 
 from .utils import transform_node, transform_string, get_method_sig
 from .settings import API_ROOT
@@ -399,6 +400,16 @@ def build_finished(app, exception):
         )
 
 
+def missing_reference(app, env, node, contnode):
+    reftarget = ''
+    refdoc = ''
+    if 'refdomain' in node.attributes and node.attributes['refdomain'] == 'py':
+        reftarget = node['reftarget']
+        if 'refdoc' in node:
+            refdoc = node['refdoc']
+        return make_refnode(app.builder, refdoc, reftarget, '', contnode)
+
+
 def setup(app):
     """
     Plugin init for our Sphinx extension.
@@ -410,4 +421,5 @@ def setup(app):
     app.connect('builder-inited', build_init)
     app.connect('autodoc-process-docstring', process_docstring)
     app.connect('build-finished', build_finished)
+    app.connect('missing-reference', missing_reference)
     app.add_config_value('docfx_yaml_output', API_ROOT, 'html')

@@ -25,6 +25,21 @@ from .settings import API_ROOT
 from .monkeypatch import patch_docfields
 
 
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+try:
+    from conf import *
+except ImportError:
+    print(bcolors.FAIL + 'can not import conf.py! you should have a conf.py in working project folder' + bcolors.ENDC)
+
 METHOD = 'method'
 FUNCTION = 'function'
 MODULE = 'module'
@@ -142,6 +157,14 @@ def _create_datam(app, cls, module, name, _type, obj, lines=None):
         # Make relative
         path = path.replace('/', '', 1)
         start_line = inspect.getsourcelines(obj)[1]
+
+        # append relative path defined in conf.py (in case of "binding python" project)
+        try:
+            source_prefix  # does source_prefix exist in the current namespace
+            path = source_prefix + path
+        except NameError:
+            print("no source_prefix defined")
+
     except (TypeError, OSError):
         print("Can't inspect type {}: {}".format(type(obj), name))
         path = None

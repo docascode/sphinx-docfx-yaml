@@ -878,6 +878,7 @@ class MarkdownTranslator(nodes.NodeVisitor):
             if 'http' in node.attributes['refuri']:
                 self.add_text('[{}]({})'.format(node.astext(), node.attributes['refuri']))
             else:
+                # TODO: refactor? so 'hardcoding'
                 # no need '.html#id' ending in yml files
                 pos = node.attributes['refuri'].find('.html')
                 if pos != -1:

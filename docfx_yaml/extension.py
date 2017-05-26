@@ -405,10 +405,9 @@ def missing_reference(app, env, node, contnode):
     refdoc = ''
     if 'refdomain' in node.attributes and node.attributes['refdomain'] == 'py':
         reftarget = node['reftarget']
-        if reftarget.startswith('cntk.'):
-            if 'refdoc' in node:
-                refdoc = node['refdoc']
-            return make_refnode(app.builder, refdoc, reftarget, '', contnode)
+        if 'refdoc' in node:
+            refdoc = node['refdoc']
+        return make_refnode(app.builder, refdoc, reftarget, '', contnode)
 
 
 def setup(app):

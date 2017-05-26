@@ -249,7 +249,6 @@ def process_docstring(app, _type, name, obj, options, lines):
 
 
 def process_signature(app, _type, name, obj, options, signature, return_annotation):
-    print('chuanqi3: %s for %s' % (signature, name))
     if signature:
         short_name = name.split('.')[-1]
         signature = short_name + signature

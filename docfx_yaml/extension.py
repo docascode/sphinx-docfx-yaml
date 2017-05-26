@@ -103,6 +103,32 @@ def _create_reference(datam, parent, is_external=False):
     }
 
 
+def _refact_example_in_module_summary(lines):
+    new_lines = []
+    block_lines = []
+    example_block_flag = False
+    for line in lines:
+        if line.startswith('.. admonition:: Example'):
+            example_block_flag = True
+            line = 'Example\n\n'
+            new_lines.append(line)
+        elif example_block_flag and len(line) != 0 and not line.startswith('   '):
+            example_block_flag = False
+            new_lines.append(''.join(block_lines))
+            new_lines.append(line)
+            block_lines[:] = []
+        elif example_block_flag:
+            if line == '   ':
+                line = '\n'
+            elif line.startswith('   '):
+                line = ' ' + line + '\n'
+            block_lines.append(line)
+
+        else:
+            new_lines.append(line)
+    return new_lines
+
+
 def _create_datam(app, cls, module, name, _type, obj, lines=None):
     """
     Build the data structure for an autodoc class
@@ -167,7 +193,7 @@ def _create_datam(app, cls, module, name, _type, obj, lines=None):
 
     # Only add summary to parts of the code that we don't get it from the monkeypatch
     if _type == MODULE:
-        summary = app.docfx_transform_string('\n'.join(lines))
+        summary = app.docfx_transform_string('\n'.join(_refact_example_in_module_summary(lines)))
         if summary:
             datam['summary'] = summary
 

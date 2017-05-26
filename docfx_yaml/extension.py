@@ -61,6 +61,8 @@ def build_init(app):
     app.env.docfx_yaml_classes = {}
     # This store the data extracted from the info fields
     app.env.docfx_info_field_data = {}
+    # This stores signature for functions and methods
+    app.env.docfx_signature_funcs_methods = {}
 
     remote = getoutput('git remote -v')
 
@@ -141,9 +143,9 @@ def _create_datam(app, cls, module, name, _type, obj, lines=None):
     except Exception:
         print("Can't get argspec for {}: {}".format(type(obj), name))
 
-    try:
-        sig = get_method_sig(obj)
-    except (Exception):
+    if name in app.env.docfx_signature_funcs_methods:
+        sig = app.env.docfx_signature_funcs_methods[name]
+    else:
         sig = None
 
     try:
@@ -244,6 +246,13 @@ def process_docstring(app, _type, name, obj, options, lines):
 
     insert_children_on_module(app, _type, datam)
     insert_children_on_class(app, _type, datam)
+
+
+def process_signature(app, _type, name, obj, options, signature, return_annotation):
+    if signature:
+        short_name = name.split('.')[-1]
+        signature = short_name + signature
+        app.env.docfx_signature_funcs_methods[name] = signature
 
 
 def insert_inheritance(app, _type, obj, datam):
@@ -448,6 +457,7 @@ def setup(app):
     """
     app.connect('builder-inited', build_init)
     app.connect('autodoc-process-docstring', process_docstring)
+    app.connect('autodoc-process-signature', process_signature)
     app.connect('build-finished', build_finished)
     app.connect('missing-reference', missing_reference)
     app.add_config_value('docfx_yaml_output', API_ROOT, 'html')

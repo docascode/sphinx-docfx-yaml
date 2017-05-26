@@ -110,7 +110,7 @@ def _refact_example_in_module_summary(lines):
     for line in lines:
         if line.startswith('.. admonition:: Example'):
             example_block_flag = True
-            line = 'Example\n\n'
+            line = '### Example\n\n'
             new_lines.append(line)
         elif example_block_flag and len(line) != 0 and not line.startswith('   '):
             example_block_flag = False
@@ -118,9 +118,10 @@ def _refact_example_in_module_summary(lines):
             new_lines.append(line)
             block_lines[:] = []
         elif example_block_flag:
-            if line == '   ':
-                line = '\n'
+            if line == '   ':  # origianl line is blank line ('\n').
+                line = '\n' # after outer ['\n'.join] operation, this '\n' will be appended to previous line then. BINGO!
             elif line.startswith('   '):
+                # will be indented by 4 spaces according to yml block syntax. https://learnxinyminutes.com/docs/yaml/
                 line = ' ' + line + '\n'
             block_lines.append(line)
 

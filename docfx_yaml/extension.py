@@ -46,6 +46,8 @@ MODULE = 'module'
 CLASS = 'class'
 EXCEPTION = 'exception'
 ATTRIBUTE = 'attribute'
+REFMETHOD = 'meth'
+REFFUNCTION = 'func'
 
 
 def build_init(app):
@@ -467,10 +469,23 @@ def build_finished(app, exception):
 def missing_reference(app, env, node, contnode):
     reftarget = ''
     refdoc = ''
+    reftype = ''
+    module = ''
     if 'refdomain' in node.attributes and node.attributes['refdomain'] == 'py':
         reftarget = node['reftarget']
+        reftype = node['reftype']
         if 'refdoc' in node:
             refdoc = node['refdoc']
+        if 'py:module' in node:
+            module = node['py:module']
+
+        if reftype in [CLASS, REFFUNCTION, REFMETHOD] and not reftarget.startswith(module.split('.')[0]):
+            if reftype in [CLASS, REFFUNCTION]:
+                fields = (module, reftarget)
+            else:
+                fields = (module, node['py:class'], reftarget)
+            reftarget = '.'.join(fields)
+
         return make_refnode(app.builder, refdoc, reftarget, '', contnode)
 
 

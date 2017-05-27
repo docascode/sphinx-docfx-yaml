@@ -186,7 +186,7 @@ class MarkdownTranslator(nodes.NodeVisitor):
         self.states.append([])
         self.stateindent.append(indent)
 
-    def end_state(self, wrap=True, end=[''], first=None):
+    def end_state(self, wrap=False, end=[''], first=None):
         content = self.states.pop()
         maxindent = sum(self.stateindent)
         indent = self.stateindent.pop()

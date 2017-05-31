@@ -33,33 +33,41 @@ but ran into issues when attempting to get the raw Python docstrings.
 These docstrings were parsed as rST and only available as a doctree object.
 This meant that docstrings written in Markdown would be improperly parsed as rST and unable to be transformed back.
 
-The doctree approach was initially attempted because it has the broadest support across languages.
-In theory it would work with any Sphinx domain,
-which was a secondary design goal. 
-However,
-it was sidelined because support for non-RST was the primary design goal.
+Monkeypatch
+```````````
+
+We use the **Doctree** approach for some of our data.
+In particular, 
+to get the :ref:`info field lists` from Sphinx,
+we insert a monkeypatch in the Sphinx rendering.
+This lives in the ``docfx_yaml/monkeypatch.py`` file. 
+
+We used this approach because we needed to get the pre-transformed doc field information.
+After Sphinx's transformation of the doctree important semantic information is lost.
+So we needed to monkeypatch the ``DocFieldTransformer`` in Sphinx to get the information before it is transformed.
 
 Signals
 ~~~~~~~
 
-The approach that we settled on was attaching to the `autodoc-process-docstring <http://www.sphinx-doc.org/en/stable/ext/autodoc.html#event-autodoc-process-docstring>`_ signal implemented in autodoc.
+The approach that we settled on for getting the full docstring text is the `autodoc-process-docstring <http://www.sphinx-doc.org/en/stable/ext/autodoc.html#event-autodoc-process-docstring>`_ signal implemented in autodoc.
 It lives in the ``docfx_yaml/extension.py`` file.
 This signal is triggered at the processing of the docstring,
 passing it along unprocessed.
 This allows us to properly get the content of the docstring,
 as well as derive the unique ID (uid) of the object.
 
-This is the currently existing implementation,
-which happens to be quite simple,
-but only work for autodoc generated strings.
-Any other use of the Python domain will be ignored.
+Another important part of the ``autodoc-process-docstring`` signal is that it passes the actual Python object along with it.
+This allows us to introspect it with the ``inspect`` Python module,
+and pull off argument listings,
+default values,
+line numbers,
+and other information about the actual object.
+This was required because we wanted more information about the objects than Sphinx outputs in it's normal output around autodoc.
 
-Monkeypatch
-~~~~~~~~~~~
-
-In order to get the :ref:`info field lists` from Sphinx,
-we insert a monkeypatch in the Sphinx rendering.
-This lives in the ``docfx_yaml/monkeypatch.py`` file. 
+.. warning:: 
+    This will only work for autodoc generated strings.
+    Any other use of the Python domain will be ignored,
+    as it isn't using the ``autodoc`` module.
 
 YAML syntax
 -----------

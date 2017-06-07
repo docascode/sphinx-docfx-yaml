@@ -178,6 +178,7 @@ class MarkdownTranslator(nodes.NodeVisitor):
         self.sectionlevel = 0
         self.lineblocklevel = 0
         self.table = None
+        self.keep_warnings = builder.config.keep_warnings
 
     def add_text(self, text):
         self.states[-1].append((-1, text))
@@ -998,9 +999,10 @@ class MarkdownTranslator(nodes.NodeVisitor):
         self.add_text('<<')
 
     def visit_system_message(self, node):
-        self.new_state(0)
-        self.add_text('<SYSTEM MESSAGE: %s>' % node.astext())
-        self.end_state()
+        if self.keep_warnings:
+            self.new_state(0)
+            self.add_text('<SYSTEM MESSAGE: %s>' % node.astext())
+            self.end_state()
         raise nodes.SkipNode
 
     def visit_comment(self, node):

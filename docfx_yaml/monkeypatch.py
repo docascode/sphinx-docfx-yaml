@@ -186,6 +186,8 @@ def patch_docfields(app):
                         else:
                             _type = None
                         if fieldtype.name == 'parameter':
+                            if _type and _type.startswith('@'):
+                                _type = _type[len('@'):]
                             _data = make_param(_id=_id, _type=_type, _description=_description)
                             data['parameters'].append(_data)
                         if fieldtype.name == 'variable':

@@ -189,7 +189,6 @@ class MarkdownTranslator(nodes.NodeVisitor):
         self.sectionlevel = 0
         self.lineblocklevel = 0
         self.table = None
-        self.keep_warnings = builder.config.keep_warnings
 
     def add_text(self, text):
         self.states[-1].append((-1, text))

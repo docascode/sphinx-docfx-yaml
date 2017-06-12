@@ -433,7 +433,7 @@ def build_finished(app, exception):
             if app.verbosity >= 1:
                 app.info(bold('[docfx_yaml] ') + darkgreen('Outputting %s' % filename))
             with open(out_file, 'w') as out_file_obj:
-                out_file_obj.write('#YamlMime:PythonReference\n')
+                out_file_obj.write('### YamlMime:UniversalReference\n')
                 dump(
                     {
                         'items': yaml_data,

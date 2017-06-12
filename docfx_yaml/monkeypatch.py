@@ -6,6 +6,7 @@ from sphinx.util import docfields
 from sphinx import directives, addnodes
 from sphinx import addnodes
 
+from sphinx.addnodes import desc, desc_signature
 from .utils import transform_node as _transform_node
 
 
@@ -24,6 +25,14 @@ def _get_desc_data(node):
         uid = '{module}.{full_name}'.format(module=module, full_name=full_name)
         print('Non-standard id: %s' % uid)
     return full_name, uid
+
+
+def _is_desc_of_enum_class(node):
+    assert node.tagname == 'desc_content'
+    if node[0] and node[0].tagname == 'paragraph' and node[0].astext() == 'Bases: enum.Enum':
+        return True
+
+    return False
 
 
 def _hacked_transform(typemap, node):
@@ -208,6 +217,11 @@ def patch_docfields(app):
             name, uid = _get_desc_data(node.parent)
             for child in node:
                 if isinstance(child, addnodes.desc):
+                    if _is_desc_of_enum_class(node):
+                        for item in child:
+                            if isinstance(item, desc_signature):
+                                data.setdefault('enum_attribute', []).append(item.astext())
+
                     # Don't recurse into child nodes
                     continue
                 elif isinstance(child, nodes.field_list):

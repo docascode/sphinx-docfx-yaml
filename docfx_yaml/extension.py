@@ -450,11 +450,12 @@ def build_finished(app, exception):
                 found_node = find_node_in_toc_tree(toc_yaml, parent_level)
 
                 if found_node:
-                    found_node.setdefault('items', []).append({'name': filename, 'href': '%s.yml' % filename})
+                    found_node.setdefault('items', []).append({'name': filename, 'href': '%s.yml' % filename, 'uid': filename})
                 else:
                     print('No parent level module found: {}'.format(parent_level))
+                    toc_yaml.append({'name': filename, 'href': '%s.yml' % filename, 'uid': filename})
             else:
-                toc_yaml.append({'name': filename, 'href': '%s.yml' % filename})
+                toc_yaml.append({'name': filename, 'href': '%s.yml' % filename, 'uid': filename})
 
     toc_file = os.path.join(normalized_outdir, 'toc.yml')
     with open(toc_file, 'w') as writable:

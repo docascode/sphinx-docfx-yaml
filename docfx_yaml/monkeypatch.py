@@ -195,6 +195,11 @@ def patch_docfields(app):
                         else:
                             _type = None
                         if fieldtype.name == 'parameter':
+                            # Remove @ and \n for cross reference in parameter type to apply to docfx correctly
+                            if _type and _type.startswith('@'):
+                                _type = _type[1:]
+                                _type = _type.rstrip('\n')
+
                             _data = make_param(_id=_id, _type=_type, _description=_description)
                             data['parameters'].append(_data)
                         if fieldtype.name == 'variable':

@@ -13,10 +13,10 @@ tests_require=['pytest', 'mock'],
 
 setup(
     name='sphinx-docfx-yaml',
-    version='1.1.0',
+    version='1.2.3',
     author='Eric Holscher',
     author_email='eric@ericholscher.com',
-    url='http://github.com/rtfd/sphinx-docfx-yaml',
+    url='https://github.com/ericholscher/sphinx-docfx-yaml',
     description='Sphinx Python Domain to DocFX YAML Generator',
     package_dir={'': '.'},
     packages=find_packages('.'),

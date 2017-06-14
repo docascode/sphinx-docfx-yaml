@@ -181,7 +181,7 @@ def patch_docfields(app):
                 if fieldtype.name == 'returntype':
                     returntype_ret = u''.join(n.astext() for n in content[1])
                     if returntype_ret:
-                        data['return']['type'] = [returntype_ret]
+                        data['return'].setdefault('type', []).append(returntype_ret)
                 if fieldtype.name == 'returnvalue':
                     returnvalue_ret = transform_node(content[1][0])
                     if returnvalue_ret:

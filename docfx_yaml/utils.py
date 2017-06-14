@@ -40,3 +40,4 @@ def transform_node(app, node):
     writer = Writer(app.builder)
     writer.write(doc, destination)
     return destination.destination.decode('utf-8')
+

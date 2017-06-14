@@ -7,8 +7,6 @@ from collections import namedtuple
 
 from .writer import MarkdownWriter as Writer
 
-from sphinx import addnodes
-
 
 def slugify(value):
     """
@@ -41,7 +39,4 @@ def transform_node(app, node):
 
     writer = Writer(app.builder)
     writer.write(doc, destination)
-    node_str = destination.destination.decode('utf-8')
-    if isinstance(node, addnodes.pending_xref):
-        node_str = node_str.rstrip('\n')
-    return node_str
+    return destination.destination.decode('utf-8')

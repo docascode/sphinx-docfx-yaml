@@ -48,6 +48,7 @@ EXCEPTION = 'exception'
 ATTRIBUTE = 'attribute'
 REFMETHOD = 'meth'
 REFFUNCTION = 'func'
+INITPY = '__init__.py'
 
 
 def build_init(app):
@@ -65,6 +66,8 @@ def build_init(app):
     app.env.docfx_info_field_data = {}
     # This stores signature for functions and methods
     app.env.docfx_signature_funcs_methods = {}
+    # This store the uid-module mapping info
+    app.env.docfx_info_uid_modules = {}
 
     remote = getoutput('git remote -v')
 
@@ -194,7 +197,7 @@ def _create_datam(app, cls, module, name, _type, obj, lines=None):
             source_prefix  # does source_prefix exist in the current namespace
             path = source_prefix + path
         except NameError:
-            print("no source_prefix defined")
+            pass
 
     except (TypeError, OSError):
         print("Can't inspect type {}: {}".format(type(obj), name))
@@ -276,6 +279,8 @@ def process_docstring(app, _type, name, obj, options, lines):
     insert_children_on_module(app, _type, datam)
     insert_children_on_class(app, _type, datam)
 
+    app.env.docfx_info_uid_modules[datam['uid']] = _type
+
 
 def process_signature(app, _type, name, obj, options, signature, return_annotation):
     if signature:
@@ -329,6 +334,24 @@ def insert_children_on_module(app, _type, datam):
             obj['references'].append(_create_reference(datam, parent=obj['uid']))
             break
 
+    if datam[MODULE].count('.') >= 1:
+        parent_module_name = '.'.join(datam[MODULE].split('.')[:-1])
+
+        if parent_module_name not in app.env.docfx_yaml_modules:
+            return
+
+        insert_module = app.env.docfx_yaml_modules[parent_module_name]
+
+        # Add module to parent module node
+        for obj in insert_module:
+            if _type in [MODULE] and \
+                    obj['type'] == MODULE and \
+                    obj[MODULE] == parent_module_name:
+                obj['children'].append(datam['uid'])
+                obj['references'].append(_create_reference(datam, parent=obj['uid']))
+
+                break
+
 
 def insert_children_on_class(app, _type, datam):
     """
@@ -366,7 +389,20 @@ def build_finished(app, exception):
                 if found_module != None:
                     return found_module
 
-        return None;
+        return None
+
+    def convert_module_to_package_if_needed(obj):
+        if 'source' in obj and 'path' in obj['source'] and obj['source']['path'].endswith(INITPY):
+            obj['type'] = 'package'
+            return
+
+        for child_uid in obj['children']:
+            if child_uid in app.env.docfx_info_uid_modules:
+                child_uid_type = app.env.docfx_info_uid_modules[child_uid]
+
+                if child_uid_type == MODULE:
+                    obj['type'] = 'package'
+                    return
 
 
     normalized_outdir = os.path.normpath(os.path.join(
@@ -422,10 +458,19 @@ def build_finished(app, exception):
 
                     # Raise up example
                     if 'example' in obj['syntax'] and obj['syntax']['example']:
-                        obj['example'] = obj['syntax'].pop('example')
+                        obj.setdefault('example', []).append(obj['syntax'].pop('example'))
+
+                    # append 'enum_attribute' to summary
+                    if 'enum_attribute' in obj['syntax'] and obj['syntax']['enum_attribute']:
+                        enum_attribute = obj['syntax'].pop('enum_attribute')
+                        if 'summary' in obj:
+                            obj['summary'] += ('\n\n' + '\n\n'.join(enum_attribute) + '\n')
 
                 if 'references' in obj:
                     references.extend(obj.pop('references'))
+
+                if obj['type'] == 'module':
+                    convert_module_to_package_if_needed(obj)
 
             # Output file
             out_file = os.path.join(normalized_outdir, '%s.yml' % filename)
@@ -433,7 +478,7 @@ def build_finished(app, exception):
             if app.verbosity >= 1:
                 app.info(bold('[docfx_yaml] ') + darkgreen('Outputting %s' % filename))
             with open(out_file, 'w') as out_file_obj:
-                out_file_obj.write('#YamlMime:PythonReference\n')
+                out_file_obj.write('### YamlMime:UniversalReference\n')
                 dump(
                     {
                         'items': yaml_data,
@@ -450,11 +495,12 @@ def build_finished(app, exception):
                 found_node = find_node_in_toc_tree(toc_yaml, parent_level)
 
                 if found_node:
-                    found_node.setdefault('items', []).append({'name': filename, 'href': '%s.yml' % filename})
+                    found_node.setdefault('items', []).append({'name': filename, 'uid': filename})
                 else:
                     print('No parent level module found: {}'.format(parent_level))
+                    toc_yaml.append({'name': filename, 'uid': filename})
             else:
-                toc_yaml.append({'name': filename, 'href': '%s.yml' % filename})
+                toc_yaml.append({'name': filename, 'uid': filename})
 
     toc_file = os.path.join(normalized_outdir, 'toc.yml')
     with open(toc_file, 'w') as writable:
@@ -480,7 +526,7 @@ def missing_reference(app, env, node, contnode):
             module = node['py:module']
 
         #Refactor reftarget to fullname if it is a short name
-        if reftype in [CLASS, REFFUNCTION, REFMETHOD] and not reftarget.startswith(module.split('.')[0]):
+        if reftype in [CLASS, REFFUNCTION, REFMETHOD] and module and not reftarget.startswith(module.split('.')[0]):
             if reftype in [CLASS, REFFUNCTION]:
                 fields = (module, reftarget)
             else:

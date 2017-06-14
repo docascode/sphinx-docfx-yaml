@@ -25,6 +25,17 @@ from docutils.utils import column_width
 from sphinx import addnodes
 from sphinx.locale import admonitionlabels
 
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+
 
 class TextWrapper(textwrap.TextWrapper):
     """Custom subclass that uses a different word separator regex."""
@@ -802,7 +813,7 @@ class MarkdownTranslator(nodes.NodeVisitor):
         self.end_state(wrap=False)
 
     def visit_doctest_block(self, node):
-        self.add_text('```')
+        self.add_text(self.nl + '```')
         self.new_state(0)
 
     def depart_doctest_block(self, node):
@@ -998,9 +1009,7 @@ class MarkdownTranslator(nodes.NodeVisitor):
         self.add_text('<<')
 
     def visit_system_message(self, node):
-        self.new_state(0)
-        self.add_text('<SYSTEM MESSAGE: %s>' % node.astext())
-        self.end_state()
+        print(bcolors.WARNING + "System message warnings: %s" % node.astext() + bcolors.ENDC)
         raise nodes.SkipNode
 
     def visit_comment(self, node):

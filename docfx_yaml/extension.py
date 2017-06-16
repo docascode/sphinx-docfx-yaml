@@ -171,7 +171,7 @@ def _create_datam(app, cls, module, name, _type, obj, lines=None):
                 for count, default in enumerate(argspec.defaults):
                     cut_count = len(argspec.defaults)
                     # Match the defaults with the count
-                    args[len(args) - 1 - cut_count - 1 - count]['defaultValue'] = str(default)
+                    args[len(args) - cut_count + count]['defaultValue'] = str(default)
     except Exception:
         print("Can't get argspec for {}: {}".format(type(obj), name))
 
@@ -437,9 +437,8 @@ def build_finished(app, exception):
                                 app.warn(
                                     "Documented params don't match size of params:"
                                     " {}".format(obj['uid']))
-                            if len(arg_params) - len(doc_params) == 1:
+                            if('id' in arg_params[0] and arg_params[0]['id'] == 'self'):
                                 # Support having `self` as an arg param, but not documented
-                                merged_params = [arg_params[0]]
                                 arg_params = arg_params[1:]
                             for args, docs in zip(arg_params, doc_params):
                                 args.update(docs)

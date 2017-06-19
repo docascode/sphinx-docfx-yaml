@@ -201,7 +201,7 @@ class PythonTests(unittest.TestCase):
                     if 'items' in item:
                         self.assertEqual(
                             item['items'][0]['name'],
-                            'example.example.Foo'
+                            'example.enum_type.EnumFoo'
                         )
                         break
 
@@ -223,3 +223,34 @@ class PythonTests(unittest.TestCase):
                             """>>> print('docblock 2')"""
                         )
 
+    def test_enum(self):
+        """
+        Test enum type support
+        """
+        with sphinx_build('pyexample'):
+            with open('_build/text/docfx_yaml/example.enum_type.EnumFoo.yml') as yml_file:
+                data = yaml.safe_load(yml_file)
+                for item in data['items']:
+                    if item['uid'] == 'example.enum_type.EnumFoo':
+                        self.assertEqual(
+                            item['children'],
+                            ['example.enum_type.EnumFoo.VALUE0', 'example.enum_type.EnumFoo.VALUE1']
+                        )
+                    if item['uid'] == 'example.enum_type.EnumFoo.VALUE0':
+                        self.assertEqual(
+                            item['syntax'],
+                            {'content': 'VALUE0 = 0', 'return': {'type': ['example.enum_type.EnumFoo']}}
+                        )
+                        self.assertEqual(
+                            item['type'],
+                            'attribute'
+                        )
+                    if item['uid'] == 'example.enum_type.EnumFoo.VALUE1':
+                        self.assertEqual(
+                            item['syntax'],
+                            {'content': 'VALUE1 = 1', 'return': {'type': ['example.enum_type.EnumFoo']}}
+                        )
+                        self.assertEqual(
+                            item['type'],
+                            'attribute'
+                        )

@@ -208,6 +208,7 @@ def patch_docfields(app):
 
         return data
 
+
     class PatchedDocFieldTransformer(docfields.DocFieldTransformer):
 
         def __init__(self, directive):
@@ -225,7 +226,31 @@ def patch_docfields(app):
                     if _is_desc_of_enum_class(node):
                         for item in child:
                             if isinstance(item, desc_signature):
-                                data.setdefault('enum_attribute', []).append(item.astext())
+                                # capture enum attributes data and cache it
+                                data.setdefault('enum_attribute', [])
+
+                                curuid = item.get('ids', [''])[0]
+                                parent = curuid[:curuid.rfind('.')]
+                                name = item.children[0].astext()
+
+                                enumData = {
+                                    'uid': curuid,
+                                    'id': name,
+                                    'parent': parent,
+                                    'langs': ['python'],
+                                    'name': name,
+                                    'fullName': curuid,
+                                    'type': item.parent.get('desctype'),
+                                    'module': item.get('module'),
+                                    'syntax': {
+                                        'content': item.astext(),
+                                        'return': {
+                                            'type': [parent]
+                                        }
+                                    }
+                                }
+
+                                data['enum_attribute'].append(enumData) # Add enum attributes data to a temp list
 
                     # Don't recurse into child nodes
                     continue
@@ -243,7 +268,7 @@ def patch_docfields(app):
                 else:
                     content = transform_node(child)
 
-                    # skip 'Bases' in summary 
+                    # skip 'Bases' in summary
                     if not content.startswith('Bases: '):
                         summary.append(content)
             if summary:

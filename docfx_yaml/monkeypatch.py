@@ -138,7 +138,7 @@ def patch_docfields(app):
 
     transform_node = partial(_transform_node, app)
 
-    def get_data_structure(entries, types):
+    def get_data_structure(entries, types, field_object):
         """
         Get a proper docfx YAML data structure from the entries & types
         """
@@ -164,6 +164,29 @@ def patch_docfields(app):
                 return transform_node(para_field)
             else:
                 return para_field.astext()
+
+        def extract_exception_desc(field_object):
+            ret = []
+            if len(field_object) > 0:
+                for field in field_object:
+                    if 'field_name' == field[0].tagname and field[0].astext() == 'Raises':
+                        assert field[1].tagname == 'field_body'
+                        field_body = field[1]
+
+                        children = [n for n in field_body
+                            if not isinstance(n, nodes.Invisible)]
+
+                        for child in children:
+                            if isinstance (child, nodes.paragraph):
+                                pending_xref_index = child.first_child_matching_class(addnodes.pending_xref)
+                                if pending_xref_index is not None:
+                                    pending_xref = child[pending_xref_index]
+                                    raise_type_index = pending_xref.first_child_matching_class(nodes.literal)
+                                    if raise_type_index is not None:
+                                        raise_type = pending_xref[raise_type_index]
+                                        ret.append({'type': pending_xref['reftarget'], 'desc': raise_type.astext()})
+
+            return ret
 
         for entry in entries:
             if isinstance(entry, nodes.field):
@@ -205,6 +228,13 @@ def patch_docfields(app):
                         if fieldtype.name == 'variable':
                             _data = make_param(_id=_id, _type=_type, _description=_description)
                             data['variables'].append(_data)
+
+                    ret_list = extract_exception_desc(field_object)
+                    for ret in ret_list:
+                        data.setdefault('exceptions', []).append({
+                            'type': ret['type'],
+                            'description': ret['desc']
+                        })
 
         return data
 
@@ -256,7 +286,7 @@ def patch_docfields(app):
                     continue
                 elif isinstance(child, nodes.field_list):
                     (entries, types) = _hacked_transform(self.typemap, child)
-                    _data = get_data_structure(entries, types)
+                    _data = get_data_structure(entries, types, child)
                     data.update(_data)
                 elif isinstance(child, addnodes.seealso):
                     data['seealso'] = transform_node(child)

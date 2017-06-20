@@ -459,6 +459,10 @@ def build_finished(app, exception):
                     if 'example' in obj['syntax'] and obj['syntax']['example']:
                         obj.setdefault('example', []).append(obj['syntax'].pop('example'))
 
+                    # Raise up exceptions
+                    if 'exceptions' in obj['syntax'] and obj['syntax']['exceptions']:
+                        obj['exceptions'] = obj['syntax'].pop('exceptions')
+
                     # add content of temp list 'enum_attribute' to children and yaml_data
                     if 'enum_attribute' in obj['syntax'] and obj['syntax']['enum_attribute']:
                         enum_attribute = obj['syntax'].pop('enum_attribute')

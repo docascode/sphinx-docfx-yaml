@@ -6,6 +6,7 @@ This extension allows you to automagically generate DocFX YAML from your Python 
 """
 import os
 import inspect
+import re
 from functools import partial
 
 try:
@@ -158,6 +159,23 @@ def _create_datam(app, cls, module, name, _type, obj, lines=None):
     Build the data structure for an autodoc class
     """
 
+    def _update_friendly_package_name(path):
+        package_name_index = path.find(os.sep)
+        package_name = path[:package_name_index]
+        if len(package_name) > 0:
+            try:
+                for name in namespace_package_dict:
+                    if re.match(name, package_name) is not None:
+                        package_name = namespace_package_dict[name]
+                        path = os.path.join(package_name, path[package_name_index + 1:])
+                        return path
+
+            except NameError:
+                pass
+
+        return path
+
+
     if lines is None:
         lines = []
     short_name = name.split('.')[-1]
@@ -188,9 +206,12 @@ def _create_datam(app, cls, module, name, _type, obj, lines=None):
         import_path = os.path.dirname(inspect.getfile(os))
         path = path.replace(os.path.join(import_path, 'site-packages'), '')
         path = path.replace(import_path, '')
+
         # Make relative
-        path = path.replace('/', '', 1)
+        path = path.replace(os.sep, '', 1)
         start_line = inspect.getsourcelines(obj)[1]
+
+        path = _update_friendly_package_name(path)
 
         # append relative path defined in conf.py (in case of "binding python" project)
         try:

@@ -8,6 +8,7 @@ import os
 import inspect
 import re
 from functools import partial
+from itertools import zip_longest
 
 try:
     from subprocess import getoutput
@@ -461,7 +462,8 @@ def build_finished(app, exception):
                             if('id' in arg_params[0] and arg_params[0]['id'] == 'self'):
                                 # Support having `self` as an arg param, but not documented
                                 arg_params = arg_params[1:]
-                            for args, docs in zip(arg_params, doc_params):
+                            # Zip 2 param lists until the long one is exhausted
+                            for args, docs in zip_longest(arg_params, doc_params, fillvalue={}):
                                 args.update(docs)
                                 merged_params.append(args)
                     obj['syntax'].update(app.env.docfx_info_field_data[obj['uid']])

@@ -231,9 +231,9 @@ def patch_docfields(app):
 
                     ret_list = extract_exception_desc(field_object)
                     for ret in ret_list:
+                        # only use type in exceptions
                         data.setdefault('exceptions', []).append({
-                            'type': ret['type'],
-                            'description': ret['desc']
+                            'type': ret['type']
                         })
 
         return data

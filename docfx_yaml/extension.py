@@ -553,7 +553,7 @@ def missing_reference(app, env, node, contnode):
             module = node['py:module']
 
         #Refactor reftarget to fullname if it is a short name
-        if reftype in [CLASS, REFFUNCTION, REFMETHOD] and module and not reftarget.startswith(module.split('.')[0]):
+        if reftype in [CLASS, REFFUNCTION, REFMETHOD] and module and '.' not in reftarget:
             if reftype in [CLASS, REFFUNCTION]:
                 fields = (module, reftarget)
             else:

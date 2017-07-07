@@ -202,9 +202,14 @@ def patch_docfields(app):
                             'description': transform_node(_description[0])
                         })
                 if fieldtype.name == 'returntype':
-                    returntype_ret = u''.join(n.astext() for n in content[1])
-                    if returntype_ret:
-                        data['return'].setdefault('type', []).append(returntype_ret)
+                    for returntype_node in content[1]:
+                        returntype_ret = transform_node(returntype_node)
+                        if returntype_ret:
+                            # Support or in returntype
+                            for returntype in returntype_ret.split(' or '):
+                                # Strip '\n' '\t' ''
+                                returntype = returntype.strip()[1:]
+                                data['return'].setdefault('type', []).append(returntype)
                 if fieldtype.name == 'returnvalue':
                     returnvalue_ret = transform_node(content[1][0])
                     if returnvalue_ret:

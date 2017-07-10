@@ -209,8 +209,8 @@ def patch_docfields(app):
                             for returntype in returntype_ret.split(' or '):
                                 # Remove @ and \n for cross reference in return type to apply to docfx correctly
                                 if returntype.startswith('@'):
-                                    returntype = returntype[1:].rstrip('\n')
-                                data['return'].setdefault('type', []).append(returntype)
+                                    returntype = returntype[1:]
+                                data['return'].setdefault('type', []).append(returntype.rstrip('\n'))
                 if fieldtype.name == 'returnvalue':
                     returnvalue_ret = transform_node(content[1][0])
                     if returnvalue_ret:

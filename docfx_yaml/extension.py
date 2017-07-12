@@ -68,8 +68,8 @@ def build_init(app):
     app.env.docfx_info_field_data = {}
     # This stores signature for functions and methods
     app.env.docfx_signature_funcs_methods = {}
-    # This store the uid-module mapping info
-    app.env.docfx_info_uid_modules = {}
+    # This store the uid-type mapping info
+    app.env.docfx_info_uid_types = {}
 
     remote = getoutput('git remote -v')
 
@@ -301,7 +301,7 @@ def process_docstring(app, _type, name, obj, options, lines):
     insert_children_on_module(app, _type, datam)
     insert_children_on_class(app, _type, datam)
 
-    app.env.docfx_info_uid_modules[datam['uid']] = _type
+    app.env.docfx_info_uid_types[datam['uid']] = _type
 
 
 def process_signature(app, _type, name, obj, options, signature, return_annotation):
@@ -419,8 +419,8 @@ def build_finished(app, exception):
             return
 
         for child_uid in obj['children']:
-            if child_uid in app.env.docfx_info_uid_modules:
-                child_uid_type = app.env.docfx_info_uid_modules[child_uid]
+            if child_uid in app.env.docfx_info_uid_types:
+                child_uid_type = app.env.docfx_info_uid_types[child_uid]
 
                 if child_uid_type == MODULE:
                     obj['type'] = 'package'
@@ -498,6 +498,16 @@ def build_finished(app, exception):
 
                 if obj['type'] == 'module':
                     convert_module_to_package_if_needed(obj)
+
+                try:
+                    if remove_inheritance_for_notfound_class:
+                        if 'inheritance' in obj:
+                            python_sdk_name = obj['uid'].split('.')[0]
+                            obj['inheritance'] = [n for n in obj['inheritance'] if not n['type'].startswith(python_sdk_name) or
+                                                  n['type'] in app.env.docfx_info_uid_types]
+
+                except NameError:
+                    pass
 
             # Output file
             out_file = os.path.join(normalized_outdir, '%s.yml' % filename)

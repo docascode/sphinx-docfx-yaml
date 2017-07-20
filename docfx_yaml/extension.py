@@ -505,6 +505,8 @@ def build_finished(app, exception):
                             python_sdk_name = obj['uid'].split('.')[0]
                             obj['inheritance'] = [n for n in obj['inheritance'] if not n['type'].startswith(python_sdk_name) or
                                                   n['type'] in app.env.docfx_info_uid_types]
+                            if not obj['inheritance']:
+                                obj.pop('inheritance')
 
                 except NameError:
                     pass

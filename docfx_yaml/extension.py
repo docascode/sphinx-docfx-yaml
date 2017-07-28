@@ -414,9 +414,10 @@ def build_finished(app, exception):
         return None
 
     def convert_module_to_package_if_needed(obj):
-        if 'source' in obj and 'path' in obj['source'] and obj['source']['path'].endswith(INITPY):
-            obj['type'] = 'package'
-            return
+        if 'source' in obj and 'path' in obj['source'] and obj['source']['path']:
+            if obj['source']['path'].endswith(INITPY):
+                obj['type'] = 'package'
+                return
 
         for child_uid in obj['children']:
             if child_uid in app.env.docfx_info_uid_types:

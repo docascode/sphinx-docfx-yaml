@@ -51,6 +51,7 @@ ATTRIBUTE = 'attribute'
 REFMETHOD = 'meth'
 REFFUNCTION = 'func'
 INITPY = '__init__.py'
+REF_PATTERN = ':(func|class|meth|mod|ref):`~?[a-zA-Z_\.<> ]*?`'
 
 
 def build_init(app):
@@ -155,6 +156,28 @@ def _refact_example_in_module_summary(lines):
     return new_lines
 
 
+def _resolve_reference_in_module_summary(lines):
+    new_lines = []
+    for line in lines:
+        matched_objs = list(re.finditer(REF_PATTERN, line))
+        new_line = line
+        for matched_obj in matched_objs:
+            start = matched_obj.start()
+            end = matched_obj.end()
+            matched_str = line[start:end]
+            if '<' in matched_str and '>' in matched_str:
+                # match string like ':func:`***<***>`'
+                index = matched_str.index('<')
+                ref_name = matched_str[index+1:-2]
+            else:
+                # match string like ':func:`~***`' or ':func:`***`'
+                index = matched_str.index('~') if '~' in matched_str else matched_str.index('`')
+                ref_name = matched_str[index+1:-1]
+            new_line = new_line.replace(matched_str, '@' + ref_name)
+        new_lines.append(new_line)
+    return new_lines
+
+
 def _create_datam(app, cls, module, name, _type, obj, lines=None):
     """
     Build the data structure for an autodoc class
@@ -247,6 +270,7 @@ def _create_datam(app, cls, module, name, _type, obj, lines=None):
 
     # Only add summary to parts of the code that we don't get it from the monkeypatch
     if _type == MODULE:
+        lines = _resolve_reference_in_module_summary(lines)
         summary = app.docfx_transform_string('\n'.join(_refact_example_in_module_summary(lines)))
         if summary:
             datam['summary'] = summary

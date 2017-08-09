@@ -212,8 +212,11 @@ def _create_datam(app, cls, module, name, _type, obj, lines=None):
             if argspec.defaults:
                 for count, default in enumerate(argspec.defaults):
                     cut_count = len(argspec.defaults)
+                    # Only add defaultValue when str(default) doesn't contain object address string(object at 0x)
+                    # inspect.getargspec method will return wrong defaults which contain object address for some default values, like sys.stdout
                     # Match the defaults with the count
-                    args[len(args) - cut_count + count]['defaultValue'] = str(default)
+                    if 'object at 0x' not in str(default):
+                        args[len(args) - cut_count + count]['defaultValue'] = str(default)
     except Exception:
         print("Can't get argspec for {}: {}".format(type(obj), name))
 

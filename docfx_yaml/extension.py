@@ -514,12 +514,24 @@ def build_finished(app, exception):
                     if 'exceptions' in obj['syntax'] and obj['syntax']['exceptions']:
                         obj['exceptions'] = obj['syntax'].pop('exceptions')
 
-                    # add content of temp list 'enum_attribute' to children and yaml_data
-                    if 'enum_attribute' in obj['syntax'] and obj['syntax']['enum_attribute']:
-                        enum_attribute = obj['syntax'].pop('enum_attribute')
-                        for attrData in enum_attribute:
-                            obj.get('children', []).append(attrData['uid'])
-                            yaml_data.append(attrData)
+                    # add content of temp list 'added_attribute' to children and yaml_data
+                    if 'added_attribute' in obj['syntax'] and obj['syntax']['added_attribute']:
+                        added_attribute = obj['syntax'].pop('added_attribute')
+                        for attrData in added_attribute: 
+                            existed_Data = next((n for n in yaml_data if n['uid'] == attrData['uid']), None)
+                            if existed_Data:
+                                # Update data for already existed one which has attribute comment in source file 
+                                existed_Data.update(attrData)
+                            else:
+                                obj.get('children', []).append(attrData['uid'])
+                                yaml_data.append(attrData)
+                                if 'class' in attrData:
+                                    # Get parent for attrData of Non enum class
+                                    parent = attrData['class']
+                                else:
+                                    # Get parent for attrData of enum class
+                                    parent = attrData['parent']
+                                obj['references'].append(_create_reference(attrData, parent))
 
                 if 'references' in obj:
                     references.extend(obj.pop('references'))

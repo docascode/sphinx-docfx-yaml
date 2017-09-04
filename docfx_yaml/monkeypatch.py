@@ -259,34 +259,48 @@ def patch_docfields(app):
             name, uid = _get_desc_data(node.parent)
             for child in node:
                 if isinstance(child, addnodes.desc):
-                    if _is_desc_of_enum_class(node):
+                    if child.get('desctype') == 'attribute':
                         for item in child:
-                            if isinstance(item, desc_signature):
-                                # capture enum attributes data and cache it
-                                data.setdefault('enum_attribute', [])
+                            if isinstance(item, desc_signature) and any(isinstance(n, addnodes.desc_annotation) for n in item):
+                                # capture attributes data and cache it
+                                data.setdefault('added_attribute', [])
 
                                 curuid = item.get('ids', [''])[0]
                                 parent = curuid[:curuid.rfind('.')]
                                 name = item.children[0].astext()
-
-                                enumData = {
-                                    'uid': curuid,
-                                    'id': name,
-                                    'parent': parent,
-                                    'langs': ['python'],
-                                    'name': name,
-                                    'fullName': curuid,
-                                    'type': item.parent.get('desctype'),
-                                    'module': item.get('module'),
-                                    'syntax': {
-                                        'content': item.astext(),
-                                        'return': {
-                                            'type': [parent]
+                                
+                                if _is_desc_of_enum_class(node):
+                                    addedData = {
+                                        'uid': curuid,
+                                        'id': name,
+                                        'parent': parent,
+                                        'langs': ['python'],
+                                        'name': name,
+                                        'fullName': curuid,
+                                        'type': item.parent.get('desctype'),
+                                        'module': item.get('module'),
+                                        'syntax': {
+                                            'content': item.astext(),
+                                            'return': {
+                                                'type': [parent]
+                                            }
                                         }
                                     }
-                                }
+                                else:
+                                    addedData = {
+                                        'uid': curuid,
+                                        'class': parent,
+                                        'langs': ['python'],
+                                        'name': name,
+                                        'fullName': curuid,
+                                        'type': 'attribute',
+                                        'module': item.get('module'),
+                                        'syntax': {
+                                            'content': item.astext()
+                                        }
+                                    }
 
-                                data['enum_attribute'].append(enumData) # Add enum attributes data to a temp list
+                                data['added_attribute'].append(addedData) # Add attributes data to a temp list
 
                     # Don't recurse into child nodes
                     continue

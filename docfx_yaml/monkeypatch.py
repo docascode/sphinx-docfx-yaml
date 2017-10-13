@@ -1,3 +1,4 @@
+import re
 from docutils import nodes
 from functools import partial
 
@@ -206,9 +207,9 @@ def patch_docfields(app):
                         returntype_ret = transform_node(returntype_node)
                         if returntype_ret:
                             # Support or in returntype
-                            for returntype in returntype_ret.split(' or '):
-                                # Remove @ and \n for cross reference in return type to apply to docfx correctly
-                                if returntype.startswith('@'):
+                            for returntype in re.split(' or[ \n]', returntype_ret):
+                                # Remove @ ~ and \n for cross reference in return type to apply to docfx correctly
+                                if returntype.startswith('@') or returntype.startswith('~'):
                                     returntype = returntype[1:]
                                 data['return'].setdefault('type', []).append(returntype.rstrip('\n'))
                 if fieldtype.name == 'returnvalue':
@@ -227,9 +228,10 @@ def patch_docfields(app):
                         _para_types = [] 
                         if fieldtype.name == 'parameter':
                             if _type:
-                                for _s_type in _type.split(' or '):
-                                    # Remove @ and \n for cross reference in parameter type to apply to docfx correctly
-                                    if _s_type and _s_type.startswith('@'):
+                                # Support or in parameter type
+                                for _s_type in re.split(' or[ \n]', _type):
+                                    # Remove @ ~ and \n for cross reference in parameter type to apply to docfx correctly
+                                    if _s_type and (_s_type.startswith('@') or _s_type.startswith('~')):
                                         _s_type = _s_type[1:]
                                         _s_type = _s_type.rstrip('\n')
 

@@ -156,7 +156,7 @@ def patch_docfields(app):
                 'description': _description,
             }
             if _type:
-                ret['type'] = [_type]
+                ret['type'] = _type
             return ret
 
         def transform_para(para_field):
@@ -223,16 +223,23 @@ def patch_docfields(app):
                             _type = u''.join(transform_para(n) for n in fieldtypes[field])
                         else:
                             _type = None
+                        
+                        _para_types = [] 
                         if fieldtype.name == 'parameter':
-                            # Remove @ and \n for cross reference in parameter type to apply to docfx correctly
-                            if _type and _type.startswith('@'):
-                                _type = _type[1:]
-                                _type = _type.rstrip('\n')
+                            if _type:
+                                for _s_type in _type.split(' or '):
+                                    # Remove @ and \n for cross reference in parameter type to apply to docfx correctly
+                                    if _s_type and _s_type.startswith('@'):
+                                        _s_type = _s_type[1:]
+                                        _s_type = _s_type.rstrip('\n')
 
-                            _data = make_param(_id=_id, _type=_type, _description=_description)
+                                    _para_types.append(_s_type)
+
+                            _data = make_param(_id=_id, _type=_para_types, _description=_description)
                             data['parameters'].append(_data)
                         if fieldtype.name == 'variable':
-                            _data = make_param(_id=_id, _type=_type, _description=_description)
+                            _para_types.append(_type)
+                            _data = make_param(_id=_id, _type=_para_types, _description=_description)
                             data['variables'].append(_data)
 
                     ret_list = extract_exception_desc(field_object)

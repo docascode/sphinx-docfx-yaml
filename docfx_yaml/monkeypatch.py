@@ -10,6 +10,7 @@ from sphinx import addnodes
 from sphinx.addnodes import desc, desc_signature
 from .utils import transform_node as _transform_node
 
+TYPE_SEP_PATTERN = '(\[|\]|, |\(|\))'
 
 def _get_desc_data(node):
     assert node.tagname == 'desc'
@@ -149,6 +150,7 @@ def patch_docfields(app):
             'variables': [],
             'exceptions': [],
             'return': {},
+            'references': [],
         }
 
         def make_param(_id, _description, _type=None):
@@ -165,6 +167,36 @@ def patch_docfields(app):
                 return transform_node(para_field)
             else:
                 return para_field.astext()
+        
+        def resolve_type(data_type):
+            # Remove @ ~ and \n for cross reference in parameter/return value type to apply to docfx correctly
+            data_type = re.sub('[@~\n]', '', data_type)
+            
+            # Add references for docfx to resolve ref if type contains TYPE_SEP_PATTERN
+            _spec_list = []
+            _spec_fullnames = re.split(TYPE_SEP_PATTERN, data_type)
+            
+            _added_reference = {}
+            if len(_spec_fullnames) > 1:
+                _added_reference_name = ''
+                for _spec_fullname in _spec_fullnames:
+                    if _spec_fullname != '':
+                        _spec = {}
+                        _spec['name'] = _spec_fullname.split('.')[-1]
+                        _spec['fullName'] = _spec_fullname
+                        if re.match(TYPE_SEP_PATTERN, _spec_fullname) is None:
+                            _spec['uid'] = _spec_fullname
+                        _spec_list.append(_spec)
+                        _added_reference_name += _spec['name']
+
+                _added_reference = {
+                    'uid': data_type,
+                    'name': _added_reference_name,
+                    'fullName': data_type,
+                    'spec.python': _spec_list
+                }
+            
+            return data_type, _added_reference
 
         def extract_exception_desc(field_object):
             ret = []
@@ -208,10 +240,14 @@ def patch_docfields(app):
                         if returntype_ret:
                             # Support or in returntype
                             for returntype in re.split(' or[ \n]', returntype_ret):
-                                # Remove @ ~ and \n for cross reference in return type to apply to docfx correctly
-                                if returntype.startswith('@') or returntype.startswith('~'):
-                                    returntype = returntype[1:]
-                                data['return'].setdefault('type', []).append(returntype.rstrip('\n'))
+                                returntype, _added_reference = resolve_type(returntype)
+                                if _added_reference:
+                                    if len(data['references']) == 0:
+                                        data['references'].append(_added_reference)
+                                    elif any(r['uid'] != _added_reference['uid'] for r in data['references']):
+                                        data['references'].append(_added_reference)
+
+                                data['return'].setdefault('type', []).append(returntype)
                 if fieldtype.name == 'returnvalue':
                     returnvalue_ret = transform_node(content[1][0])
                     if returnvalue_ret:
@@ -230,10 +266,12 @@ def patch_docfields(app):
                             if _type:
                                 # Support or in parameter type
                                 for _s_type in re.split(' or[ \n]', _type):
-                                    # Remove @ ~ and \n for cross reference in parameter type to apply to docfx correctly
-                                    if _s_type and (_s_type.startswith('@') or _s_type.startswith('~')):
-                                        _s_type = _s_type[1:]
-                                        _s_type = _s_type.rstrip('\n')
+                                    _s_type, _added_reference = resolve_type(_s_type)
+                                    if _added_reference:
+                                        if len(data['references']) == 0:
+                                            data['references'].append(_added_reference)
+                                        elif any(r['uid'] != _added_reference['uid'] for r in data['references']):
+                                            data['references'].append(_added_reference)
 
                                     _para_types.append(_s_type)
 

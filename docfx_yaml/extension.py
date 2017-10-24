@@ -514,6 +514,10 @@ def build_finished(app, exception):
                     if 'exceptions' in obj['syntax'] and obj['syntax']['exceptions']:
                         obj['exceptions'] = obj['syntax'].pop('exceptions')
 
+                    # Raise up references
+                    if 'references' in obj['syntax'] and obj['syntax']['references']:
+                        obj.setdefault('references', []).extend(obj['syntax'].pop('references'))
+
                     # add content of temp list 'added_attribute' to children and yaml_data
                     if 'added_attribute' in obj['syntax'] and obj['syntax']['added_attribute']:
                         added_attribute = obj['syntax'].pop('added_attribute')
@@ -534,7 +538,12 @@ def build_finished(app, exception):
                                 obj['references'].append(_create_reference(attrData, parent))
 
                 if 'references' in obj:
-                    references.extend(obj.pop('references'))
+                    # Ensure that references have no duplicate ref
+                    ref_uids = [r['uid'] for r in references]
+                    for ref_obj in obj['references']:
+                        if ref_obj['uid'] not in ref_uids:
+                            references.append(ref_obj)
+                    obj.pop('references')
 
                 if obj['type'] == 'module':
                     convert_module_to_package_if_needed(obj)

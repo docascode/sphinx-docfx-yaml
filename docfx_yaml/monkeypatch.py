@@ -239,7 +239,7 @@ def patch_docfields(app):
                         returntype_ret = transform_node(returntype_node)
                         if returntype_ret:
                             # Support or in returntype
-                            for returntype in re.split(' or[ \n]', returntype_ret):
+                            for returntype in re.split('[ \n]or[ \n]', returntype_ret):
                                 returntype, _added_reference = resolve_type(returntype)
                                 if _added_reference:
                                     if len(data['references']) == 0:
@@ -265,7 +265,7 @@ def patch_docfields(app):
                         if fieldtype.name == 'parameter':
                             if _type:
                                 # Support or in parameter type
-                                for _s_type in re.split(' or[ \n]', _type):
+                                for _s_type in re.split('[ \n]or[ \n]', _type):
                                     _s_type, _added_reference = resolve_type(_s_type)
                                     if _added_reference:
                                         if len(data['references']) == 0:

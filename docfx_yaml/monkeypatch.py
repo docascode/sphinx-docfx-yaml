@@ -278,7 +278,18 @@ def patch_docfields(app):
                             _data = make_param(_id=_id, _type=_para_types, _description=_description)
                             data['parameters'].append(_data)
                         if fieldtype.name == 'variable':
-                            _para_types.append(_type)
+                            if _type:
+                                # Support or in variable type
+                                for _s_type in re.split('[ \n]or[ \n]', _type):
+                                    _s_type, _added_reference = resolve_type(_s_type)
+                                    if _added_reference:
+                                        if len(data['references']) == 0:
+                                            data['references'].append(_added_reference)
+                                        elif any(r['uid'] != _added_reference['uid'] for r in data['references']):
+                                            data['references'].append(_added_reference)
+
+                                    _para_types.append(_s_type)
+
                             _data = make_param(_id=_id, _type=_para_types, _description=_description)
                             data['variables'].append(_data)
 

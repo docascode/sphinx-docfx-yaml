@@ -304,6 +304,10 @@ def process_docstring(app, _type, name, obj, options, lines):
     """
     This function takes the docstring and indexes it into memory.
     """
+    # Use exception as class
+    if _type == EXCEPTION:
+        _type = CLASS
+
     cls, module = _get_cls_module(_type, name)
     if not module:
         print('Unknown Type: %s' % _type)

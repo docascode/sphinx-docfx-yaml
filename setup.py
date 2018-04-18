@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 extra_setup = dict(
 install_requires=[
     'PyYAML',
-    'wheel==0.24.0',
+    'wheel>=0.24.0',
     'sphinx==1.5.5',
     'unidecode',
 ],

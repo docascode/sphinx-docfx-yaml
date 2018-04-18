@@ -9,3 +9,4 @@ _api_
 .ropeproject/
 .cache
 .vscode
+dist/

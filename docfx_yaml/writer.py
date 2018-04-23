@@ -1043,5 +1043,10 @@ class MarkdownTranslator(nodes.NodeVisitor):
 
     visit_math_block = visit_math
 
+    def visit_substitution_reference(self, node):
+        pass
+    def depart_substitution_reference(self, node):
+        pass
+
     def unknown_visit(self, node):
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)

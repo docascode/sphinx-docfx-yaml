@@ -323,7 +323,8 @@ def patch_docfields(app):
                                 # capture attributes data and cache it
                                 data.setdefault('added_attribute', [])
 
-                                curuid = item.get('ids', [''])[0]
+                                item_ids = item.get('ids', [''])
+                                curuid = item_ids[0] if len(item_ids) > 0 else ''
                                 parent = curuid[:curuid.rfind('.')]
                                 name = item.children[0].astext()
                                 

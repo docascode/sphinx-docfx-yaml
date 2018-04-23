@@ -318,48 +318,69 @@ def patch_docfields(app):
             for child in node:
                 if isinstance(child, addnodes.desc):
                     if child.get('desctype') == 'attribute':
+                        attribute_map = {} # Used for detecting duplicated attributes in intermediate data and merge them
+
                         for item in child:
                             if isinstance(item, desc_signature) and any(isinstance(n, addnodes.desc_annotation) for n in item):
                                 # capture attributes data and cache it
                                 data.setdefault('added_attribute', [])
 
                                 item_ids = item.get('ids', [''])
-                                curuid = item_ids[0] if len(item_ids) > 0 else ''
-                                parent = curuid[:curuid.rfind('.')]
-                                name = item.children[0].astext()
-                                
-                                if _is_desc_of_enum_class(node):
-                                    addedData = {
-                                        'uid': curuid,
-                                        'id': name,
-                                        'parent': parent,
-                                        'langs': ['python'],
-                                        'name': name,
-                                        'fullName': curuid,
-                                        'type': item.parent.get('desctype'),
-                                        'module': item.get('module'),
-                                        'syntax': {
-                                            'content': item.astext(),
-                                            'return': {
-                                                'type': [parent]
-                                            }
-                                        }
-                                    }
-                                else:
-                                    addedData = {
-                                        'uid': curuid,
-                                        'class': parent,
-                                        'langs': ['python'],
-                                        'name': name,
-                                        'fullName': curuid,
-                                        'type': 'attribute',
-                                        'module': item.get('module'),
-                                        'syntax': {
-                                            'content': item.astext()
-                                        }
-                                    }
 
-                                data['added_attribute'].append(addedData) # Add attributes data to a temp list
+                                if len(item_ids) == 0: # find a node with no 'ids' attribute
+                                    curuid = item.get('module', '') + '.' + item.get('fullname', '')
+                                    # generate its uid by module and fullname
+                                else:
+                                    curuid = item_ids[0]
+
+                                if len(curuid) > 0:
+                                    parent = curuid[:curuid.rfind('.')]
+                                    name = item.children[0].astext()
+
+                                    if curuid in attribute_map:
+                                        if len(item_ids) == 0: # ensure the order of docstring attributes and real attributes is fixed
+                                            attribute_map[curuid]['syntax']['content'] += (' ' + item.astext())
+                                            # concat the description of duplicated nodes
+                                        else:             
+                                            attribute_map[curuid]['syntax']['content'] = item.astext() + ' ' + attribute_map[curuid]['syntax']['content']
+                                    else:
+                                        if _is_desc_of_enum_class(node):
+                                            addedData = {
+                                                'uid': curuid,
+                                                'id': name,
+                                                'parent': parent,
+                                                'langs': ['python'],
+                                                'name': name,
+                                                'fullName': curuid,
+                                                'type': item.parent.get('desctype'),
+                                                'module': item.get('module'),
+                                                'syntax': {
+                                                    'content': item.astext(),
+                                                    'return': {
+                                                        'type': [parent]
+                                                    }
+                                                }
+                                            }
+                                        else:
+                                            addedData = {
+                                                'uid': curuid,
+                                                'class': parent,
+                                                'langs': ['python'],
+                                                'name': name,
+                                                'fullName': curuid,
+                                                'type': 'attribute',
+                                                'module': item.get('module'),
+                                                'syntax': {
+                                                    'content': item.astext()
+                                                }
+                                            }
+
+                                        attribute_map[curuid] = addedData
+                                else:
+                                    raise Exception('ids of node: ' + repr(item) + ' is missing.')
+                                    # no ids and no duplicate or uid can not be generated.
+                        if 'added_attribute' in data:
+                            data['added_attribute'].extend(attribute_map.values()) # Add attributes data to a temp list
 
                     # Don't recurse into child nodes
                     continue

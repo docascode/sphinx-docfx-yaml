@@ -19,8 +19,14 @@ def _get_desc_data(node):
             'Skipping Domain Object (%s)' % node.attributes['domain']
         )
         return None, None
-    module = node[0].attributes['module']
-    full_name = node[0].attributes['fullname'].split('.')[-1]
+
+    try:
+        module = node[0].attributes['module']
+        full_name = node[0].attributes['fullname'].split('.')[-1]
+    except KeyError as e:
+        print("[docfx_yaml] There maybe some syntax error in docstring near: " + node.astext())
+        raise e
+
     try:
         uid = node[0].attributes['ids'][0]
     except Exception:

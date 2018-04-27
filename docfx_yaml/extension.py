@@ -305,6 +305,7 @@ def process_docstring(app, _type, name, obj, options, lines):
     This function takes the docstring and indexes it into memory.
     """
     # Use exception as class
+
     if _type == EXCEPTION:
         _type = CLASS
 
@@ -376,7 +377,11 @@ def insert_children_on_module(app, _type, datam):
                 obj['type'] == MODULE and \
                 obj[MODULE] == datam[MODULE]:
             obj['children'].append(datam['uid'])
+            
+            # If it is a function, add this to its module. No need for class and module since this is
+            # done before calling this function.
             insert_module.append(datam)
+
             obj['references'].append(_create_reference(datam, parent=obj['uid']))
             break
         # Add classes & exceptions to module
@@ -387,23 +392,33 @@ def insert_children_on_module(app, _type, datam):
             obj['references'].append(_create_reference(datam, parent=obj['uid']))
             break
 
-    if datam[MODULE].count('.') >= 1:
-        parent_module_name = '.'.join(datam[MODULE].split('.')[:-1])
+    if _type in [MODULE]: # Make sure datam is a module.
+        # Add this module(datam) to parent module node
+        if datam[MODULE].count('.') >= 1:
+            parent_module_name = '.'.join(datam[MODULE].split('.')[:-1])
 
-        if parent_module_name not in app.env.docfx_yaml_modules:
-            return
+            if parent_module_name not in app.env.docfx_yaml_modules:
+                return
 
-        insert_module = app.env.docfx_yaml_modules[parent_module_name]
+            insert_module = app.env.docfx_yaml_modules[parent_module_name]
 
-        # Add module to parent module node
-        for obj in insert_module:
-            if _type in [MODULE] and \
-                    obj['type'] == MODULE and \
-                    obj[MODULE] == parent_module_name:
-                obj['children'].append(datam['uid'])
-                obj['references'].append(_create_reference(datam, parent=obj['uid']))
+            for obj in insert_module:
+                if obj['type'] == MODULE and obj[MODULE] == parent_module_name:
+                    obj['children'].append(datam['uid'])
+                    obj['references'].append(_create_reference(datam, parent=obj['uid']))
+                    break
 
-                break
+        # Add datam's children modules to it. Based on Python's passing by reference.
+        # If passing by reference would be changed in python's future release.
+        # Time complex: O(N^2)
+        for module, module_contents in app.env.docfx_yaml_modules.items():
+            if module != datam['uid'] and \
+                    module[:module.rfind('.')] == datam['uid']: # Current module is submodule/subpackage of datam
+                for obj in module_contents: # Traverse module's contents to find the module itself.
+                    if obj['type'] == MODULE and obj['uid'] == module:
+                        datam['children'].append(module)
+                        datam['references'].append(_create_reference(obj, parent=module))
+                        break
 
 
 def insert_children_on_class(app, _type, datam):

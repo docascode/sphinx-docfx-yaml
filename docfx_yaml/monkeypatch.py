@@ -407,6 +407,10 @@ def patch_docfields(app):
                     # skip 'Bases' in summary
                     if not content.startswith('Bases: '):
                         summary.append(content)
+            
+            if "desctype" in node.parent and node.parent["desctype"] == 'class':
+                data.pop('exceptions', '') # Make sure class doesn't have 'exceptions' field.
+
             if summary:
                 data['summary'] = '\n'.join(summary)
             # Don't include empty data

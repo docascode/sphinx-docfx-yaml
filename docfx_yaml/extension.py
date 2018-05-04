@@ -494,21 +494,22 @@ def build_finished(app, exception):
 
             # Merge module data with class data
             for obj in yaml_data:
+                arg_params = obj.get('syntax', {}).get('parameters', [])
+                if(len(arg_params) > 0 and 'id' in arg_params[0] and arg_params[0]['id'] == 'self'):
+                    # Support having `self` as an arg param, but not documented
+                    arg_params = arg_params[1:]
+                    obj['syntax']['parameters'] = arg_params
                 if obj['uid'] in app.env.docfx_info_field_data:
                     if 'syntax' not in obj:
                         obj['syntax'] = {}
                     merged_params = []
                     if 'parameters' in app.env.docfx_info_field_data[obj['uid']]:
-                        arg_params = obj['syntax'].get('parameters', [])
                         doc_params = app.env.docfx_info_field_data[obj['uid']].get('parameters', [])
                         if arg_params and doc_params:
-                            if len(arg_params) - len(doc_params) > 1:
+                            if len(arg_params) - len(doc_params) > 0:
                                 app.warn(
                                     "Documented params don't match size of params:"
                                     " {}".format(obj['uid']))
-                            if('id' in arg_params[0] and arg_params[0]['id'] == 'self'):
-                                # Support having `self` as an arg param, but not documented
-                                arg_params = arg_params[1:]
                             # Zip 2 param lists until the long one is exhausted
                             for args, docs in zip_longest(arg_params, doc_params, fillvalue={}):
                                 args.update(docs)

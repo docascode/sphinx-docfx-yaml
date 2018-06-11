@@ -10,3 +10,4 @@ _api_
 .cache
 .vscode
 dist/
+build/

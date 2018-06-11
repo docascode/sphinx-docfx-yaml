@@ -449,7 +449,7 @@ def build_finished(app, exception):
     def find_node_in_toc_tree(toc_yaml, to_add_node):
         for module in toc_yaml:
             if module['name'] == to_add_node:
-                return module;
+                return module
 
             if 'items' in module:
                 items = module['items']

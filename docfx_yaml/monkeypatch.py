@@ -141,7 +141,7 @@ def patch_docfields(app):
     `here <https://github.com/sphinx-doc/sphinx/blob/master/sphinx/directives/__init__.py#L180>`_.
 
     This also performs the RST doctree to Markdown transformation on the content,
-    using the :any:`docfx_yaml.writers.MarkdownWriter`.
+    using the :class:`docfx_yaml.writers.MarkdownWriter`.
     """
 
     transform_node = partial(_transform_node, app)

@@ -614,7 +614,7 @@ def build_finished(app, exception):
     with open(toc_file, 'w') as writable:
         writable.write(
             dump(
-                toc_yaml,
+                [{app.config.project: toc_yaml}],
                 default_flow_style=False,
             )
         )

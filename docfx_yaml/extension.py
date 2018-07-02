@@ -227,6 +227,8 @@ def _create_datam(app, cls, module, name, _type, obj, lines=None):
 
     try:
         full_path = inspect.getsourcefile(obj)
+        if full_path is None: # Meet a .pyd file
+            raise TypeError()
         # Sub git repo path
         path = full_path.replace(app.env.docfx_root, '')
         # Support global file imports, if it's installed already

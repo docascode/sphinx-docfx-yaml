@@ -9,6 +9,7 @@ from sphinx import addnodes
 
 from sphinx.addnodes import desc, desc_signature
 from .utils import transform_node as _transform_node
+from .nodes import remarks
 
 TYPE_SEP_PATTERN = '(\[|\]|, |\(|\))'
 
@@ -322,6 +323,8 @@ def patch_docfields(app):
             data = {}
             name, uid = _get_desc_data(node.parent)
             for child in node:
+                if isinstance(child, remarks):
+                    data['remarks'] = child.astext()
                 if isinstance(child, addnodes.desc):
                     if child.get('desctype') == 'attribute':
                         attribute_map = {} # Used for detecting duplicated attributes in intermediate data and merge them

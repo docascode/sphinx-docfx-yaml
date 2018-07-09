@@ -7,6 +7,8 @@ This is a description
 class Foo(object):
     """
     A sweet Foo class that does stuff.
+
+    .. remarks:: This is remarks message of class Foo.
     """
 
     class_var = 42  #: Class var docstring
@@ -25,6 +27,9 @@ class Foo(object):
     def method_okay(self, foo=None, bar=None):
         """
         This method should parse okay
+
+        .. remarks:: This is remarks message of method Foo.method_okay.
+            And multiple lines should be supported.
 
         :param str foo: The foo param
         :param str bar: The bar param

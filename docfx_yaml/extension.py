@@ -25,6 +25,8 @@ from sphinx.util.nodes import make_refnode
 from .utils import transform_node, transform_string
 from .settings import API_ROOT
 from .monkeypatch import patch_docfields
+from .directives import RemarksDirective
+from .nodes import remarks
 
 
 class bcolors:
@@ -523,6 +525,10 @@ def build_finished(app, exception):
                     # Raise up summary
                     if 'summary' in obj['syntax'] and obj['syntax']['summary']:
                         obj['summary'] = obj['syntax'].pop('summary')
+                    
+                    # Raise up remarks
+                    if 'remarks' in obj['syntax'] and obj['syntax']['remarks']:
+                        obj['remarks'] = obj['syntax'].pop('remarks')
 
                     # Raise up seealso
                     if 'seealso' in obj['syntax'] and obj['syntax']['seealso']:
@@ -658,6 +664,10 @@ def setup(app):
         app (Application): The Sphinx application instance
 
     """
+
+    app.add_node(remarks, html = (remarks.visit_remarks, remarks.depart_remarks))
+    app.add_directive('remarks', RemarksDirective)
+
     app.connect('builder-inited', build_init)
     app.connect('autodoc-process-docstring', process_docstring)
     app.connect('autodoc-process-signature', process_signature)

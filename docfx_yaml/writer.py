@@ -25,6 +25,8 @@ from docutils.utils import column_width
 from sphinx import addnodes
 from sphinx.locale import admonitionlabels
 
+from .nodes import remarks
+
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -1047,6 +1049,10 @@ class MarkdownTranslator(nodes.NodeVisitor):
         pass
     def depart_substitution_reference(self, node):
         pass
+
+    visit_remarks = remarks.visit_remarks
+
+    depart_remarks = remarks.depart_remarks
 
     def unknown_visit(self, node):
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)

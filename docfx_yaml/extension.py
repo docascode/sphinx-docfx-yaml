@@ -677,3 +677,4 @@ def setup(app):
     app.connect('build-finished', build_finished)
     app.connect('missing-reference', missing_reference)
     app.add_config_value('docfx_yaml_output', API_ROOT, 'html')
+    app.add_config_value('folder', '', 'html')

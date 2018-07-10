@@ -244,6 +244,9 @@ def _create_datam(app, cls, module, name, _type, obj, lines=None):
 
         path = _update_friendly_package_name(path)
 
+        # Get folder name from conf.py
+        path = os.path.join(app.config.folder, path)
+
         # append relative path defined in conf.py (in case of "binding python" project)
         try:
             source_prefix  # does source_prefix exist in the current namespace

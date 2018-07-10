@@ -20,7 +20,7 @@ class Foo(object):
         """A nested class just to test things out"""
 
         @classmethod
-        def foo():
+        def foo(self):
             """The foo class method"""
             return True
 
@@ -41,6 +41,8 @@ class Foo(object):
     def method_markdown(self):
         """
         Check out our `site <http://sphinx-docfx-yaml.readthedocs.io/en/latest/>`_ for more info.
+        .. _MASE: https://en.wikipedia.org/wiki/Mean_absolute_scaled_error
+        The test for external link of rst: MASE_, you can see this.
         """
         pass
 

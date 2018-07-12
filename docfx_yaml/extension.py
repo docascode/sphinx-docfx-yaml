@@ -626,12 +626,41 @@ def build_finished(app, exception):
         writable.write(
             dump(
                 [{
-                    'uid': app.config.project,
+                    'uid': 'project-' + app.config.project,
                     'name': app.config.project,
                     'items': toc_yaml
                 }],
                 default_flow_style=False,
             )
+        )
+
+    index_file = os.path.join(normalized_outdir, 'index.yml')
+    index_children = []
+    index_references = []
+    for item in toc_yaml:
+        index_children.append(item.get('uid', ''))
+        index_references.append({
+            'uid': item.get('uid', ''),
+            'name': item.get('name', ''),
+            'fullname': item.get('name', ''),
+            'isExternal': False
+        })
+    with open(index_file, 'w') as index_file_obj:
+        index_file_obj.write('### YamlMime:UniversalReference\n')
+        dump(
+            {
+                'items': [{
+                    'uid': 'project-' + app.config.project,
+                    'name': app.config.project,
+                    'langs': ['python'],
+                    'type': 'package',
+                    'summary': '',
+                    'children': index_children
+                }],
+                'references': index_references
+            },
+            index_file_obj,
+            default_flow_style=False
         )
 
 

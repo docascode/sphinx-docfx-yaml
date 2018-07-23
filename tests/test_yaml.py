@@ -243,7 +243,7 @@ class YamlTests(unittest.TestCase):
                 )
 
                 self.assertIn(
-                    'format\\rst\\enum.py',
+                    'format{sep}rst{sep}enum.py'.format(sep = os.sep),
                     data['items'][0]['source']['path']
                 )
 
@@ -267,7 +267,7 @@ class YamlTests(unittest.TestCase):
                 )
 
                 self.assertIn(
-                    'format\\google\\__init__.py',
+                    'format{sep}google{sep}__init__.py'.format(sep = os.sep),
                     data['items'][0]['source']['path']
                 )
 

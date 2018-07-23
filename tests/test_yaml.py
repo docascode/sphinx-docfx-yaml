@@ -219,7 +219,7 @@ class YamlTests(unittest.TestCase):
                 )
 
                 self.assertIn(
-                    'format\\rst\\foo.py',
+                    'format{sep}rst{sep}foo.py'.format(sep = os.sep),
                     data['items'][0]['source']['path']
                 )
 

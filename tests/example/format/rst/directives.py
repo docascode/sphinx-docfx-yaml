@@ -30,5 +30,6 @@ class DirectivesFoo(object):
     def method_remarks(self):
         """
         .. remarks:: Remarks from class method :meth:`format.rst.directives.DirectivesFoo.method_remarks`
+            Another reference: :class:`format.rst.directives.DirectivesFoo`
         """
         pass

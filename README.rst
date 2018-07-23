@@ -1,13 +1,10 @@
 Sphinx DocFX YAML
 =================
 
-.. image:: https://travis-ci.org/ericholscher/sphinx-docfx-yaml.svg?branch=master
-   :target: https://travis-ci.org/ericholscher/sphinx-docfx-yaml
+.. image:: https://travis-ci.org/docascode/sphinx-docfx-yaml.svg?branch=master
+   :target: https://travis-ci.org/docascode/sphinx-docfx-yaml
 
-.. image:: https://ci.appveyor.com/api/projects/status/m9t5a331de14mwfi/branch/master?svg=true
-   :target: https://ci.appveyor.com/project/ericholscher/sphinx-docfx-yaml
-
-Sphinx DocFX YAML is an exporter for the Sphinx Autodoc module into `DocFX YAML <https://dotnet.github.io/docfx/spec/metadata_format_spec.html>`_. 
+Sphinx DocFX YAML is an exporter for the Sphinx Autodoc module into `DocFX YAML <https://dotnet.github.io/docfx/spec/metadata_format_spec.html>`_.
 
 You can read the full documentation online at http://sphinx-docfx-yaml.readthedocs.io
 
@@ -60,7 +57,7 @@ the ``docfx_yaml`` will contain the YAML files that are output.
 
 ..  Modes
     -----
-    
+
     There are two output modes that specify the structure of the YAML files.
     The first is ``module`` which means that the YAML files will be output in files corresponding to the name of their module.
     The second modes is ``rst`` which outputs them in the same structure as the RST files they were defined in.

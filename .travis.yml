@@ -3,10 +3,8 @@ python:
  - 3.5
 sudo: false
 env:
- - TOX_ENV=py27
  - TOX_ENV=py35
  - TOX_ENV=docs
- - TOX_ENV=lint
 install:
  - pip install tox
 script:

@@ -12,6 +12,7 @@ from .utils import transform_node as _transform_node
 from .nodes import remarks
 
 TYPE_SEP_PATTERN = '(\[|\]|, |\(|\))'
+REF_PATTERN = ':(func|class|meth|mod|ref|any):`~?([a-zA-Z_\.<> ]*?)`'
 
 def _get_desc_data(node):
     assert node.tagname == 'desc'
@@ -174,15 +175,15 @@ def patch_docfields(app):
                 return transform_node(para_field)
             else:
                 return para_field.astext()
-        
+
         def resolve_type(data_type):
             # Remove @ ~ and \n for cross reference in parameter/return value type to apply to docfx correctly
             data_type = re.sub('[@~\n]', '', data_type)
-            
+
             # Add references for docfx to resolve ref if type contains TYPE_SEP_PATTERN
             _spec_list = []
             _spec_fullnames = re.split(TYPE_SEP_PATTERN, data_type)
-            
+
             _added_reference = {}
             if len(_spec_fullnames) > 1:
                 _added_reference_name = ''
@@ -202,7 +203,7 @@ def patch_docfields(app):
                     'fullName': data_type,
                     'spec.python': _spec_list
                 }
-            
+
             return data_type, _added_reference
 
         def extract_exception_desc(field_object):
@@ -267,8 +268,8 @@ def patch_docfields(app):
                             _type = u''.join(transform_para(n) for n in fieldtypes[field])
                         else:
                             _type = None
-                        
-                        _para_types = [] 
+
+                        _para_types = []
                         if fieldtype.name == 'parameter':
                             if _type:
                                 # Support or in parameter type
@@ -324,8 +325,10 @@ def patch_docfields(app):
             name, uid = _get_desc_data(node.parent)
             for child in node:
                 if isinstance(child, remarks):
-                    data['remarks'] = child.astext()
-                if isinstance(child, addnodes.desc):
+                    remarks_string = child.astext()
+                    data['remarks'] = re.sub(REF_PATTERN, lambda x: '@' + x.group(2), remarks_string)
+                    node.remove(child)
+                elif isinstance(child, addnodes.desc):
                     if child.get('desctype') == 'attribute':
                         attribute_map = {} # Used for detecting duplicated attributes in intermediate data and merge them
 
@@ -350,7 +353,7 @@ def patch_docfields(app):
                                         if len(item_ids) == 0: # ensure the order of docstring attributes and real attributes is fixed
                                             attribute_map[curuid]['syntax']['content'] += (' ' + item.astext())
                                             # concat the description of duplicated nodes
-                                        else:             
+                                        else:
                                             attribute_map[curuid]['syntax']['content'] = item.astext() + ' ' + attribute_map[curuid]['syntax']['content']
                                     else:
                                         if _is_desc_of_enum_class(node):
@@ -410,7 +413,7 @@ def patch_docfields(app):
                     # skip 'Bases' in summary
                     if not content.startswith('Bases: '):
                         summary.append(content)
-            
+
             if "desctype" in node.parent and node.parent["desctype"] == 'class':
                 data.pop('exceptions', '') # Make sure class doesn't have 'exceptions' field.
 

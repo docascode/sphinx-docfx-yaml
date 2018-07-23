@@ -168,17 +168,17 @@ class YamlTests(unittest.TestCase):
                 self.assertIn(
                     'references',
                     data
-                ) # Test references is added.
+                )  # Test references is added.
 
                 self.assertEqual(
                     data['references'][0]['parent'],
                     'format.rst.foo.Foo'
-                ) # Test reference value
+                )  # Test reference value
 
                 self.assertEqual(
                     data['references'][-1]['spec.python'][2]['uid'],
                     'int'
-                ) # Test reference spec
+                )  # Test reference spec
 
     def test_inheritance(self):
         """
@@ -295,7 +295,7 @@ class YamlTests(unittest.TestCase):
                             summary_lines[1]
                         )
 
-                        self.assertNotIn( # Seperated link not supported.
+                        self.assertNotIn(  # Seperated link not supported.
                             '[Seperated Link](http://seperated.external.link)',
                             summary_lines[2]
                         )
@@ -333,7 +333,7 @@ class YamlTests(unittest.TestCase):
                         self.assertEqual(
                             re.sub(r'\s+', ' ', item['seealsoContent']).strip(),
                             'See also: @format.numpy.foo.Foo.mathod_note See also target.'
-                        ) # Test see also centent from numpy format.
+                        )  # Test see also centent from numpy format.
 
     def test_toc(self):
         """
@@ -347,24 +347,24 @@ class YamlTests(unittest.TestCase):
                 self.assertEqual(
                     data[0]['uid'],
                     'project-example'
-                ) # Test project name node
+                )  # Test project name node
 
                 self.assertEqual(
                     len(data[0]['items']),
                     3
-                ) # Test there are three package nodes.
-                  # Actually should be two, cuz namespace package should be placed in father nodes.
-                  # TODO: To be fixed in future.
+                )  # Test there are three package nodes.
+                   # Actually should be two, cuz namespace package should be placed in father nodes.
+                   # TODO: To be fixed in future.
 
                 self.assertEqual(
                     data[0]['items'][0]['uid'],
                     'format'
-                ) # Test format package in toc.
+                )  # Test format package in toc.
 
                 self.assertEqual(
                     data[0]['items'][1]['uid'],
                     'nspkg'
-                ) # Test nspkg package in toc.
+                )  # Test nspkg package in toc.
 
     def test_index(self):
         """
@@ -378,24 +378,24 @@ class YamlTests(unittest.TestCase):
                 self.assertEqual(
                     'project-example',
                     data['items'][0]['uid']
-                ) # Test there is only one item for project-example
+                )  # Test there is only one item for project-example
 
                 self.assertIn(
                     'format',
                     data['items'][0]['children']
-                ) # Test format package is in index.yml
+                )  # Test format package is in index.yml
 
                 self.assertIn(
                     'nspkg',
                     data['items'][0]['children']
-                ) # Test nspkg package is in index.yml
+                )  # Test nspkg package is in index.yml
 
                 self.assertIn(
                     'nspkg.native.native_foo',
                     data['items'][0]['children']
-                ) # Test nspkg.native.native_foo package is in index.yml
-                  # Actually this should not be in index.
-                  # TODO: To be fixed in future.
+                )  # Test nspkg.native.native_foo package is in index.yml
+                   # Actually this should not be in index.
+                   # TODO: To be fixed in future.
 
     def test_examples(self):
         """
@@ -411,12 +411,12 @@ class YamlTests(unittest.TestCase):
                         self.assertIn(
                             'example',
                             item
-                        ) # Test example field existance
+                        )  # Test example field existance
 
                         self.assertIn(
                             'VALUE0 = 0 #: Inline docstring of VALUE0',
                             item['example'][0]
-                        ) # Test example content
+                        )  # Test example content
 
     def test_seealso(self):
         """
@@ -432,12 +432,12 @@ class YamlTests(unittest.TestCase):
                         self.assertIn(
                             'seealsoContent',
                             item
-                        ) # Test seealso field existance
+                        )  # Test seealso field existance
 
                         self.assertIn(
                             'Seealso contents. Multi-line should be supported.',
                             item['seealsoContent']
-                        ) # Test seealso content
+                        )  # Test seealso content
 
     def test_enum(self):
         """
@@ -451,13 +451,13 @@ class YamlTests(unittest.TestCase):
                         self.assertEqual(
                             item['children'],
                             ['format.rst.enum.EnumFoo.VALUE0', 'format.rst.enum.EnumFoo.VALUE1']
-                        ) # Test containing all enum values
+                        )  # Test containing all enum values
                     if item['uid'] == 'format.rst.enum.EnumFoo.VALUE0':
                         self.assertEqual(
                             item['syntax'],
                             {'content': 'VALUE0 = 0', 'return': {'type': ['format.rst.enum.EnumFoo']}}
-                        ) # Test enum value syntax
+                        )  # Test enum value syntax
                         self.assertEqual(
                             item['type'],
                             'attribute'
-                        ) # Test enum value type
+                        )  # Test enum value type

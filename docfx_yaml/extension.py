@@ -29,7 +29,7 @@ from .directives import RemarksDirective
 from .nodes import remarks
 
 
-class bcolors:
+class Bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
     OKGREEN = '\033[92m'
@@ -39,10 +39,12 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
+
 try:
     from conf import *
 except ImportError:
-    print(bcolors.FAIL + 'can not import conf.py! you should have a conf.py in working project folder' + bcolors.ENDC)
+    print(Bcolors.FAIL + 'can not import conf.py! '
+    'you should have a conf.py in working project folder' + Bcolors.ENDC)
 
 METHOD = 'method'
 FUNCTION = 'function'
@@ -147,9 +149,11 @@ def _refact_example_in_module_summary(lines):
             block_lines[:] = []
         elif example_block_flag:
             if line == '   ':  # origianl line is blank line ('\n').
-                line = '\n' # after outer ['\n'.join] operation, this '\n' will be appended to previous line then. BINGO!
+                line = '\n'  # after outer ['\n'.join] operation,
+                             # this '\n' will be appended to previous line then. BINGO!
             elif line.startswith('   '):
-                # will be indented by 4 spaces according to yml block syntax. https://learnxinyminutes.com/docs/yaml/
+                # will be indented by 4 spaces according to yml block syntax.
+                # https://learnxinyminutes.com/docs/yaml/
                 line = ' ' + line + '\n'
             block_lines.append(line)
 
@@ -384,7 +388,7 @@ def insert_children_on_module(app, _type, datam):
                 obj['type'] == MODULE and \
                 obj[MODULE] == datam[MODULE]:
             obj['children'].append(datam['uid'])
-            
+
             # If it is a function, add this to its module. No need for class and module since this is
             # done before calling this function.
             insert_module.append(datam)
@@ -528,7 +532,7 @@ def build_finished(app, exception):
                     # Raise up summary
                     if 'summary' in obj['syntax'] and obj['syntax']['summary']:
                         obj['summary'] = obj['syntax'].pop('summary')
-                    
+
                     # Raise up remarks
                     if 'remarks' in obj['syntax'] and obj['syntax']['remarks']:
                         obj['remarks'] = obj['syntax'].pop('remarks')
@@ -552,10 +556,10 @@ def build_finished(app, exception):
                     # add content of temp list 'added_attribute' to children and yaml_data
                     if 'added_attribute' in obj['syntax'] and obj['syntax']['added_attribute']:
                         added_attribute = obj['syntax'].pop('added_attribute')
-                        for attrData in added_attribute: 
+                        for attrData in added_attribute:
                             existed_Data = next((n for n in yaml_data if n['uid'] == attrData['uid']), None)
                             if existed_Data:
-                                # Update data for already existed one which has attribute comment in source file 
+                                # Update data for already existed one which has attribute comment in source file
                                 existed_Data.update(attrData)
                             else:
                                 obj.get('children', []).append(attrData['uid'])

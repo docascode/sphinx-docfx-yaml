@@ -1,22 +1,28 @@
-import yaml
 import os
+import re
+import yaml
 import shutil
-from contextlib import contextmanager
 import unittest
+
+from contextlib import contextmanager
 
 from sphinx.application import Sphinx
 
 
 @contextmanager
 def sphinx_build(test_dir):
+    """ Use contextmanager to ensure build cleaning after testing.
+    """
+
     os.chdir('tests/{0}'.format(test_dir))
+
     try:
         app = Sphinx(
-            srcdir='.',
-            confdir='.',
+            srcdir='./doc',
+            confdir='./doc',
             outdir='_build/text',
             doctreedir='_build/.doctrees',
-            buildername='text',
+            buildername='html'
         )
         app.build(force_all=True)
         yield
@@ -25,232 +31,433 @@ def sphinx_build(test_dir):
         os.chdir('../..')
 
 
-class PythonTests(unittest.TestCase):
+class YamlTests(unittest.TestCase):
+    build_path = '_build/text/docfx_yaml' #: Path of all the yaml files.
 
-    def test_functional(self):
+    yaml_files = { #: yaml files needed to be tested.
+        "class_files": {
+            "google": [
+                "format.google.foo.Foo.yml",
+                "format.google.foo.FooException.InternalFoo.yml",
+                "format.google.foo.FooException.yml"
+            ],
+            "numpy": [
+                "format.numpy.foo.Foo.yml",
+                "format.numpy.foo.FooException.InternalFoo.yml",
+                "format.numpy.foo.FooException.yml"
+            ],
+            "rst": [
+                "format.rst.directives.DirectivesFoo.yml",
+                "format.rst.enum.EnumFoo.yml",
+                "format.rst.foo.Foo.yml",
+                "format.rst.foo.FooException.InternalFoo.yml",
+                "format.rst.foo.FooException.yml",
+                "format.rst.foo.InheritFoo.yml"
+            ],
+            "namespacepackage": [
+                "nspkg.native.native_foo.Foo.yml",
+                "nspkg.pkgutil.pkgutil_foo.Foo.yml",
+                "nspkg.pkg_resources.pkg_resources_foo.Foo.yml"
+            ]
+        },
+        "module_files": {
+            "google": [
+                "format.google.foo.yml"
+            ],
+            "numpy": [
+                "format.numpy.foo.yml"
+            ],
+            "rst": [
+                "format.rst.directives.yml",
+                "format.rst.enum.yml",
+                "format.rst.foo.yml"
+            ]
+        },
+        "package_files": {
+            "namesapcepackage": [
+                "nspkg.yml",
+                "nspkg.native.native_foo.yml",
+                "nspkg.pkgutil.yml",
+                "nspkg.pkgutil.pkgutil_foo.yml",
+                "nspkg.pkg_resources.yml",
+                "nspkg.pkg_resources.pkg_resources_foo.yml"
+            ],
+            "format": [
+                "format.yml",
+                "format.rst.yml",
+                "format.google.yml",
+                "format.numpy.yml"
+            ]
+        }
+    }
+
+    def test_uid(self):
         """
-        A basic functional test
+        Test whether uids are generated correctly.
         """
-        with sphinx_build('pyexample'):
-            with open('_build/text/docfx_yaml/example.example.yml') as yml_file:
-                data = yaml.safe_load(yml_file)
+        with sphinx_build('example'):
+            with open(os.path.join(self.build_path, self.yaml_files['class_files']['rst'][0]), 'r') as f:
+                # Test uids in format.rst.directives.DirectivesFoo.yml
+                data = yaml.safe_load(f)
+
                 self.assertEqual(
-                    data['items'][0]['fullName'],
-                    'example.example'
+                    data['items'][0]['uid'],
+                    'format.rst.directives.DirectivesFoo'
                 )
 
-    def test_module_summary(self):
+            with open(os.path.join(self.build_path, self.yaml_files['module_files']['rst'][1]), 'r') as f:
+                # Test uids in format.rst.enum.yml
+                data = yaml.safe_load(f)
+
+                self.assertEqual(
+                    data['items'][0]['uid'],
+                    'format.rst.enum'
+                )
+
+            with open(os.path.join(self.build_path, self.yaml_files['package_files']['format'][2]), 'r') as f:
+                # Test uids in format.google.yml
+                data = yaml.safe_load(f)
+
+                self.assertEqual(
+                    data['items'][0]['uid'],
+                    'format.google'
+                )
+
+    def test_summary(self):
         """
-        Test that we're pulling the top-level module summary
+        Test module/package/class summary being extracted.
         """
-        with sphinx_build('pyexample'):
-            with open('_build/text/docfx_yaml/example.example.yml') as yml_file:
-                data = yaml.safe_load(yml_file)
-                for item in data['items']:
-                    if item['uid'] == 'example.example':
-                        self.assertEqual(
-                            item['summary'],
-                            'Example module\n\nThis is a description'
-                        )
-                        break
-                else:
-                    self.fail('Module not found')
+        with sphinx_build('example'):
+            with open(os.path.join(self.build_path, self.yaml_files['class_files']['rst'][3])) as f:
+                # Test summary in format.rst.foo.FooException.InternalFoo.yml
+                data = yaml.safe_load(f)
+
+                self.assertEqual(
+                    data['items'][0]['summary'].replace('\n', ' ').strip(),
+                    'Docstring of internal class @format.rst.foo.FooException.InternalFoo. '
+                    'This class is an internal class of @format.rst.foo.FooException.'
+                )
+
+            with open(os.path.join(self.build_path, self.yaml_files['module_files']['numpy'][0])) as f:
+                # Test summary in module format.numpy.foo.yml
+                data = yaml.safe_load(f)
+
+                self.assertEqual(
+                    data['items'][0]['summary'].strip(),
+                    'Docstring of @format.numpy.foo module.'
+                )
+
+            with open(os.path.join(self.build_path, self.yaml_files['package_files']['format'][1])) as f:
+                # Test summary in  format.rst.yml
+                data = yaml.safe_load(f)
+
+                self.assertEqual(
+                    data['items'][0]['summary'].strip(),
+                    'Docstring of package @format.rst.'
+                )
 
     def test_references(self):
         """
         Test references are properly inserted.
         """
-        with sphinx_build('pyexample'):
-            with open('_build/text/docfx_yaml/example.example.yml') as yml_file:
-                data = yaml.safe_load(yml_file)
-                # Test that references are properly put at the top-level
-                self.assertTrue(
-                    'references' in data
-                )
-                # Check reference parent
+        with sphinx_build('example'):
+            with open(os.path.join(self.build_path, self.yaml_files['class_files']['rst'][2])) as f:
+                # Test format.rst.foo.Foo.yml
+                data = yaml.safe_load(f)
+
+                self.assertIn(
+                    'references',
+                    data
+                )  # Test references is added.
+
                 self.assertEqual(
                     data['references'][0]['parent'],
-                    'example.example'
+                    'format.rst.foo.Foo'
+                )  # Test reference value
 
-                )
+                self.assertEqual(
+                    data['references'][-1]['spec.python'][2]['uid'],
+                    'int'
+                )  # Test reference spec
 
     def test_inheritance(self):
         """
         Test multiple inheritance is properly resolved.
         """
-        with sphinx_build('pyexample'):
-            with open(
-                '_build/text/docfx_yaml/'
-                'example.multiple_inheritance.ObservableArbitraryWidget.yml'
-            ) as yml_file:
-                data = yaml.safe_load(yml_file)
+        with sphinx_build('example'):
+            with open(os.path.join(self.build_path, self.yaml_files['class_files']['rst'][5])) as f:
+                # Test format.rst.foo.InheritFoo.yml
+                data = yaml.safe_load(f)
+
+                self.assertEqual(
+                    data['items'][0]['inheritance'][0]['type'],
+                    'format.rst.foo.Foo'
+                )
+
+                self.assertEqual(
+                    data['items'][0]['inheritance'][1]['type'],
+                    'builtins.dict'
+                )
+
+    def test_source(self):
+        """
+        Test source info is parsed properly.
+        """
+        with sphinx_build('example'):
+            with open(os.path.join(self.build_path, self.yaml_files['class_files']['namespacepackage'][1])) as f:
+                # Test source info of class Foo in nspkg.pkgutil.pkgutil_foo.Foo.yml
+                data = yaml.safe_load(f)
+
+                self.assertIn(
+                    'source',
+                    data['items'][0]
+                )
+
+                self.assertEqual(
+                    data['items'][0]['source']['id'],
+                    'Foo'
+                )
+
+                self.assertIn(
+                    'format{sep}rst{sep}foo.py'.format(sep = os.sep),
+                    data['items'][0]['source']['path']
+                )
+
+                self.assertEqual(
+                    23,
+                    data['items'][0]['source']['startLine']
+                )
+
+            with open(os.path.join(self.build_path, self.yaml_files['module_files']['rst'][1])) as f:
+                # Test source info of module format.rst.enum in format.rst.enum.yml
+                data = yaml.safe_load(f)
+
+                self.assertIn(
+                    'source',
+                    data['items'][0]
+                )
+
+                self.assertEqual(
+                    data['items'][0]['source']['id'],
+                    'enum'
+                )
+
+                self.assertIn(
+                    'format{sep}rst{sep}enum.py'.format(sep = os.sep),
+                    data['items'][0]['source']['path']
+                )
+
+                self.assertEqual(
+                    0,
+                    data['items'][0]['source']['startLine']
+                )
+
+            with open(os.path.join(self.build_path, self.yaml_files['package_files']['format'][2])) as f:
+                # Test source info of package google in format.google.yml
+                data = yaml.safe_load(f)
+
+                self.assertIn(
+                    'source',
+                    data['items'][0]
+                )
+
+                self.assertEqual(
+                    data['items'][0]['source']['id'],
+                    'google'
+                )
+
+                self.assertIn(
+                    'format{sep}google{sep}__init__.py'.format(sep = os.sep),
+                    data['items'][0]['source']['path']
+                )
+
+                self.assertEqual(
+                    0,
+                    data['items'][0]['source']['startLine']
+                )
+
+    def test_external_link(self):
+        """
+        Test external link should be written in markdown format.
+        """
+        with sphinx_build('example'):
+            with open(os.path.join(self.build_path, self.yaml_files['class_files']['rst'][2])) as f:
+                # Test format.rst.foo.Foo.yml
+                data = yaml.safe_load(f)
+
                 for item in data['items']:
-                    if item['uid'] == 'example.multiple_inheritance.ObservableArbitraryWidget':
-                        self.assertTrue(
-                            'inheritance' in item
-                        )
-                        self.assertEqual(
-                            item['inheritance'][0]['type'],
-                            'example.multiple_inheritance.ArbitraryWidget'
-                        )
-                        self.assertEqual(
-                            item['inheritance'][1]['type'],
-                            'example.multiple_inheritance.Subject'
+                    if item['uid'] == 'format.rst.foo.Foo.method_external_link':
+                        summary = re.sub(r'\n+', '\n', item['summary']).strip()
+                        summary_lines = summary.split('\n')
+
+                        self.assertIn(
+                            '[Link Text](http://inline.external.link)',
+                            summary_lines[1]
                         )
 
-    def test_docfields(self):
+                        self.assertNotIn(  # Seperated link not supported.
+                            '[Seperated Link](http://seperated.external.link)',
+                            summary_lines[2]
+                        )
+                        return
+
+                self.fail()
+
+    def test_google_format(self):
         """
-        Test docfields are parsed properly
+        Test google-style docstring.
         """
-        with sphinx_build('pyexample'):
-            with open('_build/text/docfx_yaml/example.example.Foo.yml') as yml_file:
-                data = yaml.safe_load(yml_file)
+        with sphinx_build('example'):
+            with open(os.path.join(self.build_path, self.yaml_files['class_files']['google'][0])) as f:
+                # Test format.google.foo.Foo.yml
+                data = yaml.safe_load(f)
+
                 for item in data['items']:
-                    if item['uid'] == 'example.example.Foo.method_okay':
+                    if item['uid'] == 'format.google.foo.Foo.method_seealso':
                         self.assertEqual(
-                            item['syntax']['return'],
-                            {'type': ['boolean'], 'description': 'That the method is okay'},
-                        )
-                        self.assertEqual(
-                            item['syntax']['parameters'][1]['defaultValue'],
-                            'None',
-                        )
-                        self.assertEqual(
-                            item['syntax']['parameters'][1]['description'],
-                            'The foo param',
-                        )
-                        self.assertEqual(
-                            item['syntax']['content'],
-                            'method_okay(self, foo=None, bar=None)',
+                            item['seealsoContent'].strip(),
+                            'See also: Seealso contents. Multi-line should be supported.'
                         )
 
-    def test_vcs(self):
+    def test_numpy_format(self):
         """
-        Test VCS info is parsed properly.
+        Test numpy-style docstring.
         """
-        with sphinx_build('pyexample'):
-            with open('_build/text/docfx_yaml/example.example.Foo.yml') as yml_file:
-                data = yaml.safe_load(yml_file)
-                for item in data['items']:
-                    if item['uid'] == 'example.example.Foo':
-                        self.assertEqual(
-                            item['source']['startLine'],
-                            7,
-                        )
-                        self.assertEqual(
-                            item['source']['remote']['path'],
-                            'tests/pyexample/example/example.py',
-                        )
+        with sphinx_build('example'):
+            with open(os.path.join(self.build_path, self.yaml_files['class_files']['numpy'][0])) as f:
+                # Test format.numpy.foo.Foo.yml
+                data = yaml.safe_load(f)
 
-    def test_markdown(self):
-        """
-        Test Markdown content is converted
-        """
-        with sphinx_build('pyexample'):
-            with open('_build/text/docfx_yaml/example.example.Foo.yml') as yml_file:
-                data = yaml.safe_load(yml_file)
                 for item in data['items']:
-                    if item['uid'] == 'example.example.Foo.method_markdown':
+                    if item['uid'] == 'format.numpy.foo.Foo.method_seealso':
                         self.assertEqual(
-                            item['summary'],
-                            'Check out our '
-                            '[site](http://sphinx-docfx-yaml.readthedocs.io/en/latest/)'
-                            ' for more info.',
-                        )
-
-    def test_napoleon(self):
-        """
-        Test Napolean content is converted
-        """
-        with sphinx_build('pyexample'):
-            with open('_build/text/docfx_yaml/example.nap.Base.yml') as yml_file:
-                data = yaml.safe_load(yml_file)
-                for item in data['items']:
-                    if item['uid'] == 'example.nap.Base.foo':
-                        self.assertEqual(
-                            item['syntax']['parameters'][1]['description'],
-                            'The Foo instance is destructed'
-                        )
-                        self.assertEqual(
-                            item['seealsoContent'],
-                            'Some cool stuff online.'
-                        )
-
-    def test_xref(self):
-        """
-        Test xref parsing for Python domain objects
-        """
-        with sphinx_build('pyexample'):
-            with open('_build/text/docfx_yaml/example.nap.Base.yml') as yml_file:
-                data = yaml.safe_load(yml_file)
-                for item in data['items']:
-                    if item['uid'] == 'example.nap.Base.ref':
-                        self.assertEqual(
-                            item['seealsoContent'],
-                            'Depends on @example.example.Foo Relative reference on @example.nap.Base.foo'
-                        )
+                            re.sub(r'\s+', ' ', item['seealsoContent']).strip(),
+                            'See also: @format.numpy.foo.Foo.mathod_note See also target.'
+                        )  # Test see also centent from numpy format.
 
     def test_toc(self):
         """
-        Test second level toc nesting
+        Test toc structure.
         """
-        with sphinx_build('pyexample'):
-            with open('_build/text/docfx_yaml/toc.yml') as yml_file:
+        with sphinx_build('example'):
+            with open(os.path.join(self.build_path, 'toc.yml')) as f:
+                # Test toc.yml
+                data = yaml.safe_load(f)
+
+                self.assertEqual(
+                    data[0]['uid'],
+                    'project-example'
+                )  # Test project name node
+
+                self.assertEqual(
+                    len(data[0]['items']),
+                    3
+                )  # Test there are three package nodes.
+                   # Actually should be two, cuz namespace package should be placed in father nodes.
+                   # TODO: To be fixed in future.
+
+                self.assertEqual(
+                    data[0]['items'][0]['uid'],
+                    'format'
+                )  # Test format package in toc.
+
+                self.assertEqual(
+                    data[0]['items'][1]['uid'],
+                    'nspkg'
+                )  # Test nspkg package in toc.
+
+    def test_index(self):
+        """
+        Test index information of project.
+        """
+        with sphinx_build('example'):
+            with open(os.path.join(self.build_path, 'index.yml')) as yml_file:
+                # Test index.yml
                 data = yaml.safe_load(yml_file)
-                for item in data:
-                    if 'items' in item:
-                        self.assertEqual(
-                            item['items'][0]['name'],
-                            'example.enum_type.EnumFoo'
-                        )
-                        break
+
+                self.assertEqual(
+                    'project-example',
+                    data['items'][0]['uid']
+                )  # Test there is only one item for project-example
+
+                self.assertIn(
+                    'format',
+                    data['items'][0]['children']
+                )  # Test format package is in index.yml
+
+                self.assertIn(
+                    'nspkg',
+                    data['items'][0]['children']
+                )  # Test nspkg package is in index.yml
+
+                self.assertIn(
+                    'nspkg.native.native_foo',
+                    data['items'][0]['children']
+                )  # Test nspkg.native.native_foo package is in index.yml
+                   # Actually this should not be in index.
+                   # TODO: To be fixed in future.
 
     def test_examples(self):
         """
-        Test second level toc nesting
+        Test example contents
         """
-        with sphinx_build('pyexample'):
-            with open('_build/text/docfx_yaml/example.nap.Base.yml') as yml_file:
-                data = yaml.safe_load(yml_file)
+        with sphinx_build('example'):
+            with open(os.path.join(self.build_path, self.yaml_files['class_files']['rst'][2])) as f:
+                # Test format.rst.foo.Foo.yml
+                data = yaml.safe_load(f)
+
                 for item in data['items']:
-                    if item['uid'] == 'example.nap.Base.ref':
-                        self.assertEqual(
-                            item['example'].split('\n')[2],
-                            """>>> print('docblock 1')"""
-                        )
-                        self.assertEqual(
-                            item['example'].split('\n')[7],
-                            """>>> print('docblock 2')"""
-                        )
+                    if item['uid'] == 'format.rst.foo.Foo.method_example':
+                        self.assertIn(
+                            'example',
+                            item
+                        )  # Test example field existance
+
+                        self.assertIn(
+                            'VALUE0 = 0 #: Inline docstring of VALUE0',
+                            item['example'][0]
+                        )  # Test example content
+
+    def test_seealso(self):
+        """
+        Test seealso contents
+        """
+        with sphinx_build('example'):
+            with open(os.path.join(self.build_path, self.yaml_files['class_files']['rst'][2])) as f:
+                # Test format.rst.foo.Foo.yml
+                data = yaml.safe_load(f)
+
+                for item in data['items']:
+                    if item['uid'] == 'format.rst.foo.Foo.method_seealso':
+                        self.assertIn(
+                            'seealsoContent',
+                            item
+                        )  # Test seealso field existance
+
+                        self.assertIn(
+                            'Seealso contents. Multi-line should be supported.',
+                            item['seealsoContent']
+                        )  # Test seealso content
 
     def test_enum(self):
         """
         Test enum type support
         """
-        with sphinx_build('pyexample'):
-            with open('_build/text/docfx_yaml/example.enum_type.EnumFoo.yml') as yml_file:
-                data = yaml.safe_load(yml_file)
+        with sphinx_build('example'):
+            with open(os.path.join(self.build_path, self.yaml_files['class_files']['rst'][1])) as f:
+                data = yaml.safe_load(f)
                 for item in data['items']:
-                    if item['uid'] == 'example.enum_type.EnumFoo':
+                    if item['uid'] == 'format.rst.enum.EnumFoo':
                         self.assertEqual(
                             item['children'],
-                            ['example.enum_type.EnumFoo.VALUE0', 'example.enum_type.EnumFoo.VALUE1']
-                        )
-                    if item['uid'] == 'example.enum_type.EnumFoo.VALUE0':
+                            ['format.rst.enum.EnumFoo.VALUE0', 'format.rst.enum.EnumFoo.VALUE1']
+                        )  # Test containing all enum values
+                    if item['uid'] == 'format.rst.enum.EnumFoo.VALUE0':
                         self.assertEqual(
                             item['syntax'],
-                            {'content': 'VALUE0 = 0', 'return': {'type': ['example.enum_type.EnumFoo']}}
-                        )
+                            {'content': 'VALUE0 = 0', 'return': {'type': ['format.rst.enum.EnumFoo']}}
+                        )  # Test enum value syntax
                         self.assertEqual(
                             item['type'],
                             'attribute'
-                        )
-                    if item['uid'] == 'example.enum_type.EnumFoo.VALUE1':
-                        self.assertEqual(
-                            item['syntax'],
-                            {'content': 'VALUE1 = 1', 'return': {'type': ['example.enum_type.EnumFoo']}}
-                        )
-                        self.assertEqual(
-                            item['type'],
-                            'attribute'
-                        )
+                        )  # Test enum value type

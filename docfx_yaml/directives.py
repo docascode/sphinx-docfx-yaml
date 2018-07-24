@@ -9,6 +9,7 @@ from docutils import nodes
 
 from .nodes import remarks
 
+
 class RemarksDirective(Directive):
     """
     Class to enable remarks directive.
@@ -20,7 +21,7 @@ class RemarksDirective(Directive):
     # Directive class must override run function.
     def run(self):
         self.assert_has_content()
-        
+
         text = '\n'.join(self.content)
 
         return_nodes = []

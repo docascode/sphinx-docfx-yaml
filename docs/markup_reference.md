@@ -86,12 +86,46 @@ Following contents will show how to write docstring for specific purposes in det
 
 ## Class
 
+### Attributes
 
+To describe attributes of a class, use `:var:` inline markup. `:vartype:` can be used to tell the type of attributes.
+
+Example:
+``` python
+TODO: include code.
+```
+
+### Constructor Parameters
+
+Although docstrings of magic methods and private methods will be ignored. You can still introduce the constructor parameters in class's doc string by using `:param:` and `:type:`
+
+Example:
+``` python
+TODO: include code.
+```
 
 ## Module
+
+Module's docstring should be the very first line below magic comments. Even before the `import` statements.
+
+For example:
+``` ptyhon
+TODO: include code.
+```
+
 ## Package
-## Methods
-## Functions
+
+Packages' docstrings are contained in `__init__.py`. They should obey the same rule as module docstrings.
+
+Example:
+``` python
+TODO: include code.
+```
+
+## Methods/Functions
+
+`:param:`, `:type:`, `:raises:`, `:returns:` and `:rtype:` are used to document a function or method.
+
 ## Images
 ## Links
 ## List

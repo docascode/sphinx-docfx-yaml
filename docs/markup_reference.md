@@ -104,6 +104,15 @@ Example:
 TODO: include code.
 ```
 
+### Remarks
+
+`.. remarks::` is not a directive supported by Sphinx or RST, but only supported by our tool.
+
+Example:
+``` python
+TODO: include code.
+```
+
 ## Module
 
 Module's docstring should be the very first line below magic comments. Even before the `import` statements.
@@ -126,43 +135,110 @@ TODO: include code.
 
 `:param:`, `:type:`, `:raises:`, `:returns:` and `:rtype:` are used to document a function or method.
 
-## Images
-## Links
+There are two kinkds of ways to describe function parameters and their type:
+
+``` python
+TODO: include code.
+```
+
+Content of `:returns:` shows what is the return value.
+
+`:raises:`, `:type:`, `:rtype:` will create cross references if possible. Contents of `:type:` and `:rtype:` can only be class name or type name. `:raises:` may contain both type name and description. For example:
+
+``` python
+TODO: include code.
+```
+
+<!-- ## Images -->
+## External Links
+
+External links can be written in two formats in RST: inline link and seperate link. Read more [here](http://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#external-links).
+
+But note that our tool only support inline external link format currently. As an example:
+
+``` python
+TODO: include code.
+```
+
 ## List
+
+Two kinds of RST list formats are fully supported in our tool. Read more about [Bullet Lists](http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#bullet-lists) and [Enumerated Lists](http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#enumerated-lists)
+
 ## Math
-## Table
+
+You are able to create a formula using Latex math format with the help of `.. math::` directive in docstring.
+
+Example:
+``` python
+TODO: include code.
+```
+
+<!-- ## Table -->
 ## Include
+
+If you want to include contents from another file, `.. literalinclude::` would be helpful. Further more, you can include certain lines of the files. See more details [here](http://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#directive-literalinclude).
+
 ## Example
+
+If you would like to show an example of how to use your API, use `.. amonition::` directive and include "Example" in the content.
+
+Example:
+``` python
+TODO: include code.
+```
+
+NOTE: If you are using Google or Numpy style docstring formating, just using the keyword "Example" will be fine.
+
 ## Code
-## Note
-## Warning
+
+To show a code block, use `.. code-block::` directive. Note that there should be an empty line between the directive and code content, as shown in below:
+
+``` python
+TODO: include code.
+```
+
+<!-- ## Note -->
+<!-- ## Warning -->
 ## See Also
-## Remarks
-## Literal Block
+
+`.. seealso::` creates a bolck of content showing readers more information.
+
+Example:
+``` python
+```
+
+NOTE: `See Also` in Numpy-style docstring can only contains class name or type name.
+
+Example:
+``` python
+```
+
+<!-- ## Literal Block -->
 ## Cross Reference
 
+When you would like to insert a cross reference in your docstring, following markups will be helpful:
+
+1. `:func:`: Referencing a function.
+2. `:meth:`: Referencing a class method.
+3. `:class:`: Referencing a class.
+4. `:mod:`: Referencing a module or a package.
+5. `:any:`: Referencing anything.
+
+All contents of these markups should be the full name of objects. It means you have to use the physical path of a class even if you created a short alias by importing it in `__init__.py`.
+
+Example:
+``` rst
+:func:`package.module.class`
+```
+
 # Google/Numpy Style Docstring
-Google-style and Numpy-style
 
-You can write your doc strings in two kinds of styles.
+You are free to write your docstrings in these two kinds of styles. Examples are show [here](http://www.sphinx-doc.org/en/master/usage/extensions/example_numpy.html?highlight=numpy).
 
-reStrctureText
-===
-reStrctureText is a
-Supported field lists:
-- :param:
-- :args:
-- :return:
-- :rtype:
+Although you are able to mix content in these two styles together with RST format contents, it is not recommended by us avoiding potential conflictions.
 
-refering:
-- :class:
-- :meth:
-- :func:
-- :mod:
+## Supported Fields
 
-Google/Numpy
-===
 Args (alias of Parameters)
 Arguments (alias of Parameters)
 Example

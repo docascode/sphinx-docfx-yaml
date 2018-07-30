@@ -21,7 +21,7 @@ def function(arg1, arg2, arg3, arg4):
 class Foo(object):
     """ Docstring of :class:`conflict.foo.Foo` class in rst format.
 
-    :ivar attr: Docstring of :class:`conflict.foo.Foo.attr` from class docstring.
+    :var attr: Docstring of :class:`conflict.foo.Foo.attr` from class docstring.
     :vartype attr: ~conflict.enum.EnumFoo
 
     :param init_arg1: Parameter init_arg1 from class docstring.

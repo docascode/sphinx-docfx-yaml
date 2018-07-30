@@ -96,7 +96,7 @@ Example:
 class Foo(object):
     """ Docstring of :class:`format.rst.foo.Foo` class in rst format.
 
-    :ivar attr: Docstring of :class:`format.rst.foo.Foo.attr` from class docstring.
+    :var attr: Docstring of :class:`format.rst.foo.Foo.attr` from class docstring.
     :vartype attr: ~format.rst.enum.EnumFoo
     """
 

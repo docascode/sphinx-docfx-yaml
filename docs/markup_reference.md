@@ -125,7 +125,7 @@ class Foo(object):
 
 ### Remarks
 
-`.. remarks::` is not a directive supported by Sphinx or RST, but only supported by our tool. 
+`.. remarks::` is not a directive supported by Sphinx or RST, but only supported by our tool.
 
 Content of remarks should be as detailed as possible, other contents however, shall be terse enough.
 
@@ -328,7 +328,7 @@ Example:
 
 # Google/Numpy Style Docstring
 
-You are free to write your docstrings in these two kinds of styles. Examples are show [here](http://www.sphinx-doc.org/en/master/usage/extensions/example_numpy.html?highlight=numpy).
+You are free to write your docstrings in these two kinds of styles. Examples are shown [here](http://www.sphinx-doc.org/en/master/usage/extensions/example_numpy.html?highlight=numpy).
 
 Although you are able to mix content in these two styles together with RST format contents, it is not recommended by us avoiding potential conflictions.
 

@@ -33,9 +33,10 @@ More plain contens.
 | *.. code-block::*     | Indicating a code fragment. Read [Code](#code) for more information.                                                                                       |
 | *.. literalinclude::* | Include contents from another file. Read more [here](http://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#directive-literalinclude). |
 | *.. admonition::*     | Read [Example](#example) for more information.                                                                                                             |
-| *.. math::*           | Indicating a math formula. [Latex format](https://en.wikibooks.org/wiki/LaTeX/Mathematics) is supported. See [Math](#math).                                |
+<!-- | *.. math::*           | Indicating a math formula. [Latex format](https://en.wikibooks.org/wiki/LaTeX/Mathematics) is supported. See [Math](#math).                                | -->
 | *.. title::*          | Indicating a title.                                                                                                                                        |
-| *::*                  | Indicating a literal block. The contents will be regarded as plain text. See [Literal Block](#literal-block).                                              |
+|*.. remarks::*|Detailed description of class. And other class descriptions should be limited to one or two sentences. See [Remarks](#remarks)|
+<!-- | *::*                  | Indicating a literal block. The contents will be regarded as plain text. See [Literal Block](#literal-block).                                              | -->
 
 ## Inline Markups
 
@@ -92,7 +93,14 @@ To describe attributes of a class, use `:var:` inline markup. `:vartype:` can be
 
 Example:
 ``` python
-TODO: include code.
+class Foo(object):
+    """ Docstring of :class:`format.rst.foo.Foo` class in rst format.
+
+    :ivar attr: Docstring of :class:`format.rst.foo.Foo.attr` from class docstring.
+    :vartype attr: ~format.rst.enum.EnumFoo
+    """
+
+    attr = EnumFoo.VALUE1
 ```
 
 ### Constructor Parameters
@@ -101,16 +109,35 @@ Although docstrings of magic methods and private methods will be ignored. You ca
 
 Example:
 ``` python
-TODO: include code.
+class Foo(object):
+    """ Docstring of :class:`format.rst.foo.Foo` class in rst format.
+
+    :ivar attr: Docstring of :class:`format.rst.foo.Foo.attr` from class docstring.
+    :vartype attr: ~format.rst.enum.EnumFoo
+
+    :param init_arg1: Parameter init_arg1 from class docstring.
+    :type init_arg1: float
+    :param list[int] init_arg2: Parameter init_arg2 from class docstring.
+    """
+
+    attr = EnumFoo.VALUE1
 ```
 
 ### Remarks
 
-`.. remarks::` is not a directive supported by Sphinx or RST, but only supported by our tool.
+`.. remarks::` is not a directive supported by Sphinx or RST, but only supported by our tool. 
+
+Content of remarks should be as detailed as possible, other contents however, shall be terse enough.
 
 Example:
 ``` python
-TODO: include code.
+class DirectivesFoo(object):
+    """ Docstring of class :class:`format.rst.directives.DirectivesFoo`.
+
+    .. remarks:: Remarks from class.
+        Multi-line content should be supported.
+    """
+    pass
 ```
 
 ## Module
@@ -118,8 +145,13 @@ TODO: include code.
 Module's docstring should be the very first line below magic comments. Even before the `import` statements.
 
 For example:
-``` ptyhon
-TODO: include code.
+``` python
+# coding: utf-8
+
+""" Docstring of :mod:`format.rst.foo` module.
+"""
+
+from .enum import EnumFoo
 ```
 
 ## Package
@@ -128,7 +160,10 @@ Packages' docstrings are contained in `__init__.py`. They should obey the same r
 
 Example:
 ``` python
-TODO: include code.
+# coding: utf-8
+
+""" Package used to test rst-style, google-style and numpy-style docstrings.
+"""
 ```
 
 ## Methods/Functions
@@ -138,7 +173,14 @@ TODO: include code.
 There are two kinkds of ways to describe function parameters and their type:
 
 ``` python
-TODO: include code.
+def class_method(cls, arg1):
+    """ Docstring of :class:`format.rst.foo.Foo.class_method` @classmethod.
+
+    :param cls: Class object of :class:`format.rst.foo.Foo`.
+    :type cls: class
+    :param str arg1: Parameter arg1 of :meth:`format.rst.foo.Foo.class_method`.
+    """
+    pass
 ```
 
 Content of `:returns:` shows what is the return value.
@@ -146,7 +188,13 @@ Content of `:returns:` shows what is the return value.
 `:raises:`, `:type:`, `:rtype:` will create cross references if possible. Contents of `:type:` and `:rtype:` can only be class name or type name. `:raises:` may contain both type name and description. For example:
 
 ``` python
-TODO: include code.
+def method_exception(self):
+    """ Docstring of :meth:`format.rst.foo.Foo.method_exception`.
+
+    :raises: :class:`format.rst.foo.FooException` This function raises
+        exception.
+    """
+    raise FooException()
 ```
 
 <!-- ## Images -->
@@ -157,21 +205,28 @@ External links can be written in two formats in RST: inline link and seperate li
 But note that our tool only support inline external link format currently. As an example:
 
 ``` python
-TODO: include code.
+def method_external_link(self):
+    """ Docstring of :meth:`format.rst.foo.Foo.method_external_link`.
+    Inline link should be transformed to markdown: `Link Text <http://inline.external.link>`_.
+    And seperated link will fail: `Seperated Link`_
+
+    .. _Seperated Link: http://seperated.external.link
+    """
+    pass
 ```
 
 ## List
 
 Two kinds of RST list formats are fully supported in our tool. Read more about [Bullet Lists](http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#bullet-lists) and [Enumerated Lists](http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#enumerated-lists)
 
-## Math
+<!-- ## Math
 
 You are able to create a formula using Latex math format with the help of `.. math::` directive in docstring.
 
 Example:
 ``` python
 TODO: include code.
-```
+``` -->
 
 <!-- ## Table -->
 ## Include
@@ -184,7 +239,17 @@ If you would like to show an example of how to use your API, use `.. amonition::
 
 Example:
 ``` python
-TODO: include code.
+def method_example(self):
+    """ Docstring of :meth:`format.rst.foo.Foo.method_example`.
+
+    .. admonition::
+        This is Example content.
+        Should support multi-line.
+        Can also include file:
+
+        .. literalinclude:: ../format/rst/enum.py
+    """
+    pass
 ```
 
 NOTE: If you are using Google or Numpy style docstring formating, just using the keyword "Example" will be fine.
@@ -194,7 +259,20 @@ NOTE: If you are using Google or Numpy style docstring formating, just using the
 To show a code block, use `.. code-block::` directive. Note that there should be an empty line between the directive and code content, as shown in below:
 
 ``` python
-TODO: include code.
+def method_code(self):
+    """ Docstring of :meth:`format.rst.foo.Foo.method_code`.
+
+    .. code-block:: python
+
+        >>> import numpy as np
+        >>> a = np.ndarray([1,2,3,4,5])
+
+    Another way of code block::
+
+        import numpy as np
+        b = np.random.random(10)
+    """
+    pass
 ```
 
 <!-- ## Note -->
@@ -205,12 +283,29 @@ TODO: include code.
 
 Example:
 ``` python
+def method_seealso(self):
+    """ Docstring of :meth:`format.rst.foo.Foo.method_seealso`.
+
+    .. seealso::
+        Seealso contents.
+        Multi-line should be supported.
+        And reference to :class:`format.rst.foo.Foo` should be okay.
+    """
+    pass
 ```
 
-NOTE: `See Also` in Numpy-style docstring can only contains class name or type name.
+NOTE: `See Also` in Numpy-style docstring must begin with class name or type name.
 
 Example:
 ``` python
+def method_seealso(self):
+    """ Docstring of :meth:`fomrmat.numpy.foo.Foo.method_seealso`.
+
+    See Also
+    --------
+    format.numpy.foo.Foo.mathod_note : See also target.
+    """
+    pass
 ```
 
 <!-- ## Literal Block -->

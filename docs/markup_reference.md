@@ -27,15 +27,15 @@ More plain contens.
 
 ### All Supported Sphinx Directives
 
-| directives            | description                                                                                                                                                |
-| --------------------: | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| *.. seealso::*        | Indicating `See Also` content. Read [See Also](#see-also) for more information.                                                                            |
-| *.. code-block::*     | Indicating a code fragment. Read [Code](#code) for more information.                                                                                       |
-| *.. literalinclude::* | Include contents from another file. Read more [here](http://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#directive-literalinclude). |
-| *.. admonition::*     | Read [Example](#example) for more information.                                                                                                             |
-<!-- | *.. math::*           | Indicating a math formula. [Latex format](https://en.wikibooks.org/wiki/LaTeX/Mathematics) is supported. See [Math](#math).                                | -->
-| *.. title::*          | Indicating a title.                                                                                                                                        |
-|*.. remarks::*|Detailed description of class. And other class descriptions should be limited to one or two sentences. See [Remarks](#remarks)|
+| directives            | description                                                                     |
+| --------------------: | ------------------------------------------------------------------------------- |
+| *.. seealso::*        | Indicating `See Also` content. Read [See Also](#see-also) for more information. |
+| *.. code-block::*     | Indicating a code fragment. Read [Code](#code) for more information.            |
+| *.. literalinclude::* | Include contents from another file. Read more [here][literalinclude].           |
+| *.. admonition::*     | Read [Example](#example) for more information.                                  |
+| *.. title::*          | Indicating a title.                                                             |
+| *.. remarks::*        | Detailed description of class. And other class descriptions should be limited to one or two sentences. See [Remarks](#remarks) |
+<!-- | *.. math::*           | Indicating a math formula. [Latex format][latex] is supported. See [Math](#math).                                | -->
 <!-- | *::*                  | Indicating a literal block. The contents will be regarded as plain text. See [Literal Block](#literal-block).                                              | -->
 
 ## Inline Markups
@@ -252,7 +252,7 @@ def method_example(self):
     pass
 ```
 
-NOTE: If you are using Google or Numpy style docstring formating, just using the keyword "Example" will be fine.
+**NOTE**: If you are using Google or Numpy style docstring formating, just using the keyword "Example" will be fine.
 
 ## Code
 
@@ -294,7 +294,7 @@ def method_seealso(self):
     pass
 ```
 
-NOTE: `See Also` in Numpy-style docstring must begin with class name or type name.
+**NOTE**: `See Also` in Numpy-style docstring must begin with class name or type name.
 
 Example:
 ``` python
@@ -350,3 +350,5 @@ See Also
 [sphinx]: http://www.sphinx-doc.org
 [docfx_yaml]: https://github.com/docascode/sphinx-docfx-yaml
 [rst]: http://docutils.sourceforge.net/rst.html
+[literalinclude]: http://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#directive-literalinclude
+[latex]: https://en.wikibooks.org/wiki/LaTeX/Mathematics

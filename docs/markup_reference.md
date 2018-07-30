@@ -334,17 +334,17 @@ Although you are able to mix content in these two styles together with RST forma
 
 ## Supported Fields
 
-Args (alias of Parameters)
-Arguments (alias of Parameters)
-Example
-Examples
-Methods
-Parameters
-Return (alias of Returns)
-Returns
-Raises
-References
-See Also
+- Args (alias of Parameters)
+- Arguments (alias of Parameters)
+- Example
+- Examples
+- Methods
+- Parameters
+- Return (alias of Returns)
+- Returns
+- Raises
+- References
+- See Also
 
 [docs]: https://docs.microsoft.com
 [sphinx]: http://www.sphinx-doc.org

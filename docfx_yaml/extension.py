@@ -510,7 +510,10 @@ def build_finished(app, exception):
                     # Support having `self` as an arg param, but not documented
                     arg_params = arg_params[1:]
                     obj['syntax']['parameters'] = arg_params
-                if obj['uid'] in app.env.docfx_info_field_data:
+                if obj['uid'] in app.env.docfx_info_field_data and \
+                    obj['type'] == app.env.docfx_info_field_data[obj['uid']]['type']:
+                    # Avoid entities with same uid and diff type.
+                    del(app.env.docfx_info_field_data[obj['uid']]['type']) # Delete `type` temporarily
                     if 'syntax' not in obj:
                         obj['syntax'] = {}
                     merged_params = []
@@ -571,6 +574,7 @@ def build_finished(app, exception):
                                     # Get parent for attrData of enum class
                                     parent = attrData['parent']
                                 obj['references'].append(_create_reference(attrData, parent))
+                    app.env.docfx_info_field_data[obj['uid']]['type'] = obj['type'] # Revert `type` for other objects to use
 
                 if 'references' in obj:
                     # Ensure that references have no duplicate ref

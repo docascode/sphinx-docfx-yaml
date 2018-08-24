@@ -1,0 +1,92 @@
+### YamlMime:UniversalReference
+api_name: []
+items:
+- children:
+  - azureml.train.hyperdrive.search.search
+  exceptions:
+  - type: ExperimentExecutionException
+  fullName: azureml.train.hyperdrive.search
+  langs:
+  - python
+  module: azureml.train.hyperdrive.search
+  name: search
+  source:
+    id: search
+    path: azureml\train\hyperdrive\search.py
+    remote:
+      branch: yitian/fix-24421
+      path: azureml\train\hyperdrive\search.py
+      repo: git@github.com:docascode/sphinx-docfx-yaml.git
+    startLine: 0
+  summary: 'Launches a HyperDrive run on the given configs.
+
+    '
+  syntax:
+    parameters:
+    - description: 'A *HyperDriveRunConfig* instance that defines the configuration
+
+        for this HyperDrive run.
+
+        '
+      id: hyperdrive_run_config
+      type:
+      - HyperDriveRunConfig
+    - description: 'Name of the HyperDrive run.
+
+        '
+      id: run_name
+      type:
+      - str
+    return:
+      description: 'A *HyperDriveRun* object that has the launched run id.
+
+        '
+  type: module
+  uid: azureml.train.hyperdrive.search
+- exceptions:
+  - type: ExperimentExecutionException
+  fullName: azureml.train.hyperdrive.search.search
+  langs:
+  - python
+  module: azureml.train.hyperdrive.search
+  name: search
+  source:
+    id: search
+    path: azureml\train\hyperdrive\search.py
+    remote:
+      branch: yitian/fix-24421
+      path: azureml\train\hyperdrive\search.py
+      repo: git@github.com:docascode/sphinx-docfx-yaml.git
+    startLine: 24
+  summary: 'Launches a HyperDrive run on the given configs.
+
+    '
+  syntax:
+    content: search(hyperdrive_run_config, run_name)
+    parameters:
+    - description: 'A *HyperDriveRunConfig* instance that defines the configuration
+
+        for this HyperDrive run.
+
+        '
+      id: hyperdrive_run_config
+      type:
+      - HyperDriveRunConfig
+    - description: 'Name of the HyperDrive run.
+
+        '
+      id: run_name
+      type:
+      - str
+    return:
+      description: 'A *HyperDriveRun* object that has the launched run id.
+
+        '
+  type: function
+  uid: azureml.train.hyperdrive.search.search
+references:
+- fullName: azureml.train.hyperdrive.search.search
+  isExternal: false
+  name: search
+  parent: azureml.train.hyperdrive.search
+  uid: azureml.train.hyperdrive.search.search

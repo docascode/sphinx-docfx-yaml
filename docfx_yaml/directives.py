@@ -30,3 +30,17 @@ class RemarksDirective(Directive):
         return_nodes.append(node)
 
         return return_nodes
+
+class TodoDirective(Directive):
+    """
+    Class to ignore todo directive.
+    """
+
+    # Enable content in the directive
+    has_content = True
+
+    # Directive class must override run function.
+    def run(self):
+        return_nodes = []
+
+        return return_nodes

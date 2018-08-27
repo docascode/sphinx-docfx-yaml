@@ -25,7 +25,7 @@ from sphinx.util.nodes import make_refnode
 from .utils import transform_node, transform_string
 from .settings import API_ROOT
 from .monkeypatch import patch_docfields
-from .directives import RemarksDirective
+from .directives import RemarksDirective, TodoDirective
 from .nodes import remarks
 
 
@@ -281,6 +281,9 @@ def _create_datam(app, cls, module, name, _type, obj, lines=None):
         },
         'langs': ['python'],
     }
+
+    if not datam['source']['remote']['repo']:
+        del(datam['source'])
 
     # Only add summary to parts of the code that we don't get it from the monkeypatch
     if _type == MODULE:
@@ -718,6 +721,7 @@ def setup(app):
 
     app.add_node(remarks, html = (remarks.visit_remarks, remarks.depart_remarks))
     app.add_directive('remarks', RemarksDirective)
+    app.add_directive('todo', TodoDirective)
 
     app.connect('builder-inited', build_init)
     app.connect('autodoc-process-docstring', process_docstring)

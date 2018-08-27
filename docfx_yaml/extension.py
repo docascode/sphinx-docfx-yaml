@@ -495,12 +495,15 @@ def build_finished(app, exception):
     ensuredir(normalized_outdir)
 
     toc_yaml = []
+    # Used to record filenames dumped to avoid confliction
+    # caused by Windows case insenstive file system
+    file_name_set = set()
 
     # Order matters here, we need modules before lower level classes,
     # so that we can make sure to inject the TOC properly
     for data_set in (app.env.docfx_yaml_modules, app.env.docfx_yaml_classes):  # noqa
-        for filename, yaml_data in iter(sorted(data_set.items())):
-            if not filename:
+        for uid, yaml_data in iter(sorted(data_set.items())):
+            if not uid:
                 # Skip objects without a module
                 continue
 
@@ -513,7 +516,10 @@ def build_finished(app, exception):
                     # Support having `self` as an arg param, but not documented
                     arg_params = arg_params[1:]
                     obj['syntax']['parameters'] = arg_params
-                if obj['uid'] in app.env.docfx_info_field_data:
+                if obj['uid'] in app.env.docfx_info_field_data and \
+                    obj['type'] == app.env.docfx_info_field_data[obj['uid']]['type']:
+                    # Avoid entities with same uid and diff type.
+                    del(app.env.docfx_info_field_data[obj['uid']]['type']) # Delete `type` temporarily
                     if 'syntax' not in obj:
                         obj['syntax'] = {}
                     merged_params = []
@@ -574,6 +580,7 @@ def build_finished(app, exception):
                                     # Get parent for attrData of enum class
                                     parent = attrData['parent']
                                 obj['references'].append(_create_reference(attrData, parent))
+                    app.env.docfx_info_field_data[obj['uid']]['type'] = obj['type'] # Revert `type` for other objects to use
 
                 if 'references' in obj:
                     # Ensure that references have no duplicate ref
@@ -599,10 +606,16 @@ def build_finished(app, exception):
                     pass
 
             # Output file
+            if uid.lower() in file_name_set:
+                filename = uid + "(%s)" % app.env.docfx_info_uid_types[uid]
+            else:
+                filename = uid
+
             out_file = os.path.join(normalized_outdir, '%s.yml' % filename)
             ensuredir(os.path.dirname(out_file))
             if app.verbosity >= 1:
                 app.info(bold('[docfx_yaml] ') + darkgreen('Outputting %s' % filename))
+
             with open(out_file, 'w') as out_file_obj:
                 out_file_obj.write('### YamlMime:UniversalReference\n')
                 dump(
@@ -615,18 +628,20 @@ def build_finished(app, exception):
                     default_flow_style=False
                 )
 
+            file_name_set.add(filename)
+
             # Build nested TOC
-            if filename.count('.') >= 1:
-                parent_level = '.'.join(filename.split('.')[:-1])
+            if uid.count('.') >= 1:
+                parent_level = '.'.join(uid.split('.')[:-1])
                 found_node = find_node_in_toc_tree(toc_yaml, parent_level)
 
                 if found_node:
-                    found_node.setdefault('items', []).append({'name': filename, 'uid': filename})
+                    found_node.setdefault('items', []).append({'name': uid, 'uid': uid})
                 else:
-                    toc_yaml.append({'name': filename, 'uid': filename})
+                    toc_yaml.append({'name': uid, 'uid': uid})
 
             else:
-                toc_yaml.append({'name': filename, 'uid': filename})
+                toc_yaml.append({'name': uid, 'uid': uid})
 
     toc_file = os.path.join(normalized_outdir, 'toc.yml')
     with open(toc_file, 'w') as writable:

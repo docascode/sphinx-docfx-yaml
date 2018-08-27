@@ -282,6 +282,9 @@ def _create_datam(app, cls, module, name, _type, obj, lines=None):
         'langs': ['python'],
     }
 
+    if not datam['source']['remote']['repo']:
+        del(datam['source'])
+
     # Only add summary to parts of the code that we don't get it from the monkeypatch
     if _type == MODULE:
         lines = _resolve_reference_in_module_summary(lines)

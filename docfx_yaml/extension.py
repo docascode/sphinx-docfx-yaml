@@ -532,8 +532,11 @@ def build_finished(app, exception):
                                     " {}".format(obj['uid']))
                             # Zip 2 param lists until the long one is exhausted
                             for args, docs in zip_longest(arg_params, doc_params, fillvalue={}):
-                                args.update(docs)
-                                merged_params.append(args)
+                                if len(args) == 0:
+                                    merged_params.append(docs)
+                                else:
+                                    args.update(docs)
+                                    merged_params.append(args)
                     obj['syntax'].update(app.env.docfx_info_field_data[obj['uid']])
                     if merged_params:
                         obj['syntax']['parameters'] = merged_params

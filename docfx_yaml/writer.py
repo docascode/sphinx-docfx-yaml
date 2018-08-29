@@ -599,7 +599,8 @@ class MarkdownTranslator(nodes.NodeVisitor):
         try:
             image_name = '/'.join(node.attributes['uri'].split('/')[node.attributes['uri'].split('/').index('_static')-1:])
         except ValueError as e:
-            sys.exit("Image not found where expected {}".format(node.attributes['uri']))
+            print("Image not found where expected {}".format(node.attributes['uri']))
+            raise nodes.SkipNode
         image_name = ''.join(image_name.split())
         self.new_state(0)
         if 'alt' in node.attributes:

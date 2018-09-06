@@ -313,6 +313,14 @@ def patch_docfields(app):
 
     class PatchedDocFieldTransformer(docfields.DocFieldTransformer):
 
+        @staticmethod
+        def type_mapping(type_name):
+            mapping = {
+                "staticmethod": "method"
+            }
+
+            return mapping[type_name] if type_name in mapping else type_name
+
         def __init__(self, directive):
             self.directive = directive
             super(PatchedDocFieldTransformer, self).__init__(directive)
@@ -423,7 +431,7 @@ def patch_docfields(app):
             for key, val in data.copy().items():
                 if not val:
                     del data[key]
-            data['type'] = node.parent["desctype"] if "desctype" in node.parent else 'unknown'
+            data['type'] = PatchedDocFieldTransformer.type_mapping(node.parent["desctype"]) if "desctype" in node.parent else 'unknown'
             self.directive.env.docfx_info_field_data[uid] = data
             super(PatchedDocFieldTransformer, self).transform_all(node)
 

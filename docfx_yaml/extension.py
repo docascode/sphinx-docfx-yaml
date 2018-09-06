@@ -282,7 +282,8 @@ def _create_datam(app, cls, module, name, _type, obj, lines=None):
         'langs': ['python'],
     }
 
-    if not datam['source']['remote']['repo']:
+    if not datam['source']['remote']['repo'] or \
+    datam['source']['remote']['repo'] == 'https://apidrop.visualstudio.com/Content%20CI/_git/ReferenceAutomation':
         del(datam['source'])
 
     # Only add summary to parts of the code that we don't get it from the monkeypatch

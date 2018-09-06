@@ -316,7 +316,7 @@ class YamlTests(unittest.TestCase):
                     if item['uid'] == 'format.google.foo.Foo.method_seealso':
                         self.assertEqual(
                             item['seealsoContent'].strip(),
-                            'See also: Seealso contents. Multi-line should be supported.'
+                            'Seealso contents. Multi-line should be supported.'
                         )
 
     def test_numpy_format(self):
@@ -332,7 +332,7 @@ class YamlTests(unittest.TestCase):
                     if item['uid'] == 'format.numpy.foo.Foo.method_seealso':
                         self.assertEqual(
                             re.sub(r'\s+', ' ', item['seealsoContent']).strip(),
-                            'See also: @format.numpy.foo.Foo.mathod_note See also target.'
+                            '@format.numpy.foo.Foo.mathod_note See also target.'
                         )  # Test see also centent from numpy format.
 
     def test_toc(self):

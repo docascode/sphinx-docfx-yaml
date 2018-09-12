@@ -13,6 +13,7 @@ from .nodes import remarks
 
 TYPE_SEP_PATTERN = '(\[|\]|, |\(|\))'
 REF_PATTERN = ':(func|class|meth|mod|ref|any):`~?([a-zA-Z_\.<> ]*?)`'
+LINK_PATTERN = '`(.+)\s+<(.+)>`_'
 
 def _get_desc_data(node):
     assert node.tagname == 'desc'
@@ -333,7 +334,8 @@ def patch_docfields(app):
             name, uid = _get_desc_data(node.parent)
             for child in node:
                 if isinstance(child, remarks):
-                    remarks_string = child.astext()
+                    remarks_string = transform_node(child)
+                    remarks_string = re.sub(LINK_PATTERN, lambda x: '[{0}]({1})'.format(x.group(1), x.group(2)), remarks_string)
                     data['remarks'] = re.sub(REF_PATTERN, lambda x: '@' + x.group(2), remarks_string)
                     node.remove(child)
                 elif isinstance(child, addnodes.desc):

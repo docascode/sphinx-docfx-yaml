@@ -55,7 +55,7 @@ ATTRIBUTE = 'attribute'
 REFMETHOD = 'meth'
 REFFUNCTION = 'func'
 INITPY = '__init__.py'
-REF_PATTERN = ':(func|class|meth|mod|ref):`~?[a-zA-Z_\.<> ]*?`'
+REF_PATTERN = ':(py:)?(func|class|meth|mod|ref):`~?[a-zA-Z_\.<> ]*?`'
 
 
 def build_init(app):

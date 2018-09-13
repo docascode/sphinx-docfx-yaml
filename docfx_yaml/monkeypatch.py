@@ -12,7 +12,7 @@ from .utils import transform_node as _transform_node
 from .nodes import remarks
 
 TYPE_SEP_PATTERN = '(\[|\]|, |\(|\))'
-REF_PATTERN = ':(func|class|meth|mod|ref|any):`~?([a-zA-Z_\.<> ]*?)`'
+REF_PATTERN = ':(py:)?(func|class|meth|mod|ref|any):`~?([a-zA-Z_\.<> ]*?)`'
 LINK_PATTERN = '`(.+)\s+<(.+)>`_'
 
 def _get_desc_data(node):

@@ -12,8 +12,6 @@ from .utils import transform_node as _transform_node
 from .nodes import remarks
 
 TYPE_SEP_PATTERN = '(\[|\]|, |\(|\))'
-REF_PATTERN = ':(py:)?(func|class|meth|mod|ref|any):`~?([a-zA-Z_\.<> ]*?)`'
-LINK_PATTERN = '`(.+)\s+<(.+)>`_'
 
 def _get_desc_data(node):
     assert node.tagname == 'desc'
@@ -336,8 +334,7 @@ def patch_docfields(app):
             for child in node:
                 if isinstance(child, remarks):
                     remarks_string = transform_node(child)
-                    remarks_string = re.sub(LINK_PATTERN, lambda x: '[{0}]({1})'.format(x.group(1), x.group(2)), remarks_string)
-                    data['remarks'] = re.sub(REF_PATTERN, lambda x: '@' + x.group(3), remarks_string)
+                    data['remarks'] = remarks_string
                 elif isinstance(child, addnodes.desc):
                     if child.get('desctype') == 'attribute':
                         attribute_map = {} # Used for detecting duplicated attributes in intermediate data and merge them

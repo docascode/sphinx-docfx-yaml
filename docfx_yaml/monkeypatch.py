@@ -317,7 +317,8 @@ def patch_docfields(app):
         @staticmethod
         def type_mapping(type_name):
             mapping = {
-                "staticmethod": "method"
+                "staticmethod": "method",
+                "exception": "class"
             }
 
             return mapping[type_name] if type_name in mapping else type_name
@@ -336,8 +337,7 @@ def patch_docfields(app):
                 if isinstance(child, remarks):
                     remarks_string = transform_node(child)
                     remarks_string = re.sub(LINK_PATTERN, lambda x: '[{0}]({1})'.format(x.group(1), x.group(2)), remarks_string)
-                    data['remarks'] = re.sub(REF_PATTERN, lambda x: '@' + x.group(2), remarks_string)
-                    node.remove(child)
+                    data['remarks'] = re.sub(REF_PATTERN, lambda x: '@' + x.group(3), remarks_string)
                 elif isinstance(child, addnodes.desc):
                     if child.get('desctype') == 'attribute':
                         attribute_map = {} # Used for detecting duplicated attributes in intermediate data and merge them

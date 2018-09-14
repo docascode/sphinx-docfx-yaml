@@ -497,7 +497,7 @@ def build_finished(app, exception):
 
     toc_yaml = []
     # Used to record filenames dumped to avoid confliction
-    # caused by Windows case insenstive file system
+    # caused by Windows case insensitive file system
     file_name_set = set()
 
     # Order matters here, we need modules before lower level classes,

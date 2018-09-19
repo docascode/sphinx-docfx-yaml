@@ -678,7 +678,7 @@ def build_finished(app, exception):
                 'items': [{
                     'uid': 'project-' + app.config.project,
                     'name': app.config.project,
-                    'fullname': app.config.project,
+                    'fullName': app.config.project,
                     'langs': ['python'],
                     'type': 'package',
                     'summary': '',

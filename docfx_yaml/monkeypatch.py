@@ -12,7 +12,6 @@ from .utils import transform_node as _transform_node
 from .nodes import remarks
 
 TYPE_SEP_PATTERN = '(\[|\]|, |\(|\))'
-REF_PATTERN = ':(func|class|meth|mod|ref|any):`~?([a-zA-Z_\.<> ]*?)`'
 
 def _get_desc_data(node):
     assert node.tagname == 'desc'
@@ -313,6 +312,15 @@ def patch_docfields(app):
 
     class PatchedDocFieldTransformer(docfields.DocFieldTransformer):
 
+        @staticmethod
+        def type_mapping(type_name):
+            mapping = {
+                "staticmethod": "method",
+                "exception": "class"
+            }
+
+            return mapping[type_name] if type_name in mapping else type_name
+
         def __init__(self, directive):
             self.directive = directive
             super(PatchedDocFieldTransformer, self).__init__(directive)
@@ -325,9 +333,8 @@ def patch_docfields(app):
             name, uid = _get_desc_data(node.parent)
             for child in node:
                 if isinstance(child, remarks):
-                    remarks_string = child.astext()
-                    data['remarks'] = re.sub(REF_PATTERN, lambda x: '@' + x.group(2), remarks_string)
-                    node.remove(child)
+                    remarks_string = transform_node(child)
+                    data['remarks'] = remarks_string
                 elif isinstance(child, addnodes.desc):
                     if child.get('desctype') == 'attribute':
                         attribute_map = {} # Used for detecting duplicated attributes in intermediate data and merge them
@@ -423,7 +430,7 @@ def patch_docfields(app):
             for key, val in data.copy().items():
                 if not val:
                     del data[key]
-            data['type'] = node.parent["desctype"] if "desctype" in node.parent else 'unknown'
+            data['type'] = PatchedDocFieldTransformer.type_mapping(node.parent["desctype"]) if "desctype" in node.parent else 'unknown'
             self.directive.env.docfx_info_field_data[uid] = data
             super(PatchedDocFieldTransformer, self).transform_all(node)
 

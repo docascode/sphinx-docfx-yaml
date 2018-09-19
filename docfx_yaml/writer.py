@@ -599,7 +599,8 @@ class MarkdownTranslator(nodes.NodeVisitor):
         try:
             image_name = '/'.join(node.attributes['uri'].split('/')[node.attributes['uri'].split('/').index('_static')-1:])
         except ValueError as e:
-            sys.exit("Image not found where expected {}".format(node.attributes['uri']))
+            print("Image not found where expected {}".format(node.attributes['uri']))
+            raise nodes.SkipNode
         image_name = ''.join(image_name.split())
         self.new_state(0)
         if 'alt' in node.attributes:
@@ -763,7 +764,9 @@ class MarkdownTranslator(nodes.NodeVisitor):
     visit_warning = _visit_admonition
     depart_warning = _make_depart_admonition('warning')
     visit_seealso = _visit_admonition
-    depart_seealso = _make_depart_admonition('seealso')
+
+    def depart_seealso(self, node):
+        self.end_state()
 
     def visit_versionmodified(self, node):
         self.new_state(0)
@@ -878,7 +881,7 @@ class MarkdownTranslator(nodes.NodeVisitor):
 
     def visit_pending_xref(self, node):
         if 'refdomain' in node.attributes and node.attributes['refdomain'] == 'py':
-            self.add_text('@{}'.format(node.attributes['reftarget']))
+            self.add_text('<xref:{}>'.format(node.attributes['reftarget']))
         raise nodes.SkipNode
 
     def depart_pending_xref(self, node):
@@ -886,9 +889,9 @@ class MarkdownTranslator(nodes.NodeVisitor):
 
     def visit_reference(self, node):
         if 'refid' in node.attributes:
-            self.add_text('@{}'.format(node.attributes['refid']))
+            self.add_text('<xref:{}>'.format(node.attributes['refid']))
         elif 'refuri' in node.attributes:
-            if 'http' in node.attributes['refuri']:
+            if 'http' in node.attributes['refuri'] or node.attributes['refuri'][0] == '/':
                 self.add_text('[{}]({})'.format(node.astext(), node.attributes['refuri']))
             else:
                 # only use id in class and func refuri if its id exists
@@ -904,7 +907,7 @@ class MarkdownTranslator(nodes.NodeVisitor):
                     pos = node.attributes['refuri'].find('.html')
                     if pos != -1:
                         node.attributes['refuri'] = node.attributes['refuri'][0: pos]
-                self.add_text('@{}'.format(node.attributes['refuri']))
+                self.add_text('<xref:{}>'.format(node.attributes['refuri']))
         else:
             self.add_text('{}<!-- {} -->'.format(node.tagname, json.dumps(node.attributes)))
         raise nodes.SkipNode

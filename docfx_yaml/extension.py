@@ -55,7 +55,7 @@ ATTRIBUTE = 'attribute'
 REFMETHOD = 'meth'
 REFFUNCTION = 'func'
 INITPY = '__init__.py'
-REF_PATTERN = ':(func|class|meth|mod|ref):`~?[a-zA-Z_\.<> ]*?`'
+REF_PATTERN = ':(py:)?(func|class|meth|mod|ref):`~?[a-zA-Z_\.<> ]*?`'
 
 
 def build_init(app):
@@ -179,7 +179,7 @@ def _resolve_reference_in_module_summary(lines):
                 # match string like ':func:`~***`' or ':func:`***`'
                 index = matched_str.index('~') if '~' in matched_str else matched_str.index('`')
                 ref_name = matched_str[index+1:-1]
-            new_line = new_line.replace(matched_str, '@' + ref_name)
+            new_line = new_line.replace(matched_str, '<xref:{}>'.format(ref_name))
         new_lines.append(new_line)
     return new_lines
 
@@ -282,7 +282,8 @@ def _create_datam(app, cls, module, name, _type, obj, lines=None):
         'langs': ['python'],
     }
 
-    if not datam['source']['remote']['repo']:
+    if not datam['source']['remote']['repo'] or \
+    datam['source']['remote']['repo'] == 'https://apidrop.visualstudio.com/Content%20CI/_git/ReferenceAutomation':
         del(datam['source'])
 
     # Only add summary to parts of the code that we don't get it from the monkeypatch
@@ -496,7 +497,7 @@ def build_finished(app, exception):
 
     toc_yaml = []
     # Used to record filenames dumped to avoid confliction
-    # caused by Windows case insenstive file system
+    # caused by Windows case insensitive file system
     file_name_set = set()
 
     # Order matters here, we need modules before lower level classes,
@@ -532,8 +533,11 @@ def build_finished(app, exception):
                                     " {}".format(obj['uid']))
                             # Zip 2 param lists until the long one is exhausted
                             for args, docs in zip_longest(arg_params, doc_params, fillvalue={}):
-                                args.update(docs)
-                                merged_params.append(args)
+                                if len(args) == 0:
+                                    merged_params.append(docs)
+                                else:
+                                    args.update(docs)
+                                    merged_params.append(args)
                     obj['syntax'].update(app.env.docfx_info_field_data[obj['uid']])
                     if merged_params:
                         obj['syntax']['parameters'] = merged_params
@@ -674,6 +678,7 @@ def build_finished(app, exception):
                 'items': [{
                     'uid': 'project-' + app.config.project,
                     'name': app.config.project,
+                    'fullName': app.config.project,
                     'langs': ['python'],
                     'type': 'package',
                     'summary': '',

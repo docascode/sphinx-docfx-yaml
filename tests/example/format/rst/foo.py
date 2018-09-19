@@ -184,6 +184,6 @@ class FooException(Exception):
 
 class InheritFoo(Foo, dict):
     """ Docstring of :class:`format.rst.foo.InheritFoo`.
-    This class inherit from two classes: :class:`format.rst.foo.Foo` and :class:`format.rst.foo.
+    This class inherit from two classes: :class:`format.rst.foo.Foo` and :class:`format.rst.foo`.
     """
     pass

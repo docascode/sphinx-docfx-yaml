@@ -1,6 +1,11 @@
 nspkg\.pkg\_resources package
 =============================
 
+.. automodule:: nspkg.pkg_resources
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Subpackages
 -----------
 
@@ -8,10 +13,3 @@ Subpackages
 
     nspkg.pkg_resources.pkg_resources_foo
 
-Module contents
----------------
-
-.. automodule:: nspkg.pkg_resources
-    :members:
-    :undoc-members:
-    :show-inheritance:

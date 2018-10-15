@@ -1,6 +1,11 @@
 nspkg package
 =============
 
+.. automodule:: nspkg
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Subpackages
 -----------
 
@@ -9,10 +14,3 @@ Subpackages
     nspkg.pkg_resources
     nspkg.pkgutil
 
-Module contents
----------------
-
-.. automodule:: nspkg
-    :members:
-    :undoc-members:
-    :show-inheritance:

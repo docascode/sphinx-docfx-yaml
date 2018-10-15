@@ -1,11 +1,13 @@
 format\.numpy package
 =====================
 
+.. automodule:: format.numpy
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Submodules
 ----------
-
-format\.numpy\.foo module
--------------------------
 
 .. automodule:: format.numpy.foo
     :members:
@@ -13,10 +15,3 @@ format\.numpy\.foo module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: format.numpy
-    :members:
-    :undoc-members:
-    :show-inheritance:

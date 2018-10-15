@@ -1,7 +1,7 @@
-format\.google package
-======================
+conflict package
+================
 
-.. automodule:: format.google
+.. automodule:: conflict
     :members:
     :undoc-members:
     :show-inheritance:
@@ -9,7 +9,7 @@ format\.google package
 Submodules
 ----------
 
-.. automodule:: format.google.foo
+.. automodule:: conflict.foo
     :members:
     :undoc-members:
     :show-inheritance:

@@ -1,6 +1,11 @@
 format package
 ==============
 
+.. automodule:: format
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Subpackages
 -----------
 
@@ -10,10 +15,3 @@ Subpackages
     format.numpy
     format.rst
 
-Module contents
----------------
-
-.. automodule:: format
-    :members:
-    :undoc-members:
-    :show-inheritance:

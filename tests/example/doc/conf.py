@@ -27,7 +27,7 @@ htmlhelp_basename = 'Example Document'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
-    'sphinx.ext.intershpinx',
+    'sphinx.ext.intersphinx',
     'sphinx.ext.extlinks',
     'docfx_yaml.extension'
 ]
@@ -39,7 +39,7 @@ autodoc_docstring_signature = False
 napoleon_use_admonition_for_examples = True
 remove_inheritance_for_notfound_class = True
 
-# sphinx.ext.intershpinx options
+# sphinx.ext.intersphinx options
 intersphinx_mapping = {'python': ('https://docs.python.org/3.6', None)}
 
 # sphinx.ext.extlinks options

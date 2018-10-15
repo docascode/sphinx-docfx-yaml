@@ -316,6 +316,7 @@ def patch_docfields(app):
         def type_mapping(type_name):
             mapping = {
                 "staticmethod": "method",
+                "classmethod": "method",
                 "exception": "class"
             }
 

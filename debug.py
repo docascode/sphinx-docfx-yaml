@@ -10,8 +10,8 @@ def sphinx_build(test_dir):
 
     try:
         app = Sphinx(
-            srcdir='doc',
-            confdir='doc',
+            srcdir='../example/doc',
+            confdir='../example/doc',
             outdir='_build/yaml',
             doctreedir='_build/.doctrees',
             buildername='html',
@@ -23,5 +23,5 @@ def sphinx_build(test_dir):
         os.chdir('../..')
 
 if __name__ == '__main__':
-    with sphinx_build('example'):
+    with sphinx_build('debug'):
         print('Debug finished.')

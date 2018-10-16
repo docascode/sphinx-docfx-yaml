@@ -9,43 +9,29 @@ from contextlib import contextmanager
 
 
 async def async_function():
-    """ .. function::
-            :async:
-
-            Docstring of async_function.
+    """ Docstring of async_function.
     """
     pass
 
 @contextmanager
 def with_function():
-    """ .. function::
-            :with:
-
-            Docstring of with_function.
+    """ Docstring of with_function.
     """
     pass
 
-@contextmanager
-async def async_with_function():
-    """ .. function::
-            :async-with:
-
-            Docstring of async_with_function.
+def async_with_function():
+    """ Docstring of async_with_function.
     """
     pass
+
+async_with_function.__returns_acontextmanager__ = True
 
 def for_function():
-    """ .. function::
-            :for:
-
-            Docstring of for_function.
+    """ Docstring of for_function.
     """
-    pass
+    yield
 
 async def async_for_function():
-    """ .. function::
-            :async-for:
-
-            Docstring of async_for_function.
+    """ Docstring of async_for_function.
     """
-    pass
+    yield

@@ -422,8 +422,17 @@ def patch_docfields(app):
                     if not content.startswith('Bases: '):
                         summary.append(content)
 
-            if "desctype" in node.parent and node.parent["desctype"] == 'class':
-                data.pop('exceptions', '') # Make sure class doesn't have 'exceptions' field.
+            if node.parent:
+                if "desctype" in node.parent:
+                    desctype = node.parent["desctype"]
+
+                    if desctype == 'class':
+                        data.pop('exceptions', '') # Make sure class doesn't have 'exceptions' field.
+                    elif desctype == 'function' or desctype == 'method': # Function and method annotation.
+                        tmpNode = node.parent.children[0]
+
+                        if tmpNode.tagname == 'desc_annotation':
+                            data['sigAnnotation'] = tmpNode.astext()
 
             if summary:
                 data['summary'] = '\n'.join(summary)

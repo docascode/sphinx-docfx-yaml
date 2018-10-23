@@ -907,7 +907,7 @@ class MarkdownTranslator(nodes.NodeVisitor):
                     fname = os.path.split(node.attributes['refuri'])[-1]
                     pos = fname.find('.html')
                     if pos != -1:
-                        node.attributes['refuri'] = node.attributes['refuri'][0: pos]
+                        node.attributes['refuri'] = fname[0: pos]
                 self.add_text('<xref:{}>'.format(node.attributes['refuri']))
         else:
             self.add_text('{}<!-- {} -->'.format(node.tagname, json.dumps(node.attributes)))

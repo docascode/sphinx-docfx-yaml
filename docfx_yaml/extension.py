@@ -597,6 +597,10 @@ def build_finished(app, exception):
                 if obj['type'] == 'module':
                     convert_module_to_package_if_needed(obj)
 
+                # To distinguish distribution package and import package
+                if obj.get('type', '') == 'package' and obj.get('kind', '') != 'distribution':
+                    obj['kind'] = 'import'
+
                 try:
                     if remove_inheritance_for_notfound_class:
                         if 'inheritance' in obj:
@@ -681,6 +685,7 @@ def build_finished(app, exception):
                     'fullName': app.config.project,
                     'langs': ['python'],
                     'type': 'package',
+                    'kind': 'distribution',
                     'summary': '',
                     'children': index_children
                 }],

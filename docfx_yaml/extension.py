@@ -305,6 +305,9 @@ def _create_datam(app, cls, module, name, _type, obj, lines=None):
         datam['children'] = []
         datam['references'] = []
 
+    if _type in [FUNCTION, METHOD]:
+        datam['name'] = app.env.docfx_signature_funcs_methods.get(name, datam['name'])
+
     return datam
 
 

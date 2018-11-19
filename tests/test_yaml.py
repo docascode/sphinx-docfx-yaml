@@ -123,6 +123,44 @@ class YamlTests(unittest.TestCase):
                     'format.google'
                 )
 
+    def test_name(self):
+        """
+        Test whether names are generated correctly.
+        """
+        with sphinx_build('example'):
+            with open(os.path.join(self.build_path, self.yaml_files['class_files']['rst'][0]), 'r') as f:
+                # Test names in format.rst.directives.DirectivesFoo.yml
+                data = yaml.safe_load(f)
+
+                self.assertEqual(
+                    data['items'][0]['name'],
+                    'DirectivesFoo'
+                )
+
+                # Test name of method format.rst.directives.DirectivesFoo.method_remarks
+                self.assertEqual(
+                    data['items'][1]['name'],
+                    'method_remarks()'
+                )
+
+            with open(os.path.join(self.build_path, self.yaml_files['module_files']['rst'][1]), 'r') as f:
+                # Test names in format.rst.enum.yml
+                data = yaml.safe_load(f)
+
+                self.assertEqual(
+                    data['items'][0]['name'],
+                    'enum'
+                )
+
+            with open(os.path.join(self.build_path, self.yaml_files['package_files']['format'][2]), 'r') as f:
+                # Test names in format.google.yml
+                data = yaml.safe_load(f)
+
+                self.assertEqual(
+                    data['items'][0]['name'],
+                    'google'
+                )
+
     def test_summary(self):
         """
         Test module/package/class summary being extracted.

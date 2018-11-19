@@ -137,11 +137,10 @@ class YamlTests(unittest.TestCase):
                     'DirectivesFoo'
                 )
 
-                # Test name of method format.rst.directives.DirectivesFoo.method_remarks
                 self.assertEqual(
                     data['items'][1]['name'],
                     'method_remarks()'
-                )
+                )  # Test name of method format.rst.directives.DirectivesFoo.method_remarks
 
             with open(os.path.join(self.build_path, self.yaml_files['module_files']['rst'][1]), 'r') as f:
                 # Test names in format.rst.enum.yml

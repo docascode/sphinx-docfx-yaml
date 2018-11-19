@@ -199,10 +199,14 @@ class MarkdownTranslator(nodes.NodeVisitor):
         self.states.append([])
         self.stateindent.append(indent)
 
-    def end_state(self, wrap=False, end=[''], first=None):
+    def clear_last_state(self):
         content = self.states.pop()
         maxindent = sum(self.stateindent)
         indent = self.stateindent.pop()
+        return content, maxindent, indent
+
+    def end_state(self, wrap=False, end=[''], first=None):
+        content, maxindent, indent = self.clear_last_state()
         result = []
         toformat = []
 
@@ -745,10 +749,19 @@ class MarkdownTranslator(nodes.NodeVisitor):
             self.end_state(first=admonitionlabels[name] + ': ')
         return depart_admonition
 
+    def _make_depart_alert_box(name):
+        def depart_alert_box(self, node):
+            self.clear_last_state()
+            lines = node.astext().split('\n')
+            quoteLines = ['> {0}\n>'.format(line) for line in lines]
+            mdStr = '\n> [!{0}]\n{1}'.format(name, '\n'.join(quoteLines))
+            self.add_text(mdStr)
+        return depart_alert_box
+
     visit_attention = _visit_admonition
     depart_attention = _make_depart_admonition('attention')
     visit_caution = _visit_admonition
-    depart_caution = _make_depart_admonition('caution')
+    depart_caution = _make_depart_alert_box('CAUTION')
     visit_danger = _visit_admonition
     depart_danger = _make_depart_admonition('danger')
     visit_error = _visit_admonition
@@ -756,13 +769,13 @@ class MarkdownTranslator(nodes.NodeVisitor):
     visit_hint = _visit_admonition
     depart_hint = _make_depart_admonition('hint')
     visit_important = _visit_admonition
-    depart_important = _make_depart_admonition('important')
+    depart_important = _make_depart_alert_box('IMPORTANT')
     visit_note = _visit_admonition
-    depart_note = _make_depart_admonition('note')
+    depart_note = _make_depart_alert_box('NOTE')
     visit_tip = _visit_admonition
-    depart_tip = _make_depart_admonition('tip')
+    depart_tip = _make_depart_alert_box('TIP')
     visit_warning = _visit_admonition
-    depart_warning = _make_depart_admonition('warning')
+    depart_warning = _make_depart_alert_box('WARNING')
     visit_seealso = _visit_admonition
 
     def depart_seealso(self, node):

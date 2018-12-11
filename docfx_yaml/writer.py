@@ -21,6 +21,7 @@ from itertools import groupby
 
 from docutils import nodes, writers
 from docutils.utils import column_width
+from docutils.nodes import TextElement, Text, Node
 
 from sphinx import addnodes
 from sphinx.locale import admonitionlabels
@@ -171,6 +172,7 @@ class MarkdownWriter(writers.Writer):
 
 class MarkdownTranslator(nodes.NodeVisitor):
     sectionchars = '*=-~"+`'
+    xref_template = "<xref:{0}>"
 
     def __init__(self, document, builder):
         self.invdata = []
@@ -192,6 +194,24 @@ class MarkdownTranslator(nodes.NodeVisitor):
         self.lineblocklevel = 0
         self.table = None
 
+    @staticmethod
+    def resolve_reference_in_node(node):
+        if node.tagname == 'reference':
+            ref_string = MarkdownTranslator._resolve_reference(node)
+            
+            if not node.parent is None:
+                for i, n in enumerate(node.parent):
+                    if n is node: # Replace the reference node.
+                        node.parent.children[i] = Text(ref_string)
+                        break
+            else: # If reference node has no parent, replace it's content.
+                node.clear()
+                node.children.append(Text(ref_string))
+        else:
+            for child in node:
+                if isinstance(child, Node):
+                    MarkdownTranslator.resolve_reference_in_node(child)
+
     def add_text(self, text):
         self.states[-1].append((-1, text))
 
@@ -199,10 +219,14 @@ class MarkdownTranslator(nodes.NodeVisitor):
         self.states.append([])
         self.stateindent.append(indent)
 
-    def end_state(self, wrap=False, end=[''], first=None):
+    def clear_last_state(self):
         content = self.states.pop()
         maxindent = sum(self.stateindent)
         indent = self.stateindent.pop()
+        return content, maxindent, indent
+
+    def end_state(self, wrap=False, end=[''], first=None):
+        content, maxindent, indent = self.clear_last_state()
         result = []
         toformat = []
 
@@ -745,10 +769,20 @@ class MarkdownTranslator(nodes.NodeVisitor):
             self.end_state(first=admonitionlabels[name] + ': ')
         return depart_admonition
 
+    def _make_depart_alert_box(name):
+        def depart_alert_box(self, node):
+            self.clear_last_state()
+            MarkdownTranslator.resolve_reference_in_node(node)
+            lines = node.astext().split('\n')
+            quoteLines = ['> {0}\n>'.format(line) for line in lines]
+            mdStr = '\n> [!{0}]\n{1}'.format(name, '\n'.join(quoteLines))
+            self.add_text(mdStr)
+        return depart_alert_box
+
     visit_attention = _visit_admonition
     depart_attention = _make_depart_admonition('attention')
     visit_caution = _visit_admonition
-    depart_caution = _make_depart_admonition('caution')
+    depart_caution = _make_depart_alert_box('CAUTION')
     visit_danger = _visit_admonition
     depart_danger = _make_depart_admonition('danger')
     visit_error = _visit_admonition
@@ -756,13 +790,13 @@ class MarkdownTranslator(nodes.NodeVisitor):
     visit_hint = _visit_admonition
     depart_hint = _make_depart_admonition('hint')
     visit_important = _visit_admonition
-    depart_important = _make_depart_admonition('important')
+    depart_important = _make_depart_alert_box('IMPORTANT')
     visit_note = _visit_admonition
-    depart_note = _make_depart_admonition('note')
+    depart_note = _make_depart_alert_box('NOTE')
     visit_tip = _visit_admonition
-    depart_tip = _make_depart_admonition('tip')
+    depart_tip = _make_depart_alert_box('TIP')
     visit_warning = _visit_admonition
-    depart_warning = _make_depart_admonition('warning')
+    depart_warning = _make_depart_alert_box('WARNING')
     visit_seealso = _visit_admonition
 
     def depart_seealso(self, node):
@@ -887,12 +921,15 @@ class MarkdownTranslator(nodes.NodeVisitor):
     def depart_pending_xref(self, node):
         pass
 
-    def visit_reference(self, node):
+    @classmethod
+    def _resolve_reference(cls, node):
+        ref_string = None
+
         if 'refid' in node.attributes:
-            self.add_text('<xref:{}>'.format(node.attributes['refid']))
+            ref_string = cls.xref_template.format(node.attributes['refid'])
         elif 'refuri' in node.attributes:
             if 'http' in node.attributes['refuri'] or node.attributes['refuri'][0] == '/':
-                self.add_text('[{}]({})'.format(node.astext(), node.attributes['refuri']))
+                ref_string = '[{}]({})'.format(node.astext(), node.attributes['refuri'])
             else:
                 # only use id in class and func refuri if its id exists
                 # otherwise, remove '.html#' in refuri
@@ -908,9 +945,15 @@ class MarkdownTranslator(nodes.NodeVisitor):
                     pos = fname.find('.html')
                     if pos != -1:
                         node.attributes['refuri'] = fname[0: pos]
-                self.add_text('<xref:{}>'.format(node.attributes['refuri']))
+                ref_string = cls.xref_template.format(node.attributes['refuri'])
         else:
-            self.add_text('{}<!-- {} -->'.format(node.tagname, json.dumps(node.attributes)))
+            ref_string = '{}<!-- {} -->'.format(node.tagname, json.dumps(node.attributes))
+
+        return ref_string
+
+    def visit_reference(self, node):
+        ref_string = MarkdownTranslator._resolve_reference(node)
+        self.add_text(ref_string)
         raise nodes.SkipNode
 
     def depart_reference(self, node):

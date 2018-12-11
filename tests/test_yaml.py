@@ -137,11 +137,10 @@ class YamlTests(unittest.TestCase):
                     'DirectivesFoo'
                 )
 
-                # Test name of method format.rst.directives.DirectivesFoo.method_remarks
                 self.assertEqual(
                     data['items'][1]['name'],
                     'method_remarks()'
-                )
+                )  # Test name of method format.rst.directives.DirectivesFoo.method_remarks
 
             with open(os.path.join(self.build_path, self.yaml_files['module_files']['rst'][1]), 'r') as f:
                 # Test names in format.rst.enum.yml
@@ -160,6 +159,26 @@ class YamlTests(unittest.TestCase):
                     data['items'][0]['name'],
                     'google'
                 )
+
+    def test_alert_box(self):
+        """
+        Test whether alert boxes are generated correctly.
+        Avaliable alert boxes are Note, Warning, Tip and Important
+        """
+        with sphinx_build('example'):
+            with open(os.path.join(self.build_path, self.yaml_files['class_files']['rst'][0]), 'r') as f:
+                # Test alert boxes in format.rst.directives.DirectivesFoo.yml
+                data = yaml.safe_load(f)
+
+                self.assertEqual(
+                    data['items'][0]['summary'],
+                    'Docstring of class <xref:format.rst.directives.DirectivesFoo>.\n\n\n> [!NOTE]\n> Note content from class docstring.\n>\n> Second line of note content.\n>\n> many lines of content.\n>\n\n\n> [!WARNING]\n> Warning message from class docstring.\n>\n> Second line.\n>\n\n\n> [!TIP]\n> Tip content. <xref:format.rst.foo.Foo>\n>\n\n\n> [!IMPORTANT]\n> Important content.\n>\n\n\n> [!CAUTION]\n> Caution content.\n>\n\n\n'
+                )  # Test alert box in summary section
+
+                self.assertEqual(
+                    data['items'][0]['remarks'],
+                    'Remarks from class.\nMulti-line content should be supported.\n\n\n> [!NOTE]\n> Note conetnt under class remarks.\n>\n> Second line of note content.\n>\n> [!WARNING]\n> Warning content under class remarks.\n>\n> Second line.\n>\n> <xref:format.rst.foo.Foo>\n>\n> [!TIP]\n> Tip content.\n>\n> [!IMPORTANT]\n> Important content.\n>\n> [!CAUTION]\n> Caution content.\n>\n'
+                )  # Test alert box in remarks section
 
     def test_summary(self):
         """

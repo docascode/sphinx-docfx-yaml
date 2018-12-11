@@ -30,7 +30,7 @@ class DirectivesFoo(object):
         Second line.
 
     .. tip::
-        Tip content.
+        Tip content. :class:`format.rst.foo.Foo`
 
     .. important::
         Important content.
@@ -48,6 +48,7 @@ class DirectivesFoo(object):
         .. warning::
             Warning content under class remarks.
             Second line.
+            :class:`format.rst.foo.Foo`
 
         .. tip::
             Tip content.

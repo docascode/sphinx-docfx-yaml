@@ -412,10 +412,22 @@ def process_docstring(app, _type, name, obj, options, lines):
         else:
             app.env.docfx_yaml_classes[cls].append(datam)
 
-    insert_inheritance(app, _type, obj, datam)
+    if _type == FUNCTION:
+        if datam['uid'] is None:
+            raise ValueError("Issue with {0} (name={1})".format(datam, name))
+        if cls is None:
+            cls = name
+        if cls is None:
+            raise ValueError("cls is None for name='{1}' {0}".format(datam, name))
+        if cls not in app.env.docfx_yaml_functions:
+            app.env.docfx_yaml_functions[cls] = [datam]
+        else:
+            app.env.docfx_yaml_functions[cls].append(datam)
 
+    insert_inheritance(app, _type, obj, datam)
     insert_children_on_module(app, _type, datam)
     insert_children_on_class(app, _type, datam)
+    insert_children_on_function(app, _type, datam)
 
     app.env.docfx_info_uid_types[datam['uid']] = _type
 

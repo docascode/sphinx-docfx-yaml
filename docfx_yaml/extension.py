@@ -548,37 +548,6 @@ def insert_children_on_function(app, _type, datam):
     insert_functions.append(datam)
 
 
-def insert_page(app, _type, datam):
-    """
-    Insert a page in docfx_yaml_pages.
-    """
-    if PAGE not in datam:
-        return
-
-    insert_pages = app.env.docfx_yaml_pages[datam[PAGE]]
-    insert_pages.append(datam)
-
-
-def _process_cross_references_in_conceptual_pages(app):
-    # Adding references for conceptual pages,
-    # return a mapping between uid and page content.
-    store = app.env.docfx_yaml_pages_reference
-    insert_pages = app.env.docfx_yaml_pages
-    mapping = {}
-    for _, pages in insert_pages.items():
-        for page in pages:
-            mapping[page['uid'].replace("\\", "/").replace("/", ".")] = page
-    for k, vs in store.items():
-        if k not in mapping:
-            continue
-        datam = mapping[k]
-        for v in vs:
-            if v not in datam['children']:
-                datam['children'].append(v)
-                datam['references'].append(_create_reference(mapping[v], parent=datam))
-    return mapping
-
-
 def build_finished(app, exception):
     """
     Output YAML on the file system.

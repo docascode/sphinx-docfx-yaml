@@ -153,6 +153,11 @@ def my_wrap(text, width=MAXWIDTH, **kwargs):
 
 
 class MarkdownWriter(writers.Writer):
+    """
+    This writer is used to produce the markdown
+    written in yaml files (summaries), it is distinct from the
+    markdown outputter which process the whole documentation.
+    """
     supported = ('text',)
     settings_spec = ('No options here.', '', ())
     settings_defaults = {}

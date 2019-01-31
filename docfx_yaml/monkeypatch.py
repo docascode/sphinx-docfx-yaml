@@ -163,7 +163,7 @@ def patch_docfields(app):
         def make_param(_id, _description, _type=None):
             ret = {
                 'id': _id,
-                'description': _description,
+                'description': _description.strip(" \n\r\t"),
             }
             if _type:
                 ret['type'] = _type
@@ -239,7 +239,7 @@ def patch_docfields(app):
                     for _type, _description in content:
                         data['exceptions'].append({
                             'type': _type,
-                            'description': transform_node(_description[0])
+                            'description': transform_node(_description[0]).strip(" \n\r\t")
                         })
                 if fieldtype.name == 'returntype':
                     for returntype_node in content[1]:
@@ -258,7 +258,7 @@ def patch_docfields(app):
                 if fieldtype.name == 'returnvalue':
                     returnvalue_ret = transform_node(content[1][0])
                     if returnvalue_ret:
-                        data['return']['description'] = returnvalue_ret
+                        data['return']['description'] = returnvalue_ret.strip(" \n\r\t")
                 if fieldtype.name in ['parameter', 'variable']:
                     for field, node_list in content:
                         _id = field

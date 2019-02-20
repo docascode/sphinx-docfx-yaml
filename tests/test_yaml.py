@@ -172,7 +172,7 @@ class YamlTests(unittest.TestCase):
 
                 self.assertEqual(
                     data['items'][0]['summary'],
-                    'Docstring of class <xref:format.rst.directives.DirectivesFoo>.\n\n\n> [!NOTE]\n> Note content from class docstring.\n>\n> Second line of note content.\n>\n> many lines of content.\n>\n\n\n> [!WARNING]\n> Warning message from class docstring.\n>\n> Second line.\n>\n\n\n> [!TIP]\n> Tip content. <xref:format.rst.foo.Foo>\n>\n\n\n> [!IMPORTANT]\n> Important content.\n>\n\n\n> [!CAUTION]\n> Caution content.\n>\n\n\n'
+                    'Docstring of class <xref:format.rst.directives.DirectivesFoo>.\n\n\n> [!NOTE]\n> Note content from class docstring.\n>\n> Second line of note content.\n>\n> many lines of content.\n>\n\n\n> [!WARNING]\n> Warning message from class docstring.\n>\n> Second line.\n>\n\n\n> [!TIP]\n> Tip content. <xref:format.rst.foo.Foo>\n>\n\n\n> [!IMPORTANT]\n> Important content.\n>\n\n\n> [!CAUTION]\n> Caution content.\n>'
                 )  # Test alert box in summary section
 
                 self.assertEqual(

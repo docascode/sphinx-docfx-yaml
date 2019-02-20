@@ -69,6 +69,8 @@ def build_init(app):
     app.env.docfx_yaml_modules = {}
     # This stores YAML object for classes
     app.env.docfx_yaml_classes = {}
+    # This stores YAML object for functions
+    app.env.docfx_yaml_functions = {}
     # This store the data extracted from the info fields
     app.env.docfx_info_field_data = {}
     # This stores signature for functions and methods
@@ -184,6 +186,70 @@ def _resolve_reference_in_module_summary(lines):
     return new_lines
 
 
+def enumerate_extract_signature(doc, max_args=20):
+    el = "((?P<p%d>[*a-zA-Z_]+) *(?P<a%d>: *[a-zA-Z_.]+)? *(?P<d%d>= *[^ ]+?)?)"
+    els = [el % (i, i, i) for i in range(0, max_args)]
+    par = els[0] + "?" + "".join(["( *, *" + e + ")?" for e in els[1:]])
+    exp = "(?P<name>[a-zA-Z_]+) *[(] *(?P<sig>{0}) *[)]".format(par)
+    reg = re.compile(exp)
+    for func in reg.finditer(doc.replace("\n", " ")):
+        yield func
+
+
+def enumerate_cleaned_signature(doc, max_args=20):
+    for sig in enumerate_extract_signature(doc, max_args=max_args):
+        dic = sig.groupdict()
+        name = sig["name"]
+        args = []
+        for i in range(0, max_args):
+            p = dic.get('p%d' % i, None)
+            if p is None:
+                break
+            d = dic.get('d%d' % i, None)
+            if d is None:
+                args.append(p)
+            else:
+                args.append("%s%s" % (p, d))
+        yield "{0}({1})".format(name, ", ".join(args))
+
+
+def _extract_signature(obj_sig):
+    try:    
+        signature = inspect.signature(obj_sig)
+        parameters = signature.parameters
+    except TypeError as e:
+        mes = "[docfx] unable to get signature of '{0}' - {1}.".format(
+            object_name, str(e).replace("\n", "\\n"))
+        signature = None
+        parameters = None
+    except ValueError as e:
+        # Backup plan, no __text_signature__, this happen
+        # when a function was created with pybind11.
+        doc = obj_sig.__doc__
+        sigs = set(enumerate_cleaned_signature(doc))
+        if len(sigs) == 0:
+            mes = "[docfx] unable to get signature of '{0}' - {1}.".format(
+                object_name, str(e).replace("\n", "\\n"))
+            signature = None
+            parameters = None
+        elif len(sigs) > 1:
+            mes = "[docfx] too many signatures for '{0}' - {1} - {2}.".format(
+                object_name, str(e).replace("\n", "\\n"), " *** ".join(sigs))
+            signature = None
+            parameters = None
+        else:
+            try:
+                signature = inspect._signature_fromstr(
+                    inspect.Signature, obj_sig, list(sigs)[0])
+                parameters = signature.parameters
+            except TypeError as e:
+                mes = "[docfx] unable to get signature of '{0}' - {1}.".format(
+                    object_name, str(e).replace("\n", "\\n"))
+                signature = None
+                parameters = None    
+    return signature, parameters
+
+
 def _create_datam(app, cls, module, name, _type, obj, lines=None):
     """
     Build the data structure for an autodoc class
@@ -291,7 +357,7 @@ def _create_datam(app, cls, module, name, _type, obj, lines=None):
         lines = _resolve_reference_in_module_summary(lines)
         summary = app.docfx_transform_string('\n'.join(_refact_example_in_module_summary(lines)))
         if summary:
-            datam['summary'] = summary
+            datam['summary'] = summary.strip(" \n\r\r")
 
     if args or sig:
         datam['syntax'] = {}
@@ -346,10 +412,22 @@ def process_docstring(app, _type, name, obj, options, lines):
         else:
             app.env.docfx_yaml_classes[cls].append(datam)
 
-    insert_inheritance(app, _type, obj, datam)
+    if _type == FUNCTION:
+        if datam['uid'] is None:
+            raise ValueError("Issue with {0} (name={1})".format(datam, name))
+        if cls is None:
+            cls = name
+        if cls is None:
+            raise ValueError("cls is None for name='{1}' {0}".format(datam, name))
+        if cls not in app.env.docfx_yaml_functions:
+            app.env.docfx_yaml_functions[cls] = [datam]
+        else:
+            app.env.docfx_yaml_functions[cls].append(datam)
 
+    insert_inheritance(app, _type, obj, datam)
     insert_children_on_module(app, _type, datam)
     insert_children_on_class(app, _type, datam)
+    insert_children_on_function(app, _type, datam)
 
     app.env.docfx_info_uid_types[datam['uid']] = _type
 
@@ -459,11 +537,21 @@ def insert_children_on_class(app, _type, datam):
             insert_class.append(datam)
 
 
+def insert_children_on_function(app, _type, datam):
+    """
+    Insert children of a specific class
+    """
+    if FUNCTION not in datam:
+        return
+
+    insert_functions = app.env.docfx_yaml_functions[datam[FUNCTION]]
+    insert_functions.append(datam)
+
+
 def build_finished(app, exception):
     """
     Output YAML on the file system.
     """
-
     def find_node_in_toc_tree(toc_yaml, to_add_node):
         for module in toc_yaml:
             if module['name'] == to_add_node:
@@ -505,7 +593,10 @@ def build_finished(app, exception):
 
     # Order matters here, we need modules before lower level classes,
     # so that we can make sure to inject the TOC properly
-    for data_set in (app.env.docfx_yaml_modules, app.env.docfx_yaml_classes):  # noqa
+    for data_set in (app.env.docfx_yaml_modules,
+                     app.env.docfx_yaml_classes, 
+                     app.env.docfx_yaml_functions):  # noqa
+
         for uid, yaml_data in iter(sorted(data_set.items())):
             if not uid:
                 # Skip objects without a module
@@ -547,7 +638,7 @@ def build_finished(app, exception):
 
                     # Raise up summary
                     if 'summary' in obj['syntax'] and obj['syntax']['summary']:
-                        obj['summary'] = obj['syntax'].pop('summary')
+                        obj['summary'] = obj['syntax'].pop('summary').strip(" \n\r\r")
 
                     # Raise up remarks
                     if 'remarks' in obj['syntax'] and obj['syntax']['remarks']:
@@ -629,15 +720,18 @@ def build_finished(app, exception):
 
             with open(out_file, 'w') as out_file_obj:
                 out_file_obj.write('### YamlMime:UniversalReference\n')
-                dump(
-                    {
-                        'items': yaml_data,
-                        'references': references,
-                        'api_name': [],  # Hack around docfx YAML
-                    },
-                    out_file_obj,
-                    default_flow_style=False
-                )
+                try:
+                    dump(
+                        {
+                            'items': yaml_data,
+                            'references': references,
+                            'api_name': [],  # Hack around docfx YAML
+                        },
+                        out_file_obj,
+                        default_flow_style=False
+                    )
+                except Exception as e:
+                    raise ValueError("Unable to dump object\n{0}".format(yaml_data)) from e
 
             file_name_set.add(filename)
 
@@ -653,6 +747,9 @@ def build_finished(app, exception):
 
             else:
                 toc_yaml.append({'name': uid, 'uid': uid})
+
+    if len(toc_yaml) == 0:
+        raise RuntimeError("No documentation for this module.")
 
     toc_file = os.path.join(normalized_outdir, 'toc.yml')
     with open(toc_file, 'w') as writable:

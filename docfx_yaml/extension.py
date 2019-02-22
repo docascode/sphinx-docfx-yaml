@@ -408,7 +408,7 @@ def process_docstring(app, _type, name, obj, options, lines):
         else:
             app.env.docfx_yaml_classes[cls].append(datam)
 
-    if _type == FUNCTION:
+    if _type == FUNCTION and app.config.autodoc_functions:
         if datam['uid'] is None:
             raise ValueError("Issue with {0} (name={1})".format(datam, name))
         if cls is None:
@@ -840,3 +840,4 @@ def setup(app):
     app.connect('missing-reference', missing_reference)
     app.add_config_value('docfx_yaml_output', API_ROOT, 'html')
     app.add_config_value('folder', '', 'html')
+    app.add_config_value('autodoc_functions', False, 'env')

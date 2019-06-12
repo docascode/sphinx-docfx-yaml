@@ -815,7 +815,7 @@ def missing_reference(app, env, node, contnode):
                 fields = (module, reftarget)
             else:
                 fields = (module, node['py:class'], reftarget)
-            reftarget = '.'.join(fields)
+            reftarget = '.'.join(field for field in fields if field is not None)
 
         return make_refnode(app.builder, refdoc, reftarget, '', contnode)
 

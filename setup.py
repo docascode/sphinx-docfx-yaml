@@ -21,6 +21,7 @@ setup(
     package_dir={'': '.'},
     packages=find_packages('.', exclude=['tests']),
     long_description=codecs.open("README.rst", "r", "utf-8").read(),
+    long_description_content_type='text/plain',
     # trying to add files...
     include_package_data=True,
     **extra_setup

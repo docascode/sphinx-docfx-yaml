@@ -929,7 +929,8 @@ class MarkdownTranslator(nodes.NodeVisitor):
     @classmethod
     def _resolve_reference(cls, node):
         ref_string = None
-        rawsource_template = ":class:`~{0}`"
+        raw_ref_tilde_template = ":class:`~{0}`"
+        raw_ref_template = ":class:`{0}`"
         if 'refid' in node.attributes:
             ref_string = cls.xref_template.format(node.attributes['refid'])
         elif 'refuri' in node.attributes:
@@ -951,7 +952,7 @@ class MarkdownTranslator(nodes.NodeVisitor):
                     if pos != -1:
                         node.attributes['refuri'] = fname[0: pos]
                 
-                if node.parent.rawsource == rawsource_template.format(node.attributes['refuri']):
+                if node.parent.rawsource == raw_ref_tilde_template.format(node.attributes['refuri']) or node.parent.rawsource == raw_ref_template.format(node.attributes['refuri']) or node.parent.tagname == 'document':
                     ref_string = node.attributes['refuri']
                 else:
                     ref_string = cls.xref_template.format(node.attributes['refuri'])

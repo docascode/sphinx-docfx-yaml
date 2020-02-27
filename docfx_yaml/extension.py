@@ -632,6 +632,11 @@ def build_finished(app, exception):
                     if merged_params:
                         obj['syntax']['parameters'] = merged_params
 
+                    if 'parameters' in obj['syntax'] and obj['type'] == 'method':
+                        for args in obj['syntax']['parameters']:
+                            if 'defaultValue' not in args:
+                                args['isRequired'] = True
+
                     # Raise up summary
                     if 'summary' in obj['syntax'] and obj['syntax']['summary']:
                         obj['summary'] = obj['syntax'].pop('summary').strip(" \n\r\r")
@@ -686,6 +691,9 @@ def build_finished(app, exception):
 
                 if obj['type'] == 'module':
                     convert_module_to_package_if_needed(obj)
+
+                if obj['type'] == 'method':
+                    obj['namewithoutparameters'] = obj['source']['id']
 
                 # To distinguish distribution package and import package
                 if obj.get('type', '') == 'package' and obj.get('kind', '') != 'distribution':

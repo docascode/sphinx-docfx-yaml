@@ -749,7 +749,8 @@ def build_finished(app, exception):
                 found_node = find_node_in_toc_tree(toc_yaml, parent_level)
 
                 if found_node:
-                    found_node.setdefault('items', []).append({'name': uid, 'uid': uid})
+                    found_node.pop('uid', 'No uid find')
+                    found_node.setdefault('items', [{'name': 'Overview', 'uid': parent_level}]).append({'name': uid, 'uid': uid})
                 else:
                     toc_yaml.append({'name': uid, 'uid': uid})
 

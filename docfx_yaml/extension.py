@@ -749,7 +749,7 @@ def build_finished(app, exception):
                 found_node = find_node_in_toc_tree(toc_yaml, parent_level)
 
                 if found_node:
-                    found_node.pop('uid', 'No uid find')
+                    found_node.pop('uid', 'No uid found')
                     found_node.setdefault('items', [{'name': 'Overview', 'uid': parent_level}]).append({'name': uid, 'uid': uid})
                 else:
                     toc_yaml.append({'name': uid, 'uid': uid})
@@ -765,9 +765,8 @@ def build_finished(app, exception):
         writable.write(
             dump(
                 [{
-                    'uid': 'project-' + app.config.project,
                     'name': app.config.project,
-                    'items': toc_yaml
+                    'items': [{'name': 'Overview', 'uid': 'project-' + app.config.project}] + toc_yaml
                 }],
                 default_flow_style=False,
             )
@@ -777,9 +776,9 @@ def build_finished(app, exception):
     index_children = []
     index_references = []
     for item in toc_yaml:
-        index_children.append(item.get('uid', ''))
+        index_children.append(item.get('name', ''))
         index_references.append({
-            'uid': item.get('uid', ''),
+            'uid': item.get('name', ''),
             'name': item.get('name', ''),
             'fullname': item.get('name', ''),
             'isExternal': False

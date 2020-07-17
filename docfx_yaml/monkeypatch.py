@@ -259,7 +259,7 @@ def patch_docfields(app):
                     returnvalue_ret = transform_node(content[1][0])
                     if returnvalue_ret:
                         data['return']['description'] = returnvalue_ret.strip(" \n\r\t")
-                if fieldtype.name in ['parameter', 'variable']:
+                if fieldtype.name in ['parameter', 'variable', 'keyword']:
                     for field, node_list in content:
                         _id = field
                         _description = transform_node(node_list[0])
@@ -269,7 +269,7 @@ def patch_docfields(app):
                             _type = None
 
                         _para_types = []
-                        if fieldtype.name == 'parameter':
+                        if fieldtype.name == 'parameter' or fieldtype.name == 'keyword':
                             if _type:
                                 # Support or in parameter type
                                 for _s_type in re.split('[ \n]or[ \n]', _type):

@@ -13,7 +13,7 @@ tests_require=['pytest', 'mock'],
 
 setup(
     name='sphinx-docfx-yaml',
-    version='1.2.74',
+    version='1.2.75',
     author='Eric Holscher',
     author_email='eric@ericholscher.com',
     url='https://github.com/ericholscher/sphinx-docfx-yaml',

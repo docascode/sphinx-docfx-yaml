@@ -160,13 +160,17 @@ def patch_docfields(app):
             'references': [],
         }
 
-        def make_param(_id, _description, _type=None):
+        def make_param(_id, _description, _type=None, _required=None):
             ret = {
                 'id': _id,
-                'description': _description.strip(" \n\r\t"),
+                'description': _description.strip(" \n\r\t")
             }
             if _type:
                 ret['type'] = _type
+
+            if _required is not None:
+                ret['isRequired'] = _required
+
             return ret
 
         def transform_para(para_field):
@@ -282,8 +286,11 @@ def patch_docfields(app):
 
                                     _para_types.append(_s_type)
 
-                            _data = make_param(_id=_id, _type=_para_types, _description=_description)
+
+
+                            _data = make_param(_id=_id, _type=_para_types, _description=_description, _required=False if fieldtype.name == 'keyword' else True)
                             data['parameters'].append(_data)
+
                         if fieldtype.name == 'variable':
                             if _type:
                                 # Support or in variable type
